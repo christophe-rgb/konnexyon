@@ -3,9 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
 import { DEMO_PROFILES } from '../lib/demo'
-import { MapPin, Camera, Flag, Ban, Heart, Settings } from 'lucide-react'
+import { MapPin, Camera, Flag, Ban, Settings } from 'lucide-react'
 import { toast } from '../components/Toast'
-import clsx from 'clsx'
 
 const LIMITS_LABELS = {
   pas_photo:             'Pas de photo sans accord',
@@ -21,6 +20,33 @@ const SEEKING_LABELS = {
   decouverte:                'Découverte',
 }
 
+/* X-connexion SVG inline */
+function XConnectIcon({ size = 16, color = 'currentColor' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <line x1="3" y1="3" x2="13" y2="13" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+      <line x1="13" y1="3" x2="3" y2="13" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+      <circle cx="3"  cy="3"  r="2" fill={color}/>
+      <circle cx="13" cy="3"  r="2" fill={color}/>
+      <circle cx="3"  cy="13" r="2" fill={color}/>
+      <circle cx="13" cy="13" r="2" fill={color}/>
+    </svg>
+  )
+}
+
+const inputStyle = {
+  width: '100%',
+  background: 'rgba(15,15,15,0.85)',
+  border: '1px solid rgba(201,168,76,0.18)',
+  borderRadius: '14px',
+  padding: '13px 16px',
+  color: '#F2EDE6',
+  fontSize: '15px',
+  outline: 'none',
+  transition: 'border-color 0.2s, box-shadow 0.2s',
+  backdropFilter: 'blur(10px)',
+}
+
 export default function Profile() {
   const { id }       = useParams()
   const myProfile    = useAuthStore(s => s.profile)
@@ -31,14 +57,15 @@ export default function Profile() {
   const isOwn   = !id || id === myProfile?.id
   const uid     = isOwn ? myProfile?.id : id
 
-  const [profile,  setProfile]  = useState(isOwn ? myProfile : null)
-  const [editing,  setEditing]  = useState(false)
-  const [form,     setForm]     = useState({})
-  const [saving,   setSaving]   = useState(false)
-  const [liked,    setLiked]    = useState(false)
-  const [matched,  setMatched]  = useState(false)
-  const [reportReason, setReportReason] = useState('')
+  const [profile,    setProfile]    = useState(isOwn ? myProfile : null)
+  const [editing,    setEditing]    = useState(false)
+  const [form,       setForm]       = useState({})
+  const [saving,     setSaving]     = useState(false)
+  const [liked,      setLiked]      = useState(false)
+  const [liking,     setLiking]     = useState(false)
+  const [matched,    setMatched]    = useState(false)
   const [showReport, setShowReport] = useState(false)
+  const [reportReason, setReportReason] = useState('')
   const fileRef = useRef(null)
 
   useEffect(() => {
@@ -83,15 +110,19 @@ export default function Profile() {
     setMatched(!!data)
   }
 
-  const like = async () => {
+  const handleConnect = async () => {
+    if (liking) return
+    setLiking(true)
     if (liked) {
       await supabase.from('likes').delete().eq('from_id', myProfile.id).eq('to_id', uid)
       setLiked(false)
     } else {
       await supabase.from('likes').insert({ from_id: myProfile.id, to_id: uid })
       setLiked(true)
+      toast('Demande de connexion envoyée ✓')
       checkMatch()
     }
+    setLiking(false)
   }
 
   const block = async () => {
@@ -130,132 +161,312 @@ export default function Profile() {
     setEditing(false)
   }
 
-  if (!profile) return <div className="p-6 text-muted text-sm">Chargement…</div>
+  if (!profile) return (
+    <div className="flex items-center justify-center h-dvh">
+      <div style={{ width: 24, height: 24, border: '2px solid rgba(201,168,76,0.2)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite' }} />
+    </div>
+  )
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-6 pb-12">
-      {/* avatar */}
-      <div className="relative w-28 h-28 mx-auto mb-5">
-        <div className="w-full h-full rounded-full bg-surface2 overflow-hidden border-2 border-[rgba(201,168,76,0.3)]">
-          {profile.avatar_url ? (
-            <img src={profile.avatar_url} alt={profile.couple_name} className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center font-serif text-5xl text-gold/30">
-              {profile.couple_name?.[0]}
-            </div>
-          )}
-        </div>
+    <div className="max-w-lg mx-auto pb-nav animate-fade-in" style={{ animationFillMode: 'both' }}>
+
+      {/* hero photo */}
+      <div style={{ position: 'relative', width: '100%', aspectRatio: '4/3', overflow: 'hidden' }}>
+        {profile.avatar_url ? (
+          <img
+            src={profile.avatar_url}
+            alt={`Photo de ${profile.couple_name}`}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }}
+          />
+        ) : (
+          <div style={{
+            width: '100%', height: '100%',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            background: 'linear-gradient(145deg, #111 0%, #0a0a0a 100%)',
+          }}>
+            <span style={{
+              fontFamily: 'Cormorant, serif', fontSize: '96px', fontWeight: 300,
+              background: 'linear-gradient(135deg, #A07830, #C9A84C, #E8CC7A)',
+              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+              opacity: 0.4,
+            }}>
+              {profile.couple_name?.[0] ?? '∞'}
+            </span>
+          </div>
+        )}
+
+        {/* gradient overlay */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(to top, rgba(5,5,5,1) 0%, rgba(5,5,5,0.3) 50%, transparent 100%)',
+        }} />
+
+        {/* upload button (own profile) */}
         {isOwn && (
           <>
             <button
               onClick={() => fileRef.current?.click()}
-              className="absolute bottom-0 right-0 w-8 h-8 bg-gold rounded-full flex items-center justify-center text-bg hover:bg-[#d4ae58] transition-colors duration-150 cursor-pointer"
+              aria-label="Changer la photo"
+              style={{
+                position: 'absolute', bottom: '16px', right: '16px',
+                width: 40, height: 40, borderRadius: '12px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: 'linear-gradient(135deg, #A07830, #C9A84C)',
+                border: 'none', cursor: 'pointer',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
+              }}
             >
-              <Camera size={14} strokeWidth={2} />
+              <Camera size={16} strokeWidth={2} color="#050505" />
             </button>
-            <input ref={fileRef} type="file" accept="image/*" className="hidden"
+            <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }}
               onChange={e => e.target.files[0] && uploadAvatar(e.target.files[0])} />
           </>
         )}
+
+        {/* badge distance */}
+        {profile.distance_km && (
+          <div style={{
+            position: 'absolute', top: '16px', right: '16px',
+            display: 'flex', alignItems: 'center', gap: '5px',
+            padding: '5px 10px', borderRadius: '99px',
+            background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255,255,255,0.07)',
+          }}>
+            <MapPin size={10} strokeWidth={2} style={{ color: 'rgba(201,168,76,0.8)' }} />
+            <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>
+              ~{profile.distance_km} km
+            </span>
+          </div>
+        )}
       </div>
 
-      {/* nom & bio */}
-      {!editing ? (
-        <>
-          <h1 className="font-serif text-3xl font-semibold text-center">{profile.couple_name}</h1>
-          {profile.distance_km && (
-            <div className="flex items-center justify-center gap-1 text-muted text-sm mt-1">
-              <MapPin size={13} strokeWidth={1.5} />
-              <span>à ~{profile.distance_km} km</span>
-            </div>
+      <div style={{ padding: '0 20px 24px' }}>
+
+        {/* nom + orientation */}
+        <div className="animate-fade-in-up delay-100" style={{ animationFillMode: 'both', marginTop: '20px', marginBottom: '20px' }}>
+          <h1 style={{
+            fontFamily: 'Cormorant, serif',
+            fontSize: '2.4rem',
+            fontWeight: 600,
+            color: '#F2EDE6',
+            lineHeight: 1.1,
+            marginBottom: '6px',
+          }}>
+            {profile.couple_name}
+          </h1>
+          {profile.orientation && (
+            <p style={{ fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.55)' }}>
+              {profile.orientation.replace('_', ' · ')}
+            </p>
           )}
           {profile.bio && (
-            <p className="text-muted text-sm text-center mt-3 leading-relaxed">{profile.bio}</p>
-          )}
-
-          {isOwn && (
-            <div className="flex gap-2 mt-4 justify-center">
-              <button onClick={() => setEditing(true)}
-                className="px-5 py-2 rounded-xl border border-[rgba(201,168,76,0.3)] text-gold text-sm hover:bg-gold/10 transition-colors duration-150 cursor-pointer">
-                Modifier le profil
-              </button>
-              <button onClick={() => navigate('/settings')}
-                className="w-9 h-9 rounded-xl border border-[rgba(201,168,76,0.2)] text-muted hover:text-gold hover:border-[rgba(201,168,76,0.4)] flex items-center justify-center transition-colors duration-150 cursor-pointer"
-                aria-label="Paramètres"
-              >
-                <Settings size={16} strokeWidth={1.5} />
-              </button>
-            </div>
-          )}
-        </>
-      ) : (
-        <EditForm form={form} setForm={setForm} onSave={save} onCancel={() => setEditing(false)} saving={saving} />
-      )}
-
-      {/* sections */}
-      {!editing && (
-        <div className="mt-6 flex flex-col gap-5">
-          {/* cherche */}
-          {profile.seeking?.length > 0 && (
-            <Section title="Ce qu'ils cherchent">
-              <TagList items={profile.seeking} map={SEEKING_LABELS} />
-            </Section>
-          )}
-
-          {/* limites */}
-          {profile.limits?.length > 0 && (
-            <Section title="Non négociable">
-              <TagList items={profile.limits} map={LIMITS_LABELS} gold />
-            </Section>
-          )}
-
-          {/* actions si profil externe */}
-          {!isOwn && (
-            <div className="flex flex-col gap-3 mt-2">
-              {!matched && (
-                <button onClick={like}
-                  className={clsx('w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-colors duration-150 cursor-pointer',
-                    liked ? 'bg-surface2 border border-[rgba(201,168,76,0.2)] text-muted' : 'bg-gold text-bg hover:bg-[#d4ae58]')}>
-                  <Heart size={18} strokeWidth={liked ? 1.5 : 2} fill={liked ? 'none' : 'currentColor'} />
-                  {liked ? 'Liké — retirer le like' : 'Liker ce couple'}
-                </button>
-              )}
-              {matched && (
-                <div className="text-center py-2 text-gold font-serif text-lg">✦ Match mutuel</div>
-              )}
-
-              <div className="flex gap-2">
-                <button onClick={() => setShowReport(true)}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-[rgba(201,168,76,0.15)] text-muted hover:text-text text-sm transition-colors duration-150 cursor-pointer">
-                  <Flag size={15} strokeWidth={1.5} /> Signaler
-                </button>
-                <button onClick={block}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-red-900/40 text-red-400/70 hover:text-red-400 text-sm transition-colors duration-150 cursor-pointer">
-                  <Ban size={15} strokeWidth={1.5} /> Bloquer
-                </button>
-              </div>
-            </div>
+            <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, marginTop: '12px' }}>
+              {profile.bio}
+            </p>
           )}
         </div>
-      )}
+
+        {/* boutons own profile */}
+        {isOwn && !editing && (
+          <div className="flex gap-2 animate-fade-in-up delay-200" style={{ animationFillMode: 'both', marginBottom: '24px' }}>
+            <button
+              onClick={() => setEditing(true)}
+              style={{
+                flex: 1, padding: '13px', borderRadius: '14px',
+                background: 'rgba(15,15,15,0.85)',
+                border: '1px solid rgba(201,168,76,0.25)',
+                color: 'rgba(201,168,76,0.8)',
+                fontSize: '13px', letterSpacing: '0.08em',
+                cursor: 'pointer', transition: 'all 0.2s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.5)'; e.currentTarget.style.color = '#C9A84C'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.25)'; e.currentTarget.style.color = 'rgba(201,168,76,0.8)'; }}
+            >
+              Modifier mon profil
+            </button>
+            <button
+              onClick={() => navigate('/settings')}
+              aria-label="Paramètres"
+              style={{
+                width: 48, height: 48, borderRadius: '14px', flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: 'rgba(15,15,15,0.85)',
+                border: '1px solid rgba(201,168,76,0.15)',
+                color: 'rgba(255,255,255,0.35)',
+                cursor: 'pointer', transition: 'all 0.2s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.color = 'rgba(201,168,76,0.7)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.35)'; }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.35)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.15)'; }}
+            >
+              <Settings size={17} strokeWidth={1.5} />
+            </button>
+          </div>
+        )}
+
+        {/* formulaire édition */}
+        {isOwn && editing && (
+          <div className="animate-fade-in" style={{ animationFillMode: 'both', marginBottom: '24px' }}>
+            <EditForm form={form} setForm={setForm} onSave={save} onCancel={() => setEditing(false)} saving={saving} />
+          </div>
+        )}
+
+        {/* sections info */}
+        {!editing && (
+          <div className="flex flex-col gap-5">
+
+            {profile.seeking?.length > 0 && (
+              <Section title="Ce qu'ils cherchent">
+                <TagList items={profile.seeking} map={SEEKING_LABELS} />
+              </Section>
+            )}
+
+            {profile.limits?.length > 0 && (
+              <Section title="Non négociable">
+                <TagList items={profile.limits} map={LIMITS_LABELS} gold />
+              </Section>
+            )}
+
+            {/* actions profil externe */}
+            {!isOwn && (
+              <div className="flex flex-col gap-3 pt-2">
+                {matched ? (
+                  <div style={{
+                    textAlign: 'center', padding: '16px',
+                    background: 'rgba(201,168,76,0.06)',
+                    border: '1px solid rgba(201,168,76,0.2)',
+                    borderRadius: '16px',
+                  }}>
+                    <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.3rem', color: '#C9A84C', letterSpacing: '0.05em' }}>
+                      ∞ Connexion mutuelle ∞
+                    </p>
+                    <p style={{ fontSize: '11px', color: 'rgba(201,168,76,0.45)', marginTop: '4px', letterSpacing: '0.08em' }}>
+                      Vous êtes connectés
+                    </p>
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleConnect}
+                    disabled={liking}
+                    className="btn-gold"
+                    style={{
+                      width: '100%', padding: '16px', borderRadius: '14px', border: 'none',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                      fontSize: '13px', letterSpacing: '0.12em',
+                      cursor: liking ? 'default' : 'pointer',
+                      opacity: liking ? 0.75 : 1,
+                    }}
+                  >
+                    {liking ? (
+                      <span style={{ width: 16, height: 16, border: '2px solid rgba(0,0,0,0.25)', borderTopColor: '#050505', borderRadius: '50%', display: 'inline-block', animation: 'rotateX 0.7s linear infinite' }} />
+                    ) : liked ? (
+                      <>
+                        <XConnectIcon size={15} color="#050505" />
+                        Connexion envoyée — retirer
+                      </>
+                    ) : (
+                      <>
+                        <XConnectIcon size={15} color="#050505" />
+                        Se connecter
+                      </>
+                    )}
+                  </button>
+                )}
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setShowReport(true)}
+                    style={{
+                      flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                      padding: '12px', borderRadius: '12px',
+                      background: 'transparent',
+                      border: '1px solid rgba(201,168,76,0.12)',
+                      color: 'rgba(255,255,255,0.3)',
+                      fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.25)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.3)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.12)'; }}
+                  >
+                    <Flag size={13} strokeWidth={1.5} /> Signaler
+                  </button>
+                  <button
+                    onClick={block}
+                    style={{
+                      flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                      padding: '12px', borderRadius: '12px',
+                      background: 'transparent',
+                      border: '1px solid rgba(239,68,68,0.15)',
+                      color: 'rgba(239,68,68,0.45)',
+                      fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.color = 'rgba(239,68,68,0.8)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.35)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.color = 'rgba(239,68,68,0.45)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.15)'; }}
+                  >
+                    <Ban size={13} strokeWidth={1.5} /> Bloquer
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* modal signalement */}
       {showReport && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60">
-          <div className="bg-surface border border-[rgba(201,168,76,0.2)] rounded-t-3xl sm:rounded-2xl w-full max-w-md p-6 pb-8">
-            <h2 className="font-serif text-2xl mb-4">Signaler ce profil</h2>
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center animate-fade-in"
+          style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', animationFillMode: 'both' }}
+          onClick={() => setShowReport(false)}
+        >
+          <div
+            className="animate-fade-in-up"
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: 'rgba(10,10,10,0.98)',
+              border: '1px solid rgba(201,168,76,0.15)',
+              borderRadius: '24px 24px 0 0',
+              width: '100%', maxWidth: '480px',
+              padding: '28px 24px 40px',
+              animationFillMode: 'both',
+            }}
+          >
+            <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '1.6rem', color: '#F2EDE6', marginBottom: '16px' }}>
+              Signaler ce profil
+            </h2>
             <textarea
-              value={reportReason} onChange={e => setReportReason(e.target.value)}
-              placeholder="Décrivez le problème…" rows={4}
-              className="w-full bg-surface2 border border-[rgba(201,168,76,0.2)] rounded-xl px-4 py-3 text-text placeholder-muted text-sm focus:outline-none focus:border-gold resize-none"
+              value={reportReason}
+              onChange={e => setReportReason(e.target.value)}
+              placeholder="Décrivez le problème…"
+              rows={4}
+              style={{
+                ...inputStyle,
+                resize: 'none',
+                marginBottom: '16px',
+              }}
+              onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,0.45)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,0.07)'; }}
+              onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,0.18)'; e.target.style.boxShadow = 'none'; }}
             />
-            <div className="flex gap-3 mt-4">
-              <button onClick={() => setShowReport(false)}
-                className="flex-1 py-3 rounded-xl border border-[rgba(201,168,76,0.2)] text-muted text-sm cursor-pointer">
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowReport(false)}
+                style={{
+                  flex: 1, padding: '14px', borderRadius: '12px',
+                  background: 'transparent',
+                  border: '1px solid rgba(201,168,76,0.15)',
+                  color: 'rgba(255,255,255,0.4)',
+                  fontSize: '13px', cursor: 'pointer',
+                }}
+              >
                 Annuler
               </button>
-              <button onClick={report}
-                className="flex-1 py-3 rounded-xl bg-gold text-bg font-semibold text-sm hover:bg-[#d4ae58] cursor-pointer">
+              <button
+                onClick={report}
+                className="btn-gold"
+                style={{
+                  flex: 1, padding: '14px', borderRadius: '12px',
+                  border: 'none', fontSize: '13px', letterSpacing: '0.08em',
+                  cursor: 'pointer',
+                }}
+              >
                 Envoyer
               </button>
             </div>
@@ -268,19 +479,28 @@ export default function Profile() {
 
 function Section({ title, children }) {
   return (
-    <div>
-      <p className="text-xs text-muted uppercase tracking-widest mb-2">{title}</p>
+    <div className="animate-fade-in-up delay-200" style={{ animationFillMode: 'both' }}>
+      <p style={{ fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.4)', marginBottom: '10px' }}>
+        {title}
+      </p>
       {children}
     </div>
   )
 }
 
-function TagList({ items, map, gold }) {
+function TagList({ items, map, gold = false }) {
   return (
     <div className="flex flex-wrap gap-2">
       {items.map(v => (
-        <span key={v} className={clsx('text-sm px-3 py-1 rounded-full border',
-          gold ? 'border-[rgba(201,168,76,0.4)] text-gold bg-gold/5' : 'border-[rgba(201,168,76,0.2)] text-muted bg-surface2')}>
+        <span key={v} style={{
+          fontSize: '12px',
+          padding: '5px 13px',
+          borderRadius: '99px',
+          border: gold ? '1px solid rgba(201,168,76,0.35)' : '1px solid rgba(255,255,255,0.08)',
+          color: gold ? 'rgba(201,168,76,0.85)' : 'rgba(255,255,255,0.45)',
+          background: gold ? 'rgba(201,168,76,0.06)' : 'rgba(255,255,255,0.04)',
+          letterSpacing: '0.04em',
+        }}>
           {map[v] || v}
         </span>
       ))}
@@ -291,26 +511,63 @@ function TagList({ items, map, gold }) {
 function EditForm({ form, setForm, onSave, onCancel, saving }) {
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
   return (
-    <div className="flex flex-col gap-4 mt-2">
+    <div className="flex flex-col gap-4">
       <div>
-        <label className="block text-sm text-muted mb-1.5">Pseudo du couple</label>
-        <input value={form.couple_name} onChange={e => set('couple_name', e.target.value)}
+        <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.5)', marginBottom: '8px' }}>
+          Pseudo du couple
+        </label>
+        <input
+          value={form.couple_name}
+          onChange={e => set('couple_name', e.target.value)}
           maxLength={50}
-          className="w-full bg-surface2 border border-[rgba(201,168,76,0.2)] rounded-xl px-4 py-3 text-text focus:outline-none focus:border-gold transition-colors duration-150" />
+          style={inputStyle}
+          onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,0.5)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,0.07)'; }}
+          onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,0.18)'; e.target.style.boxShadow = 'none'; }}
+        />
       </div>
       <div>
-        <label className="block text-sm text-muted mb-1.5">Bio <span className="text-xs">(max 300)</span></label>
-        <textarea value={form.bio} onChange={e => set('bio', e.target.value)}
-          maxLength={300} rows={3}
-          className="w-full bg-surface2 border border-[rgba(201,168,76,0.2)] rounded-xl px-4 py-3 text-text focus:outline-none focus:border-gold resize-none transition-colors duration-150" />
+        <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.5)', marginBottom: '8px' }}>
+          Bio <span style={{ opacity: 0.5, fontSize: '9px' }}>(max 300 caractères)</span>
+        </label>
+        <textarea
+          value={form.bio}
+          onChange={e => set('bio', e.target.value)}
+          maxLength={300}
+          rows={4}
+          style={{ ...inputStyle, resize: 'none' }}
+          onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,0.5)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,0.07)'; }}
+          onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,0.18)'; e.target.style.boxShadow = 'none'; }}
+        />
       </div>
-      <div className="flex gap-3">
-        <button onClick={onCancel} className="flex-1 py-3 rounded-xl border border-[rgba(201,168,76,0.2)] text-muted text-sm cursor-pointer">
+      <div className="flex gap-3 mt-1">
+        <button
+          onClick={onCancel}
+          style={{
+            flex: 1, padding: '14px', borderRadius: '12px',
+            background: 'transparent', border: '1px solid rgba(201,168,76,0.15)',
+            color: 'rgba(255,255,255,0.4)', fontSize: '13px', cursor: 'pointer',
+          }}
+        >
           Annuler
         </button>
-        <button onClick={onSave} disabled={saving}
-          className="flex-1 py-3 rounded-xl bg-gold text-bg font-semibold text-sm hover:bg-[#d4ae58] disabled:opacity-50 cursor-pointer">
-          {saving ? 'Enregistrement…' : 'Enregistrer'}
+        <button
+          onClick={onSave}
+          disabled={saving}
+          className="btn-gold"
+          style={{
+            flex: 1, padding: '14px', borderRadius: '12px',
+            border: 'none', fontSize: '13px', letterSpacing: '0.08em',
+            cursor: saving ? 'default' : 'pointer',
+            opacity: saving ? 0.75 : 1,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+          }}
+        >
+          {saving ? (
+            <>
+              <span style={{ width: 14, height: 14, border: '2px solid rgba(0,0,0,0.25)', borderTopColor: '#050505', borderRadius: '50%', display: 'inline-block', animation: 'rotateX 0.7s linear infinite' }} />
+              Enregistrement…
+            </>
+          ) : 'Enregistrer'}
         </button>
       </div>
     </div>

@@ -4,6 +4,7 @@ import { useAuthStore } from '../store/auth'
 import { DEMO_MATCHES } from '../lib/demo'
 import MatchCard from '../components/MatchCard'
 import { MatchCardSkeleton } from '../components/Skeleton'
+import { Zap } from 'lucide-react'
 
 export default function Matches() {
   const profile  = useAuthStore(s => s.profile)
@@ -16,7 +17,6 @@ export default function Matches() {
     if (demoMode) { setMatches(DEMO_MATCHES); setLoading(false); return }
     load()
 
-    // realtime : nouveau match
     const channel = supabase
       .channel('matches-changes')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'matches' }, () => load())
@@ -28,16 +28,12 @@ export default function Matches() {
   const load = async () => {
     const { data } = await supabase
       .from('matches')
-      .select(`
-        id, created_at,
-        couple_a, couple_b
-      `)
+      .select('id, created_at, couple_a, couple_b')
       .or(`couple_a.eq.${profile.id},couple_b.eq.${profile.id}`)
       .order('created_at', { ascending: false })
 
     if (!data) { setLoading(false); return }
 
-    // récupérer les profils de l'autre côté du match
     const enriched = await Promise.all(data.map(async m => {
       const otherId = m.couple_a === profile.id ? m.couple_b : m.couple_a
 
@@ -47,7 +43,6 @@ export default function Matches() {
         .eq('id', otherId)
         .single()
 
-      // dernier message
       const { data: msg } = await supabase
         .from('messages')
         .select('content, photo_url, created_at')
@@ -68,23 +63,105 @@ export default function Matches() {
   }
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-6 pb-nav">
-      <h1 className="font-serif text-3xl font-semibold mb-6">Vos matchs</h1>
+    <div className="max-w-lg mx-auto px-4 pb-nav" style={{ paddingTop: '0' }}>
+
+      {/* header */}
+      <header
+        className="sticky top-0 z-10 flex items-center justify-between px-1 py-4 mb-2 animate-fade-in"
+        style={{
+          background: 'rgba(5,5,5,0.95)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          borderBottom: '1px solid rgba(201,168,76,0.1)',
+          animationFillMode: 'both',
+        }}
+      >
+        <div>
+          <h1 style={{
+            fontFamily: 'Cormorant, serif',
+            fontSize: '1.8rem',
+            fontWeight: 600,
+            background: 'linear-gradient(135deg, #A07830, #C9A84C, #E8CC7A)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            letterSpacing: '0.03em',
+          }}>
+            Vos connexions
+          </h1>
+          {!loading && matches.length > 0 && (
+            <p style={{ fontSize: '11px', color: 'rgba(201,168,76,0.4)', letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: '2px' }}>
+              {matches.length} connexion{matches.length > 1 ? 's' : ''} mutuelles
+            </p>
+          )}
+        </div>
+        <div style={{
+          width: 36, height: 36, borderRadius: '12px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'radial-gradient(circle, rgba(201,168,76,0.1), rgba(201,168,76,0.03))',
+          border: '1px solid rgba(201,168,76,0.2)',
+        }}>
+          <Zap size={16} strokeWidth={1.5} style={{ color: 'rgba(201,168,76,0.7)' }} />
+        </div>
+      </header>
 
       {loading ? (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 pt-2">
           {[1,2,3].map(i => <MatchCardSkeleton key={i} />)}
         </div>
       ) : matches.length === 0 ? (
-        <div className="text-center py-16">
-          <p className="font-serif text-2xl text-muted mb-2">Pas encore de match</p>
-          <p className="text-sm text-muted/70">Likez des profils sur la page Découvrir !</p>
-        </div>
+        <EmptyState />
       ) : (
-        <div className="flex flex-col gap-3">
-          {matches.map(m => <MatchCard key={m.id} match={m} />)}
+        <div className="flex flex-col gap-3 pt-2">
+          {matches.map((m, i) => (
+            <div
+              key={m.id}
+              className="animate-fade-in-up"
+              style={{ animationDelay: `${i * 60}ms`, animationFillMode: 'both' }}
+            >
+              <MatchCard match={m} />
+            </div>
+          ))}
         </div>
       )}
+    </div>
+  )
+}
+
+function EmptyState() {
+  return (
+    <div className="flex flex-col items-center justify-center text-center px-6 pt-20 pb-10 gap-6 animate-fade-in" style={{ animationFillMode: 'both' }}>
+      {/* icône */}
+      <div style={{
+        width: 80, height: 80, borderRadius: '50%',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: 'radial-gradient(circle, rgba(201,168,76,0.07), transparent)',
+        border: '1px solid rgba(201,168,76,0.12)',
+        animation: 'pulseGold 3s ease-in-out infinite',
+      }}>
+        {/* X connexion SVG */}
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <line x1="6" y1="6" x2="26" y2="26" stroke="rgba(201,168,76,0.5)" strokeWidth="2" strokeLinecap="round"/>
+          <line x1="26" y1="6" x2="6" y2="26" stroke="rgba(201,168,76,0.5)" strokeWidth="2" strokeLinecap="round"/>
+          <circle cx="6"  cy="6"  r="3" fill="rgba(201,168,76,0.4)"/>
+          <circle cx="26" cy="6"  r="3" fill="rgba(201,168,76,0.4)"/>
+          <circle cx="6"  cy="26" r="3" fill="rgba(201,168,76,0.4)"/>
+          <circle cx="26" cy="26" r="3" fill="rgba(201,168,76,0.4)"/>
+        </svg>
+      </div>
+
+      <div>
+        <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.6rem', color: 'rgba(255,255,255,0.35)', marginBottom: '10px' }}>
+          Pas encore de connexion
+        </p>
+        <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.2)', lineHeight: 1.7 }}>
+          Explorez des profils et envoyez<br/>des demandes de connexion.
+        </p>
+      </div>
+
+      <div style={{ fontSize: '10px', letterSpacing: '0.18em', color: 'rgba(201,168,76,0.25)', textTransform: 'uppercase' }}>
+        ∞ · Connectés par désir · ∞
+      </div>
     </div>
   )
 }

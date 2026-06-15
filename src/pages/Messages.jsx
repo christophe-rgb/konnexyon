@@ -57,7 +57,6 @@ export default function Messages() {
       return { matchId: m.id, profile: p, lastMessage: msg, unread }
     }))
 
-    // trier par dernier message
     threads.sort((a, b) => {
       const ta = a.lastMessage?.created_at || ''
       const tb = b.lastMessage?.created_at || ''
@@ -69,53 +68,154 @@ export default function Messages() {
   }
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-6 pb-nav">
-      <h1 className="font-serif text-3xl font-semibold mb-6">Messages</h1>
+    <div className="max-w-lg mx-auto pb-nav">
+
+      {/* header */}
+      <header
+        className="sticky top-0 z-10 flex items-center justify-between px-5 py-4 animate-fade-in"
+        style={{
+          background: 'rgba(5,5,5,0.95)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          borderBottom: '1px solid rgba(201,168,76,0.1)',
+          animationFillMode: 'both',
+        }}
+      >
+        <div>
+          <h1 style={{
+            fontFamily: 'Cormorant, serif',
+            fontSize: '1.8rem',
+            fontWeight: 600,
+            background: 'linear-gradient(135deg, #A07830, #C9A84C, #E8CC7A)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            letterSpacing: '0.03em',
+          }}>
+            Messages
+          </h1>
+          {!loading && threads.length > 0 && (
+            <p style={{ fontSize: '11px', color: 'rgba(201,168,76,0.4)', letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: '2px' }}>
+              {threads.length} conversation{threads.length > 1 ? 's' : ''}
+            </p>
+          )}
+        </div>
+        <div style={{
+          width: 36, height: 36, borderRadius: '12px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'radial-gradient(circle, rgba(201,168,76,0.1), rgba(201,168,76,0.03))',
+          border: '1px solid rgba(201,168,76,0.2)',
+        }}>
+          <MessageCircle size={16} strokeWidth={1.5} style={{ color: 'rgba(201,168,76,0.7)' }} />
+        </div>
+      </header>
 
       {loading ? (
-        <p className="text-muted text-sm">Chargement…</p>
-      ) : threads.length === 0 ? (
-        <div className="text-center py-16">
-          <MessageCircle size={40} className="mx-auto text-muted/30 mb-3" strokeWidth={1} />
-          <p className="font-serif text-2xl text-muted mb-2">Aucune conversation</p>
-          <p className="text-sm text-muted/70">Le chat se débloque après un match mutuel.</p>
+        <div className="flex flex-col gap-2 px-4 pt-4">
+          {[1,2,3].map(i => (
+            <div key={i} style={{
+              height: 72, borderRadius: '16px',
+              background: 'rgba(15,15,15,0.6)',
+              border: '1px solid rgba(201,168,76,0.06)',
+              animation: 'pulseGold 1.8s ease-in-out infinite',
+              animationDelay: `${i * 200}ms`,
+            }} />
+          ))}
         </div>
+      ) : threads.length === 0 ? (
+        <EmptyState />
       ) : (
-        <div className="flex flex-col divide-y divide-[rgba(201,168,76,0.1)]">
-          {threads.map(t => (
+        <div className="flex flex-col px-4 pt-3 gap-2">
+          {threads.map((t, i) => (
             <button
               key={t.matchId}
               onClick={() => navigate(`/messages/${t.matchId}`)}
-              className="flex items-center gap-4 py-4 hover:bg-surface/50 -mx-4 px-4 transition-colors duration-150 cursor-pointer text-left"
+              className="animate-fade-in-up"
+              style={{
+                animationDelay: `${i * 50}ms`,
+                animationFillMode: 'both',
+                display: 'flex', alignItems: 'center', gap: '14px',
+                padding: '14px 16px',
+                borderRadius: '18px',
+                background: t.unread
+                  ? 'linear-gradient(135deg, rgba(20,16,8,0.95) 0%, rgba(15,12,5,0.95) 100%)'
+                  : 'linear-gradient(135deg, rgba(12,12,12,0.9) 0%, rgba(8,8,8,0.95) 100%)',
+                border: t.unread
+                  ? '1px solid rgba(201,168,76,0.25)'
+                  : '1px solid rgba(201,168,76,0.08)',
+                cursor: 'pointer',
+                textAlign: 'left',
+                width: '100%',
+                transition: 'all 0.2s',
+                boxShadow: t.unread ? '0 4px 20px rgba(201,168,76,0.08)' : '0 2px 12px rgba(0,0,0,0.4)',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = 'rgba(201,168,76,0.25)'
+                e.currentTarget.style.transform = 'translateY(-1px)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = t.unread ? 'rgba(201,168,76,0.25)' : 'rgba(201,168,76,0.08)'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
             >
-              <div className="relative flex-shrink-0">
-                <div className="w-12 h-12 rounded-full bg-surface2 overflow-hidden">
+              {/* avatar */}
+              <div style={{ position: 'relative', flexShrink: 0 }}>
+                <div style={{
+                  width: 48, height: 48, borderRadius: '14px', overflow: 'hidden',
+                  border: '1px solid rgba(201,168,76,0.18)',
+                  background: '#111',
+                }}>
                   {t.profile.avatar_url ? (
-                    <img src={t.profile.avatar_url} alt={t.profile.couple_name} className="w-full h-full object-cover" />
+                    <img src={t.profile.avatar_url} alt={t.profile.couple_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center font-serif text-xl text-gold/40">
+                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Cormorant, serif', fontSize: '20px', color: 'rgba(201,168,76,0.35)' }}>
                       {t.profile.couple_name?.[0]}
                     </div>
                   )}
                 </div>
                 {t.unread && (
-                  <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-gold rounded-full border-2 border-bg" />
+                  <span style={{
+                    position: 'absolute', top: -3, right: -3,
+                    width: 11, height: 11, borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #A07830, #E8CC7A)',
+                    border: '2px solid #050505',
+                    boxShadow: '0 0 8px rgba(201,168,76,0.6)',
+                  }} />
                 )}
               </div>
 
-              <div className="flex-1 min-w-0">
-                <p className={`font-medium truncate ${t.unread ? 'text-text' : 'text-muted'}`}>
+              {/* texte */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{
+                  fontFamily: 'Cormorant, serif',
+                  fontSize: '1.05rem',
+                  fontWeight: t.unread ? 600 : 500,
+                  color: t.unread ? '#F2EDE6' : 'rgba(255,255,255,0.55)',
+                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                  marginBottom: '2px',
+                }}>
                   {t.profile.couple_name}
                 </p>
                 {t.lastMessage && (
-                  <p className={`text-sm truncate mt-0.5 ${t.unread ? 'text-text' : 'text-muted'}`}>
+                  <p style={{
+                    fontSize: '12px',
+                    color: t.unread ? 'rgba(201,168,76,0.6)' : 'rgba(255,255,255,0.25)',
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    fontStyle: t.unread ? 'normal' : 'italic',
+                  }}>
                     {t.lastMessage.content || '📷 Photo'}
                   </p>
                 )}
               </div>
 
+              {/* date */}
               {t.lastMessage && (
-                <span className="text-[11px] text-muted flex-shrink-0">
+                <span style={{
+                  fontSize: '10px',
+                  color: t.unread ? 'rgba(201,168,76,0.5)' : 'rgba(255,255,255,0.2)',
+                  flexShrink: 0,
+                  letterSpacing: '0.04em',
+                }}>
                   {new Date(t.lastMessage.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })}
                 </span>
               )}
@@ -123,6 +223,32 @@ export default function Messages() {
           ))}
         </div>
       )}
+    </div>
+  )
+}
+
+function EmptyState() {
+  return (
+    <div className="flex flex-col items-center justify-center text-center px-6 pt-20 pb-10 gap-6 animate-fade-in" style={{ animationFillMode: 'both' }}>
+      <div style={{
+        width: 72, height: 72, borderRadius: '50%',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: 'radial-gradient(circle, rgba(201,168,76,0.06), transparent)',
+        border: '1px solid rgba(201,168,76,0.1)',
+      }}>
+        <MessageCircle size={28} strokeWidth={1} style={{ color: 'rgba(201,168,76,0.35)' }} />
+      </div>
+      <div>
+        <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.6rem', color: 'rgba(255,255,255,0.3)', marginBottom: '10px' }}>
+          Aucune conversation
+        </p>
+        <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.18)', lineHeight: 1.7 }}>
+          Le chat se débloque après<br/>une connexion mutuelle.
+        </p>
+      </div>
+      <div style={{ fontSize: '10px', letterSpacing: '0.18em', color: 'rgba(201,168,76,0.2)', textTransform: 'uppercase' }}>
+        ∞ · Connectés par désir · ∞
+      </div>
     </div>
   )
 }
