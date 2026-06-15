@@ -68,7 +68,17 @@
       "Bash(git -C /Users/parrachristophe/agent remote -v)",
       "Bash(git init *)",
       "Bash(git add *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(curl -s -o /dev/null -w '%{http_code}' -X POST https://api.github.com/user/repos -H 'Accept: application/vnd.github+json' -H 'Authorization: Bearer __CMDSUB_OUTPUT__' --data '{\"name\":\"konnexyon\",\"private\":false}')",
+      "mcp__Claude_in_Chrome__computer",
+      "Bash(git remote *)",
+      "Bash(git branch *)",
+      "Bash(git push *)",
+      "Bash(ssh -T git@github.com)",
+      "mcp__Claude_in_Chrome__navigate",
+      "mcp__Claude_in_Chrome__read_network_requests",
+      "mcp__d5b72b84-6b83-4bbe-8cec-c534e63277ad__search_threads",
+      "mcp__Claude_in_Chrome__shortcuts_list"
     ]
   }
 }

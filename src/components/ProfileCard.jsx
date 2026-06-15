@@ -1,5 +1,6 @@
-import { Heart, X, MapPin } from 'lucide-react'
+import { Heart, X, MapPin, Zap } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 
 const SEEKING_LABELS = {
   rencontres_occasionnelles: 'Rencontres',
@@ -8,79 +9,190 @@ const SEEKING_LABELS = {
   decouverte:                'Découverte',
 }
 
-export default function ProfileCard({ profile, onLike, onPass, showActions = true }) {
+/* Icône X-connexion SVG inline */
+function XConnectIcon({ size = 14, color = 'currentColor' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <line x1="2" y1="2" x2="12" y2="12" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+      <line x1="12" y1="2" x2="2" y2="12" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+      <circle cx="2"  cy="2"  r="1.5" fill={color}/>
+      <circle cx="12" cy="2"  r="1.5" fill={color}/>
+      <circle cx="2"  cy="12" r="1.5" fill={color}/>
+      <circle cx="12" cy="12" r="1.5" fill={color}/>
+    </svg>
+  )
+}
+
+export default function ProfileCard({ profile, onLike, onPass, showActions = true, index = 0 }) {
   const navigate = useNavigate()
+  const [hovered, setHovered] = useState(false)
+  const [liking,  setLiking]  = useState(false)
+
+  const handleLike = async e => {
+    e.stopPropagation()
+    if (liking) return
+    setLiking(true)
+    await onLike?.(profile.id)
+    setLiking(false)
+  }
 
   return (
     <div
-      className="relative overflow-hidden cursor-pointer group select-none"
-      style={{ aspectRatio: '3/4', borderRadius: '20px', boxShadow: '0 8px 32px rgba(0,0,0,0.7)' }}
+      className="profile-card animate-fade-in-up"
+      role="article"
+      aria-label={`Profil de ${profile.couple_name}`}
       onClick={() => navigate(`/profile/${profile.id}`)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        position: 'relative',
+        overflow: 'hidden',
+        cursor: 'pointer',
+        userSelect: 'none',
+        aspectRatio: '3/4',
+        borderRadius: '20px',
+        boxShadow: hovered
+          ? '0 20px 60px rgba(0,0,0,0.85), 0 0 0 1px rgba(201,168,76,0.35)'
+          : '0 8px 32px rgba(0,0,0,0.7), 0 0 0 1px rgba(201,168,76,0.08)',
+        transition: 'box-shadow 0.35s, transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94)',
+        transform: hovered ? 'translateY(-4px) scale(1.01)' : 'translateY(0) scale(1)',
+        animationDelay: `${index * 80}ms`,
+        animationFillMode: 'both',
+      }}
     >
-      {/* photo */}
+      {/* ── photo ── */}
       {profile.avatar_url ? (
         <img
           src={profile.avatar_url}
-          alt={profile.couple_name}
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ transition: 'transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94)' }}
-          onMouseEnter={e => e.target.style.transform = 'scale(1.04)'}
-          onMouseLeave={e => e.target.style.transform = 'scale(1)'}
+          alt={`Photo de ${profile.couple_name}`}
+          className="absolute inset-0 w-full h-full object-cover object-center"
+          style={{
+            transition: 'transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94)',
+            transform: hovered ? 'scale(1.07)' : 'scale(1)',
+          }}
+          loading="lazy"
         />
       ) : (
-        <div className="absolute inset-0 flex items-center justify-center bg-surface2">
-          <span style={{ fontFamily: 'Cormorant, serif', fontSize: '80px', color: 'rgba(201,168,76,0.15)' }}>
-            {profile.couple_name?.[0]}
+        <div className="absolute inset-0 flex flex-col items-center justify-center" style={{
+          background: 'linear-gradient(145deg, #111 0%, #0a0a0a 100%)',
+        }}>
+          {/* initiale stylisée */}
+          <span style={{
+            fontFamily: 'Cormorant, serif',
+            fontSize: '72px',
+            fontWeight: 300,
+            background: 'linear-gradient(135deg, #A07830, #C9A84C, #E8CC7A)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            opacity: 0.5,
+            lineHeight: 1,
+          }}>
+            {profile.couple_name?.[0] ?? '∞'}
+          </span>
+          <span style={{ fontSize: '10px', letterSpacing: '0.2em', color: 'rgba(201,168,76,0.2)', marginTop: '8px', textTransform: 'uppercase' }}>
+            {profile.couple_name}
           </span>
         </div>
       )}
 
-      {/* dégradé superposé — plus dramatique */}
+      {/* ── overlay gradient — plus dramatique en bas ── */}
       <div className="absolute inset-0" style={{
-        background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.05) 70%, transparent 100%)',
+        background: 'linear-gradient(to top, rgba(0,0,0,0.97) 0%, rgba(0,0,0,0.55) 35%, rgba(0,0,0,0.1) 60%, transparent 100%)',
+        transition: 'opacity 0.35s',
       }} />
 
-      {/* bordure or fine */}
-      <div className="absolute inset-0 rounded-[20px]" style={{ border: '1px solid rgba(201,168,76,0.15)', pointerEvents: 'none' }} />
+      {/* ── vignette latérale subtile ── */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: 'radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.4) 100%)',
+      }} />
 
-      {/* badge distance */}
+      {/* ── bordure or au hover ── */}
+      <div className="absolute inset-0 rounded-[20px] pointer-events-none" style={{
+        border: `1px solid ${hovered ? 'rgba(201,168,76,0.45)' : 'rgba(201,168,76,0.12)'}`,
+        transition: 'border-color 0.35s',
+      }} />
+
+      {/* ── badge distance ── */}
       {profile.distance_km != null && (
-        <div className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full"
-          style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)' }}>
-          <MapPin size={9} strokeWidth={2} style={{ color: 'rgba(201,168,76,0.7)' }} />
-          <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', fontWeight: 500 }}>{profile.distance_km} km</span>
+        <div className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full" style={{
+          background: 'rgba(0,0,0,0.72)',
+          backdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255,255,255,0.07)',
+        }}>
+          <MapPin size={9} strokeWidth={2} style={{ color: 'rgba(201,168,76,0.8)' }} />
+          <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>
+            {profile.distance_km} km
+          </span>
         </div>
       )}
 
-      {/* contenu bas */}
+      {/* ── badge "nouveau" si récent ── */}
+      {profile.is_new && (
+        <div className="absolute top-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full" style={{
+          background: 'linear-gradient(135deg, rgba(201,168,76,0.9), rgba(232,204,122,0.9))',
+        }}>
+          <Zap size={9} strokeWidth={2.5} color="#050505" />
+          <span style={{ fontSize: '10px', color: '#050505', fontWeight: 700, letterSpacing: '0.05em' }}>
+            NOUVEAU
+          </span>
+        </div>
+      )}
+
+      {/* ── contenu bas ── */}
       <div className="absolute bottom-0 left-0 right-0 p-4">
+        {/* nom du couple */}
         <h3 style={{
           fontFamily: 'Cormorant, serif',
           fontSize: '1.5rem',
           fontWeight: 600,
           color: '#fff',
           lineHeight: 1.1,
-          marginBottom: '6px',
-          textShadow: '0 2px 8px rgba(0,0,0,0.5)',
+          marginBottom: '5px',
+          textShadow: '0 2px 12px rgba(0,0,0,0.6)',
         }}>
           {profile.couple_name}
         </h3>
 
+        {/* orientation */}
+        {profile.orientation && (
+          <p style={{
+            fontSize: '10px',
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            color: 'rgba(201,168,76,0.6)',
+            marginBottom: '6px',
+          }}>
+            {profile.orientation.replace('_', ' · ')}
+          </p>
+        )}
+
+        {/* bio */}
         {profile.bio && (
-          <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.5, marginBottom: '10px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+          <p style={{
+            fontSize: '12px',
+            color: 'rgba(255,255,255,0.5)',
+            lineHeight: 1.5,
+            marginBottom: '10px',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+          }}>
             {profile.bio}
           </p>
         )}
 
+        {/* tags seeking */}
         {profile.seeking?.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-3">
             {profile.seeking.slice(0, 2).map(s => (
-              <span key={s} style={{
+              <span key={s} className="tag-connection" style={{
                 fontSize: '10px',
-                letterSpacing: '0.05em',
-                color: 'rgba(201,168,76,0.8)',
-                background: 'rgba(201,168,76,0.08)',
-                border: '1px solid rgba(201,168,76,0.2)',
+                letterSpacing: '0.06em',
+                color: 'rgba(201,168,76,0.85)',
+                background: 'rgba(201,168,76,0.09)',
+                border: '1px solid rgba(201,168,76,0.22)',
                 borderRadius: '99px',
                 padding: '3px 10px',
               }}>
@@ -90,39 +202,63 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
           </div>
         )}
 
+        {/* actions */}
         {showActions && (
           <div className="flex gap-2" onClick={e => e.stopPropagation()}>
             {onPass && (
-              <button onClick={() => onPass(profile.id)} style={{
-                flex: 1,
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-                padding: '10px',
-                borderRadius: '12px',
-                background: 'rgba(255,255,255,0.07)',
-                border: '1px solid rgba(255,255,255,0.12)',
-                color: 'rgba(255,255,255,0.6)',
-                fontSize: '13px',
-                cursor: 'pointer',
-                backdropFilter: 'blur(8px)',
-                transition: 'all 0.15s',
-              }}>
+              <button
+                onClick={e => { e.stopPropagation(); onPass(profile.id); }}
+                aria-label={`Passer ${profile.couple_name}`}
+                style={{
+                  flex: 1,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                  padding: '11px',
+                  minHeight: '44px',
+                  borderRadius: '12px',
+                  background: 'rgba(255,255,255,0.07)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  color: 'rgba(255,255,255,0.55)',
+                  fontSize: '12px',
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                  cursor: 'pointer',
+                  backdropFilter: 'blur(8px)',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = 'rgba(255,255,255,0.8)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = 'rgba(255,255,255,0.55)'; }}
+              >
                 <X size={14} strokeWidth={2} />
                 Passer
               </button>
             )}
             {onLike && (
-              <button onClick={() => onLike(profile.id)} className="btn-gold" style={{
-                flex: 1,
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-                padding: '10px',
-                borderRadius: '12px',
-                fontSize: '13px',
-                cursor: 'pointer',
-                letterSpacing: '0.05em',
-                border: 'none',
-              }}>
-                <Heart size={14} strokeWidth={2} fill="currentColor" />
-                Like
+              <button
+                onClick={handleLike}
+                disabled={liking}
+                aria-label={`Se connecter avec ${profile.couple_name}`}
+                className="btn-gold"
+                style={{
+                  flex: onPass ? 1.4 : 1,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px',
+                  padding: '11px',
+                  minHeight: '44px',
+                  borderRadius: '12px',
+                  fontSize: '12px',
+                  letterSpacing: '0.08em',
+                  cursor: liking ? 'default' : 'pointer',
+                  border: 'none',
+                  opacity: liking ? 0.7 : 1,
+                }}
+              >
+                {liking ? (
+                  <span style={{ width: 14, height: 14, border: '2px solid rgba(0,0,0,0.25)', borderTopColor: '#050505', borderRadius: '50%', display: 'inline-block', animation: 'rotateX 0.7s linear infinite' }} />
+                ) : (
+                  <>
+                    <XConnectIcon size={13} color="#050505" />
+                    Se connecter
+                  </>
+                )}
               </button>
             )}
           </div>
