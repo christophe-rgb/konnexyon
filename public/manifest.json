@@ -1,0 +1,18 @@
+{
+  "name": "Konnexyon",
+  "short_name": "Konnexyon",
+  "description": "Rencontres entre couples",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0D0D0D",
+  "theme_color": "#0D0D0D",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

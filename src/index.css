@@ -1,0 +1,145 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Variables globales ─────────────────────────── */
+:root {
+  --gold:          #C9A84C;
+  --gold-light:    #E8CC7A;
+  --gold-dark:     #A07830;
+  --gold-gradient: linear-gradient(135deg, #A07830 0%, #C9A84C 30%, #E8CC7A 60%, #C9A84C 80%, #A07830 100%);
+  --gold-glow:     0 0 30px rgba(201,168,76,0.25), 0 0 80px rgba(201,168,76,0.08);
+  --gold-glow-sm:  0 0 16px rgba(201,168,76,0.3);
+  --surface-border: rgba(201,168,76,0.12);
+  --surface-border-hover: rgba(201,168,76,0.3);
+}
+
+/* ── Base ───────────────────────────────────────── */
+@layer base {
+  * { box-sizing: border-box; }
+
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #050505;
+    color: #F2EDE6;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100dvh;
+    overscroll-behavior: none;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Cormorant', serif;
+    letter-spacing: 0.01em;
+  }
+
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.12); border-radius: 2px; }
+
+  :focus-visible {
+    outline: 1.5px solid rgba(201,168,76,0.5);
+    outline-offset: 3px;
+    border-radius: 8px;
+  }
+  :focus:not(:focus-visible) { outline: none; }
+}
+
+/* ── Utilities ──────────────────────────────────── */
+@layer utilities {
+  .border-gold  { border-color: var(--surface-border); }
+  .text-gold    { color: var(--gold); }
+  .bg-surface   { background-color: #0C0C0C; }
+  .bg-surface2  { background-color: #141414; }
+  .pb-nav       { padding-bottom: 6rem; }
+
+  /* Texte gradient or métallique */
+  .text-gold-gradient {
+    background: var(--gold-gradient);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Shimmer animé sur texte */
+  .text-gold-shimmer {
+    background: linear-gradient(90deg, #A07830 0%, #E8CC7A 40%, #C9A84C 60%, #A07830 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s ease infinite;
+  }
+
+  /* Bouton or premium */
+  .btn-gold {
+    background: var(--gold-gradient);
+    background-size: 200% auto;
+    color: #050505;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    box-shadow: var(--gold-glow-sm);
+    transition: all 0.3s ease;
+  }
+  .btn-gold:hover {
+    background-position: right center;
+    box-shadow: var(--gold-glow);
+    transform: translateY(-1px);
+  }
+  .btn-gold:active { transform: scale(0.98); }
+
+  /* Bordure or lumineuse */
+  .border-gold-glow {
+    border: 1px solid rgba(201,168,76,0.2);
+    box-shadow: inset 0 1px 0 rgba(201,168,76,0.05), 0 1px 0 rgba(201,168,76,0.05);
+  }
+
+  /* Card surface haut de gamme */
+  .card-luxury {
+    background: linear-gradient(145deg, #0F0F0F 0%, #0A0A0A 100%);
+    border: 1px solid rgba(201,168,76,0.1);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(201,168,76,0.05);
+  }
+
+  .animate-slide-down { animation: slideDown 0.25s cubic-bezier(0.34,1.56,0.64,1); }
+}
+
+/* ── Keyframes ──────────────────────────────────── */
+@keyframes slideDown {
+  from { transform: translateY(-12px); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+/* ── Leaflet dark ───────────────────────────────── */
+.leaflet-container { background: #050505; font-family: 'Inter', sans-serif; }
+.leaflet-control-zoom {
+  border: 1px solid rgba(201,168,76,0.15) !important;
+  background: rgba(10,10,10,0.95) !important;
+  backdrop-filter: blur(12px);
+  border-radius: 14px !important;
+  overflow: hidden;
+}
+.leaflet-control-zoom a {
+  background: transparent !important;
+  color: var(--gold) !important;
+  border-bottom-color: rgba(201,168,76,0.15) !important;
+}
+.leaflet-control-zoom a:hover { background: rgba(201,168,76,0.08) !important; }
+.leaflet-control-attribution {
+  background: rgba(5,5,5,0.8) !important;
+  color: rgba(255,255,255,0.2) !important;
+  font-size: 10px !important;
+}
+.leaflet-control-attribution a { color: rgba(201,168,76,0.4) !important; }
