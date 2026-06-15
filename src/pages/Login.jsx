@@ -174,7 +174,7 @@ export default function Login() {
 
           <button type="submit" disabled={loading} className="btn-gold mt-2"
             style={{ width: '100%', padding: '15px', borderRadius: '14px', border: 'none', cursor: loading ? 'default' : 'pointer', fontSize: '13px', letterSpacing: '0.12em', textTransform: 'uppercase', opacity: loading ? 0.7 : 1 }}>
-            {loading ? 'Vérification…' : 'Entrer'}
+            {loading ? 'Connexion…' : 'Se connecter'}
           </button>
         </form>
 
@@ -197,12 +197,12 @@ export default function Login() {
           onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.4)'; e.currentTarget.style.color = '#C9A84C'; e.currentTarget.style.background = 'rgba(201,168,76,0.04)' }}
           onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.2)'; e.currentTarget.style.color = 'rgba(201,168,76,0.7)'; e.currentTarget.style.background = 'transparent' }}
         >
-          ∞ &nbsp; Explorer en mode démo
+          ∞ &nbsp; Explorer les connexions
         </button>
 
         <p style={{ textAlign: 'center', fontSize: '12px', color: 'rgba(255,255,255,0.2)', marginTop: '28px' }}>
-          Pas encore membre ?{' '}
-          <Link to="/register" style={{ color: 'rgba(201,168,76,0.6)', textDecoration: 'none' }}>Créer un compte</Link>
+          Pas encore connecté ?{' '}
+          <Link to="/register" style={{ color: 'rgba(201,168,76,0.6)', textDecoration: 'none' }}>Créer ma connexion</Link>
         </p>
       </div>
     </div>

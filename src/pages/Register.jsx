@@ -47,8 +47,8 @@ export default function Register() {
   return (
     <div className="min-h-dvh flex flex-col items-center justify-center px-6 py-12">
       <div className="w-full max-w-sm">
-        <h1 className="font-serif text-4xl font-semibold text-center mb-1">Inscription</h1>
-        <p className="text-muted text-center text-sm mb-8">Créez votre compte couple.</p>
+        <h1 className="font-serif text-4xl font-semibold text-center mb-1">Créer ma connexion</h1>
+        <p className="text-muted text-center text-sm mb-8">Connectez-vous à ceux qui vous correspondent.</p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <Field label="Votre email (partenaire 1)" id="email" type="email" autoComplete="email"
@@ -80,13 +80,13 @@ export default function Register() {
             type="submit" disabled={loading}
             className="mt-2 w-full py-3 rounded-xl bg-gold text-bg font-semibold hover:bg-[#d4ae58] disabled:opacity-50 transition-colors duration-150 cursor-pointer"
           >
-            {loading ? 'Création…' : 'Créer mon compte'}
+            {loading ? 'Connexion en cours…' : 'Me connecter'}
           </button>
         </form>
 
         <p className="text-center text-sm text-muted mt-6">
-          Déjà membre ?{' '}
-          <Link to="/login" className="text-gold hover:underline">Se connecter</Link>
+          Déjà connecté ?{' '}
+          <Link to="/login" className="text-gold hover:underline">Se reconnecter</Link>
         </p>
       </div>
     </div>

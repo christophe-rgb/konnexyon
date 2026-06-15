@@ -79,8 +79,10 @@
     animation: shimmer 4s ease infinite;
   }
 
-  /* Bouton or premium */
+  /* Bouton or premium — motif X connexion en filigrane */
   .btn-gold {
+    position: relative;
+    overflow: hidden;
     background: var(--gold-gradient);
     background-size: 200% auto;
     color: #050505;
@@ -89,6 +91,21 @@
     box-shadow: var(--gold-glow-sm);
     transition: all 0.3s ease;
   }
+  /* filigrane X — deux diagonales croisées comme le logo */
+  .btn-gold::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(45deg,  transparent 42%, rgba(0,0,0,0.09) 42%, rgba(0,0,0,0.09) 58%, transparent 58%),
+      linear-gradient(-45deg, transparent 42%, rgba(0,0,0,0.09) 42%, rgba(0,0,0,0.09) 58%, transparent 58%);
+    background-size: 28px 28px;
+    pointer-events: none;
+    border-radius: inherit;
+    opacity: 0.6;
+    transition: opacity 0.3s;
+  }
+  .btn-gold:hover::before { opacity: 1; }
   .btn-gold:hover {
     background-position: right center;
     box-shadow: var(--gold-glow);
