@@ -78,7 +78,7 @@ export default function Home() {
           }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#C9A84C', boxShadow: '0 0 8px #C9A84C' }} />
             <span style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.7)' }}>
-              Réservé aux couples · 18+
+              France · Belgique · Suisse · Québec · 18+
             </span>
           </div>
 
@@ -178,7 +178,7 @@ export default function Home() {
         display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 12,
       }}>
         <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.15)', letterSpacing: '0.08em' }}>
-          © 2025 Konnexyon · Réservé aux adultes consentants · 18+
+          © 2026 Konnexyon · Europe francophone · Réservé aux adultes consentants · 18+
         </span>
         <div style={{ display: 'flex', gap: 20 }}>
           <Link to="/cgu" style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', textDecoration: 'none', letterSpacing: '0.06em' }}>CGU</Link>

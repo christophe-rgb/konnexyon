@@ -35,9 +35,9 @@ export default function CGU() {
           Vous pouvez supprimer votre compte à tout moment depuis les paramètres de l'application. Konnexyon se réserve le droit de suspendre ou supprimer tout compte ne respectant pas les présentes CGU.
         </Article>
         <Article title="8. Droit applicable">
-          Les présentes CGU sont soumises au droit français. Tout litige sera soumis aux tribunaux compétents de France.
+          Pour les résidents de l'Union Européenne, les présentes CGU sont soumises au droit européen et notamment au règlement RGPD. Pour les résidents hors UE (Suisse, Canada, etc.), la législation locale en matière de protection des données s'applique conjointement. Tout litige non résolu à l'amiable sera soumis aux juridictions compétentes du pays de résidence de l'utilisateur.
         </Article>
-        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)', marginTop: 40 }}>Dernière mise à jour : juin 2025</p>
+        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)', marginTop: 40 }}>Dernière mise à jour : juin 2026</p>
       </div>
     </div>
   )

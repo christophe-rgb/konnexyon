@@ -34,7 +34,7 @@ export default function Confidentialite() {
         <Article title="7. Conservation">
           Vos données sont conservées tant que votre compte est actif. En cas de suppression de compte, toutes vos données sont effacées sous 30 jours.
         </Article>
-        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)', marginTop: 40 }}>Dernière mise à jour : juin 2025</p>
+        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)', marginTop: 40 }}>Dernière mise à jour : juin 2026</p>
       </div>
     </div>
   )
