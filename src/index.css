@@ -113,7 +113,7 @@
     opacity: 0.5;
     transition: opacity var(--dur-mid);
   }
-  /* reflet lumineux au hover */
+  /* reflet bijou — glisse en boucle */
   .btn-gold::after {
     content: '';
     position: absolute;
@@ -121,13 +121,12 @@
     left: -60%;
     width: 40%;
     height: 200%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
     transform: skewX(-20deg);
-    transition: left 0.5s var(--ease-out);
     pointer-events: none;
+    animation: btnShine 5s ease-in-out infinite;
   }
   .btn-gold:hover::before { opacity: 0.9; }
-  .btn-gold:hover::after  { left: 120%; }
   .btn-gold:hover {
     background-position: right center;
     box-shadow: var(--gold-glow);
@@ -266,9 +265,9 @@
     background: linear-gradient(
       115deg,
       transparent 20%,
-      rgba(255,253,220,0.07) 40%,
-      rgba(255,255,255,0.18) 50%,
-      rgba(255,253,220,0.07) 60%,
+      rgba(255,253,220,0.10) 38%,
+      rgba(255,255,255,0.28) 50%,
+      rgba(255,253,220,0.10) 62%,
       transparent 80%
     );
     background-size: 200% 100%;
@@ -346,6 +345,13 @@
 @keyframes rotateX {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
+}
+@keyframes btnShine {
+  0%   { left: -60%; opacity: 0; }
+  5%   { opacity: 1; }
+  35%  { left: 120%; opacity: 1; }
+  42%  { opacity: 0; }
+  100% { left: 120%; opacity: 0; }
 }
 
 /* prefers-reduced-motion */
