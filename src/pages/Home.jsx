@@ -69,13 +69,14 @@ export default function Home() {
       <section style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '100px 24px 60px', position: 'relative', overflow: 'hidden' }}>
 
         {/* fond logo — centré, contenu dans le hero, fondu bas discret */}
-        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
           <img src="/logo.png" alt="" aria-hidden style={{
             width: '90vw', maxWidth: 600,
             maxHeight: '92vh', objectFit: 'contain',
             opacity: 0.14, filter: 'brightness(1.4)',
-            maskImage: 'linear-gradient(to bottom, black 0%, black 78%, transparent 95%)',
-            WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 78%, transparent 95%)',
+            marginBottom: '-2%',
+            maskImage: 'linear-gradient(to bottom, transparent 0%, black 12%, black 82%, transparent 96%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 12%, black 82%, transparent 96%)',
           }} />
         </div>
 
