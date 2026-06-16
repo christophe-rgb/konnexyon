@@ -61,7 +61,7 @@ export default function SwipeStack({ profiles, onLike, onPass }) {
   const isFlying = !!flying
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '12px 16px 20px', gap: 16, overflow: 'hidden' }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', padding: '8px 16px 16px', gap: 14, overflow: 'hidden' }}>
 
       {/* stack */}
       <div style={{ position: 'relative', width: '100%', maxWidth: 400, height: 520, flexShrink: 0 }}>
