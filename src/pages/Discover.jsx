@@ -239,10 +239,12 @@ export default function Discover() {
           profiles={profiles}
           onLike={like}
           onPass={id => {
-            const p = profiles.find(x => x.id === id)
-            if (p) setPassed(ps => [...ps, p])
-            setProfiles(ps => ps.filter(p => p.id !== id))
-            toast('Mis de côté')
+            setProfiles(ps => {
+              const p = ps.find(x => x.id === id)
+              if (!p) return ps
+              return [...ps.filter(x => x.id !== id), p]
+            })
+            toast('Reproposé plus tard')
           }}
         />
       ) : view === 'map' ? (

@@ -4,63 +4,6 @@ import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
 import XLogo from '../components/XLogo'
 
-/* Réseau de nœuds animés — évoque le X connexion du logo */
-function ConnectionNetwork() {
-  const nodes = [
-    { cx: '8%',  cy: '12%', r: 2.5, delay: '0s'   },
-    { cx: '92%', cy: '8%',  r: 2,   delay: '0.4s'  },
-    { cx: '5%',  cy: '60%', r: 3,   delay: '0.8s'  },
-    { cx: '95%', cy: '55%', r: 2,   delay: '0.2s'  },
-    { cx: '50%', cy: '5%',  r: 1.5, delay: '1s'    },
-    { cx: '88%', cy: '88%', r: 2,   delay: '0.6s'  },
-    { cx: '12%', cy: '85%', r: 2.5, delay: '0.3s'  },
-    { cx: '45%', cy: '95%', r: 1.5, delay: '0.9s'  },
-  ]
-  const lines = [
-    { x1: '8%',  y1: '12%', x2: '92%', y2: '8%',  delay: '0.2s' },
-    { x1: '8%',  y1: '12%', x2: '5%',  y2: '60%', delay: '0.5s' },
-    { x1: '92%', y1: '8%',  x2: '95%', y2: '55%', delay: '0.7s' },
-    { x1: '5%',  y1: '60%', x2: '12%', y2: '85%', delay: '0.9s' },
-    { x1: '95%', y1: '55%', x2: '88%', y2: '88%', delay: '1.1s' },
-    { x1: '50%', y1: '5%',  x2: '92%', y2: '8%',  delay: '0.3s' },
-    { x1: '12%', y1: '85%', x2: '45%', y2: '95%', delay: '1.3s' },
-    { x1: '88%', y1: '88%', x2: '45%', y2: '95%', delay: '1.5s' },
-    { x1: '8%',  y1: '12%', x2: '50%', y2: '5%',  delay: '0.6s' },
-  ]
-  return (
-    <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <defs>
-        <filter id="glow">
-          <feGaussianBlur stdDeviation="2" result="blur"/>
-          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-      </defs>
-      {lines.map((l, i) => (
-        <line key={i}
-          x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2}
-          stroke="#C9A84C" strokeWidth="0.6"
-          strokeDasharray="300"
-          style={{
-            strokeDashoffset: 0,
-            opacity: 0,
-            animation: `connectionDraw 2.5s ease-out ${l.delay} forwards`,
-          }}
-        />
-      ))}
-      {nodes.map((n, i) => (
-        <circle key={i}
-          cx={n.cx} cy={n.cy} r={n.r}
-          fill="#C9A84C"
-          filter="url(#glow)"
-          style={{
-            opacity: 0,
-            animation: `fadeIn 0.6s ease ${n.delay} forwards, nodePulse 3s ease-in-out ${n.delay} infinite`,
-          }}
-        />
-      ))}
-    </svg>
-  )
-}
 
 export default function Login() {
   const [email,    setEmail]    = useState('')
@@ -114,9 +57,6 @@ export default function Login() {
           background: 'radial-gradient(ellipse at center, rgba(5,5,5,0.2) 0%, rgba(5,5,5,0.7) 55%, rgba(5,5,5,0.96) 100%)',
         }} />
       </div>
-
-      {/* ── réseau de connexion animé ── */}
-      <ConnectionNetwork />
 
       {/* ── contenu formulaire ── */}
       <div className="w-full max-w-sm relative z-10">
