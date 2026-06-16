@@ -27,6 +27,9 @@ export default function Register() {
       couple_name: 'Nouveau couple',
       email_1_confirmed: false,
     })
+    supabase.functions.invoke('welcome-email', {
+      body: { email: form.email, couple_name: 'Nouveau couple' },
+    }).catch(() => {}) // non-bloquant
     navigate('/onboarding')
   }
 
