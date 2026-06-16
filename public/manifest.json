@@ -1,18 +1,44 @@
 {
-  "name": "Konnexyon",
+  "name": "Konnexyon — Rencontres couples",
   "short_name": "Konnexyon",
-  "description": "Rencontres entre couples",
+  "description": "La plateforme de rencontres discrète pour couples ouverts. France, Belgique, Suisse, Québec.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0D0D0D",
-  "theme_color": "#0D0D0D",
+  "background_color": "#050505",
+  "theme_color": "#C9A84C",
   "orientation": "portrait",
+  "lang": "fr",
+  "categories": ["lifestyle", "social"],
   "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
     {
       "src": "/icon.svg",
       "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "type": "image/svg+xml"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Découvrir",
+      "url": "/discover",
+      "description": "Explorer des profils de couples"
+    },
+    {
+      "name": "Mes connexions",
+      "url": "/matches",
+      "description": "Voir mes connexions mutuelles"
     }
   ]
 }

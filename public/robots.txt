@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /discover
+Disallow: /matches
+Disallow: /messages
+Disallow: /profile
+Disallow: /settings
+Disallow: /onboarding
+Disallow: /admin
+Disallow: /abonnement
+
+Sitemap: https://konnexyon.com/sitemap.xml

@@ -4,11 +4,46 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0D0D0D" />
+    <meta name="theme-color" content="#C9A84C" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Konnexyon" />
     <link rel="manifest" href="/manifest.json" />
-    <title>Konnexyon</title>
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <title>Konnexyon — Rencontres discrètes pour couples ouverts</title>
+    <meta name="description" content="Konnexyon est la plateforme de rencontres exclusive pour couples ouverts et libertins. Discrétion absolue, couples uniquement. France, Belgique, Suisse, Québec." />
+    <meta name="keywords" content="rencontres couples, échangisme, couples libertins, site libertin discret, rencontres libertines, couples ouverts, swinging" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://konnexyon.com/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://konnexyon.com/" />
+    <meta property="og:title" content="Konnexyon — Rencontres discrètes pour couples ouverts" />
+    <meta property="og:description" content="La plateforme de rencontres exclusive pour couples ouverts. Discrétion absolue, zéro célibataire. France, Belgique, Suisse, Québec." />
+    <meta property="og:image" content="https://konnexyon.com/logo.png" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:site_name" content="Konnexyon" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Konnexyon — Rencontres discrètes pour couples ouverts" />
+    <meta name="twitter:description" content="La plateforme de rencontres exclusive pour couples ouverts. Discrétion absolue, zéro célibataire." />
+    <meta name="twitter:image" content="https://konnexyon.com/logo.png" />
+
+    <!-- JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Konnexyon",
+      "url": "https://konnexyon.com",
+      "description": "Plateforme de rencontres discrète pour couples ouverts et libertins",
+      "inLanguage": "fr"
+    }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cormorant:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
@@ -17,5 +52,12 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {})
+        })
+      }
+    </script>
   </body>
 </html>
