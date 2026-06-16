@@ -119,7 +119,7 @@ export default function Login() {
 
         {/* LOGO MARK */}
         <div className="flex flex-col items-center mb-10">
-          {/* cercle ∞ flottant */}
+          {/* icône X connexion flottante */}
           <div
             className="animate-fade-in delay-0 animate-float relative mb-6"
             style={{ animationFillMode: 'both' }}
@@ -129,14 +129,21 @@ export default function Login() {
               border: '1px solid rgba(201,168,76,0.38)',
               boxShadow: '0 0 50px rgba(201,168,76,0.18), inset 0 1px 0 rgba(232,204,122,0.25)',
             }}>
-              <span style={{
-                background: 'linear-gradient(135deg, #A07830, #E8CC7A, #C9A84C)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                fontSize: '30px',
-                fontFamily: 'Cormorant, serif',
-                fontWeight: 600,
-              }}>∞</span>
+              <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <defs>
+                  <linearGradient id="xgrad" x1="0" y1="0" x2="38" y2="38" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stopColor="#A07830"/>
+                    <stop offset="50%" stopColor="#E8CC7A"/>
+                    <stop offset="100%" stopColor="#C9A84C"/>
+                  </linearGradient>
+                </defs>
+                <line x1="7" y1="7" x2="31" y2="31" stroke="url(#xgrad)" strokeWidth="2.5" strokeLinecap="round"/>
+                <line x1="31" y1="7" x2="7" y2="31" stroke="url(#xgrad)" strokeWidth="2.5" strokeLinecap="round"/>
+                <circle cx="7"  cy="7"  r="4" fill="url(#xgrad)"/>
+                <circle cx="31" cy="7"  r="4" fill="url(#xgrad)"/>
+                <circle cx="7"  cy="31" r="4" fill="url(#xgrad)"/>
+                <circle cx="31" cy="31" r="4" fill="url(#xgrad)"/>
+              </svg>
             </div>
             {/* halo pulsant */}
             <div className="absolute inset-0 rounded-full animate-pulse-gold" style={{
