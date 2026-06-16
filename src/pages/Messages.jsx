@@ -155,10 +155,10 @@ export default function Messages() {
       ) : (
         <div className="flex flex-col px-4 pt-3 gap-2">
           {threads.map((t, i) => (
-            <button className="erb-btn"
+            <button
               key={t.matchId}
               onClick={() => navigate(`/messages/${t.matchId}`)}
-              className="animate-fade-in-up"
+              className="erb-btn animate-fade-in-up"
               style={{
                 animationDelay: `${i * 50}ms`,
                 animationFillMode: 'both',

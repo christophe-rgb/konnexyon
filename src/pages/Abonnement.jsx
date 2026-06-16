@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/auth'
 import { isPremium } from '../lib/plan'
+import { supabase } from '../lib/supabase'
 
 const PLANS = [
   {
@@ -50,7 +51,24 @@ export default function Abonnement() {
   const profile  = useAuthStore(s => s.profile)
   const navigate = useNavigate()
   const premium  = isPremium(profile)
-  const [selected, setSelected] = useState('3m')
+  const [selected,  setSelected]  = useState('3m')
+  const [loading,   setLoading]   = useState(false)
+  const [error,     setError]     = useState('')
+
+  const handleCheckout = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const { data, error } = await supabase.functions.invoke('stripe-checkout', {
+        body: { plan: selected },
+      })
+      if (error || !data?.url) throw new Error(error?.message || 'Erreur de paiement')
+      window.location.href = data.url
+    } catch (e) {
+      setError(e.message)
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="min-h-dvh flex flex-col pb-nav relative overflow-hidden">
@@ -175,12 +193,24 @@ export default function Abonnement() {
         </div>
 
         {/* CTA */}
+        {error && (
+          <p style={{ textAlign: 'center', fontSize: 12, color: 'rgba(248,113,113,0.8)', background: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.15)', borderRadius: 12, padding: '10px 14px' }}>
+            {error}
+          </p>
+        )}
+
         <button
           className="btn-gold"
-          style={{ width: '100%', padding: '17px', borderRadius: 16, border: 'none', cursor: 'pointer', fontSize: 14, letterSpacing: '0.12em' }}
-          onClick={() => alert('Paiement Stripe — à connecter')}
+          disabled={loading || premium}
+          style={{ width: '100%', padding: '17px', borderRadius: 16, border: 'none', cursor: loading || premium ? 'default' : 'pointer', fontSize: 14, letterSpacing: '0.12em', opacity: loading ? 0.75 : 1 }}
+          onClick={handleCheckout}
         >
-          Activer Premium ∞
+          {loading ? (
+            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              <span style={{ width: 14, height: 14, border: '2px solid rgba(0,0,0,0.25)', borderTopColor: '#050505', borderRadius: '50%', display: 'inline-block', animation: 'rotateX 0.7s linear infinite' }} />
+              Redirection…
+            </span>
+          ) : premium ? 'Déjà Premium ∞' : 'Activer Premium ∞'}
         </button>
 
         <p style={{ textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.15)', lineHeight: 1.6 }}>

@@ -2,11 +2,13 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
-import { LogOut, Eye, EyeOff, MapPin, MapPinOff, Trash2, ChevronRight, Settings as SettingsIcon } from 'lucide-react'
+import { LogOut, Eye, EyeOff, MapPin, MapPinOff, Trash2, ChevronRight, Settings as SettingsIcon, Crown } from 'lucide-react'
+import { isPremium } from '../lib/plan'
 
 export default function Settings() {
   const { profile, fetchProfile, signOut } = useAuthStore()
   const navigate = useNavigate()
+  const premium = isPremium(profile)
   const [saving,  setSaving]  = useState('')
   const [confirm, setConfirm] = useState(false)
 
@@ -126,6 +128,36 @@ export default function Settings() {
             onClick={() => update({ status: profile.status === 'active' ? 'inactive' : 'active' }, 'status')}
             loading={saving === 'status'}
           />
+        </Section>
+
+        {/* abonnement */}
+        <Section title="Abonnement">
+          <button
+            className="erb-btn"
+            onClick={() => navigate('/abonnement')}
+            style={{
+              width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '16px', borderRadius: '14px', cursor: 'pointer', textAlign: 'left',
+              background: premium ? 'rgba(201,168,76,0.07)' : 'rgba(12,12,12,0.8)',
+              border: premium ? '1px solid rgba(201,168,76,0.35)' : '1px solid rgba(201,168,76,0.15)',
+              transition: 'all 0.2s',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <Crown size={18} strokeWidth={1.5} style={{ color: premium ? '#C9A84C' : 'rgba(201,168,76,0.4)', flexShrink: 0 }} />
+              <div>
+                <p style={{ fontSize: 13, fontWeight: 500, color: premium ? '#C9A84C' : 'rgba(255,255,255,0.7)', marginBottom: 2 }}>
+                  {premium ? 'Premium actif' : 'Passer Premium'}
+                </p>
+                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>
+                  {premium
+                    ? (profile?.plan_expires_at ? `Expire le ${new Date(profile.plan_expires_at).toLocaleDateString('fr-FR')}` : 'Abonnement actif')
+                    : 'À partir de 9,90 €/mois'}
+                </p>
+              </div>
+            </div>
+            <ChevronRight size={16} strokeWidth={1.5} style={{ color: 'rgba(201,168,76,0.4)' }} />
+          </button>
         </Section>
 
         {/* compte */}
