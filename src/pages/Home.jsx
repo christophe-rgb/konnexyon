@@ -94,7 +94,7 @@ export default function Home() {
             fontSize: 16, color: 'rgba(255,255,255,0.4)', lineHeight: 1.8,
             marginBottom: 40, animationDelay: '0.2s', animationFillMode: 'both',
           }}>
-            Konnexyon est la plateforme exclusive dédiée aux couples libertins.<br />
+            Konnexyon est la plateforme de rencontres exclusive pour couples ouverts.<br />
             Rencontrez, échangez et connectez en toute discrétion.
           </p>
 

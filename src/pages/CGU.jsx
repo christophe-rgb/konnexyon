@@ -20,7 +20,7 @@ export default function CGU() {
           Pour utiliser Konnexyon, vous devez : avoir 18 ans ou plus, être en couple et utiliser le service en tant que couple, fournir des informations exactes lors de l'inscription, ne pas usurper l'identité d'un tiers.
         </Article>
         <Article title="3. Contenu des profils">
-          Les membres s'engagent à ne publier que du contenu légal. Tout contenu impliquant des mineurs, non consenti, ou illégal entraîne la suppression immédiate du compte et peut faire l'objet d'un signalement aux autorités compétentes.
+          Konnexyon est une plateforme de rencontres — pas un site de contenu adulte. Les photos de profil doivent rester décentes : visages, tenues de ville ou de soirée. Les photos dénudées, explicites ou à caractère pornographique sont strictement interdites. Tout contenu impliquant des mineurs, non consenti, pornographique ou illégal entraîne la suppression immédiate du compte et peut faire l'objet d'un signalement aux autorités compétentes.
         </Article>
         <Article title="4. Abonnement Premium">
           L'abonnement Premium est proposé à titre onéreux. Le paiement est sécurisé et traité par notre prestataire de paiement. L'abonnement est renouvelé automatiquement à son terme, sauf résiliation de votre part avant la date d'échéance.

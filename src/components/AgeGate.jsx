@@ -56,11 +56,11 @@ export default function AgeGate({ onConfirm }) {
           fontFamily: 'Cormorant, serif', fontSize: 'clamp(1.8rem, 6vw, 2.6rem)',
           fontWeight: 600, color: '#F2EDE6', lineHeight: 1.2, marginBottom: 14,
         }}>
-          Contenu réservé aux adultes
+          Site réservé aux adultes
         </h1>
 
         <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', lineHeight: 1.8, marginBottom: 32 }}>
-          Ce site contient du contenu à caractère sexuel explicite.<br />
+          Konnexyon est une plateforme de rencontres pour couples adultes consentants.<br />
           L'accès est strictement réservé aux personnes majeures (18 ans ou plus).<br />
           En entrant, vous déclarez être majeur(e) et accepter les{' '}
           <a href="/cgu" style={{ color: 'rgba(201,168,76,0.6)', textDecoration: 'none' }}>CGU</a>.

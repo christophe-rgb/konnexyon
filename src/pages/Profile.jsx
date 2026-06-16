@@ -213,7 +213,11 @@ export default function Profile() {
               <Camera size={16} strokeWidth={2} color="#050505" />
             </button>
             <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }}
-              onChange={e => e.target.files[0] && uploadAvatar(e.target.files[0])} />
+              onChange={e => {
+                if (!e.target.files[0]) return
+                if (!window.confirm('📸 Photo de profil\n\nLes photos dénudées ou explicites sont interdites sur Konnexyon.\n\nVeuillez choisir une photo de visage ou en tenue.\n\nContinuer ?')) return
+                uploadAvatar(e.target.files[0])
+              }} />
           </>
         )}
 
