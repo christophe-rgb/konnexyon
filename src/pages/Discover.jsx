@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, lazy, Suspense } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { SlidersHorizontal, Compass, Zap } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
@@ -15,6 +16,7 @@ const MapView = lazy(() => import('../components/MapView'))
 export default function Discover() {
   const profile  = useAuthStore(s => s.profile)
   const demoMode = useAuthStore(s => s.demoMode)
+  const navigate = useNavigate()
   const [view,       setView]       = useState('swipe')
   const [profiles,   setProfiles]   = useState([])
   const [passed,     setPassed]     = useState([])
@@ -101,6 +103,45 @@ export default function Discover() {
             Konnexyon
           </span>
         </div>
+
+        {/* bouton votre couple */}
+        <button
+          onClick={() => navigate('/profile')}
+          className="erb-btn flex items-center gap-2"
+          style={{
+            background: 'rgba(201,168,76,0.06)',
+            border: '1px solid rgba(201,168,76,0.22)',
+            borderRadius: '999px',
+            padding: '5px 12px 5px 6px',
+            cursor: 'pointer',
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.5)'; e.currentTarget.style.background = 'rgba(201,168,76,0.12)'; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.22)'; e.currentTarget.style.background = 'rgba(201,168,76,0.06)'; }}
+        >
+          {/* mini avatar */}
+          <div style={{
+            width: 26, height: 26, borderRadius: '50%', flexShrink: 0,
+            overflow: 'hidden',
+            border: '1px solid rgba(201,168,76,0.35)',
+            background: '#111',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              <span style={{ fontSize: 11, color: 'rgba(201,168,76,0.6)', fontFamily: 'Cormorant, serif' }}>
+                {profile?.couple_name?.[0] || '∞'}
+              </span>
+            )}
+          </div>
+          <span style={{
+            fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase',
+            color: 'rgba(201,168,76,0.75)', fontWeight: 500, whiteSpace: 'nowrap',
+          }}>
+            Votre couple
+          </span>
+        </button>
 
         {/* actions toolbar */}
         <div className="flex items-center gap-2">
