@@ -82,9 +82,10 @@ export default function App() {
         zIndex: 0,
         pointerEvents: 'none',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-end',
         justifyContent: 'center',
         overflow: 'hidden',
+        paddingBottom: '4vh',
       }}>
         <img
           src="/logo.png"
