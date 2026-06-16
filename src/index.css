@@ -232,6 +232,51 @@
     box-shadow: 0 0 0 3px rgba(201,168,76,0.08);
   }
 
+  /* ── Effet bijou — reflet lumineux sur texte ── */
+  .shine-text {
+    position: relative;
+    background: linear-gradient(
+      110deg,
+      #7A5A18 0%,
+      #C9A84C 20%,
+      #F0D878 35%,
+      #FFFDE0 42%,
+      #F0D878 49%,
+      #C9A84C 60%,
+      #8A6820 80%,
+      #C9A84C 90%,
+      #E8CC7A 100%
+    );
+    background-size: 300% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: jewelShine 4s ease-in-out infinite;
+  }
+
+  /* ── Effet bijou — reflet sur image/illustration ── */
+  .shine-img {
+    position: relative;
+    overflow: hidden;
+  }
+  .shine-img::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      115deg,
+      transparent 20%,
+      rgba(255,253,220,0.07) 40%,
+      rgba(255,255,255,0.18) 50%,
+      rgba(255,253,220,0.07) 60%,
+      transparent 80%
+    );
+    background-size: 200% 100%;
+    animation: jewelSweep 5s ease-in-out infinite;
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
   /* Separator ornamental */
   .separator-gold {
     display: flex;
@@ -267,6 +312,18 @@
 @keyframes shimmer {
   0%   { background-position: -200% center; }
   100% { background-position:  200% center; }
+}
+@keyframes jewelShine {
+  0%   { background-position: 200% center; }
+  50%  { background-position:  -50% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes jewelSweep {
+  0%   { background-position: 200% 0; opacity: 0; }
+  10%  { opacity: 1; }
+  45%  { background-position: -100% 0; opacity: 1; }
+  55%  { opacity: 0; }
+  100% { background-position: -100% 0; opacity: 0; }
 }
 @keyframes float {
   0%, 100% { transform: translateY(0px) rotate(0deg); }

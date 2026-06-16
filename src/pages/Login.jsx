@@ -93,20 +93,23 @@ export default function Login() {
   return (
     <div className="min-h-dvh flex flex-col items-center justify-center px-6 relative overflow-hidden">
 
-      {/* ── fond : logo en filigrane ── */}
+      {/* ── fond : logo en filigrane avec reflet bijou ── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-center">
-        <img
-          src="/logo.png"
-          alt=""
-          aria-hidden="true"
-          style={{
-            width: '130vw',
-            maxWidth: '860px',
-            opacity: 0.55,
-            filter: 'brightness(0.85) saturate(0.9)',
-            userSelect: 'none',
-          }}
-        />
+        <div className="shine-img" style={{ position: 'relative' }}>
+          <img
+            src="/logo.png"
+            alt=""
+            aria-hidden="true"
+            style={{
+              width: '130vw',
+              maxWidth: '860px',
+              opacity: 0.55,
+              filter: 'brightness(0.85) saturate(0.9)',
+              userSelect: 'none',
+              display: 'block',
+            }}
+          />
+        </div>
         <div className="absolute inset-0" style={{
           background: 'radial-gradient(ellipse at center, rgba(5,5,5,0.2) 0%, rgba(5,5,5,0.7) 55%, rgba(5,5,5,0.96) 100%)',
         }} />
@@ -141,7 +144,7 @@ export default function Login() {
 
           {/* Nom de marque shimmer */}
           <h1
-            className="animate-fade-in-up delay-100 text-gold-shimmer"
+            className="animate-fade-in-up delay-100 shine-text"
             style={{
               fontFamily: 'Cormorant, serif',
               fontWeight: 600,
@@ -158,13 +161,14 @@ export default function Login() {
           {/* tagline */}
           <div className="animate-fade-in delay-200 flex items-center gap-3 mt-3" style={{ animationFillMode: 'both' }}>
             <div className="w-8 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.4))' }} />
-            <span style={{
+            <span className="shine-text" style={{
               fontSize: '9px',
               letterSpacing: '0.22em',
               textTransform: 'uppercase',
-              color: 'rgba(201,168,76,0.55)',
               fontFamily: 'Inter, sans-serif',
               fontWeight: 400,
+              animationDuration: '6s',
+              animationDelay: '1s',
             }}>Libertins par choix · Connectés par désir</span>
             <div className="w-8 h-px" style={{ background: 'linear-gradient(90deg, rgba(201,168,76,0.4), transparent)' }} />
           </div>
