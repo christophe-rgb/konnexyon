@@ -110,7 +110,7 @@ export default function Home() {
             Rencontrez, échangez et connectez en toute discrétion.
           </p>
 
-          <div className="animate-fade-in-up" style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', animationDelay: '0.3s', animationFillMode: 'both', marginTop: 64 }}>
+          <div className="animate-fade-in-up" style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', animationDelay: '0.3s', animationFillMode: 'both', marginTop: 120 }}>
             <Link to="/register" className="btn-gold" style={{
               padding: '17px 48px', borderRadius: 14, fontSize: 14,
               letterSpacing: '0.14em', textDecoration: 'none', display: 'inline-block',
