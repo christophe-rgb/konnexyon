@@ -46,6 +46,12 @@ export default function Home() {
           }}>Konnexyon</span>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
+          <Link to="/blog" style={{
+            padding: '8px 18px', borderRadius: 10,
+            border: '1px solid rgba(201,168,76,0.15)',
+            color: 'rgba(201,168,76,0.5)', fontSize: 13,
+            textDecoration: 'none', letterSpacing: '0.06em',
+          }}>Guide</Link>
           <Link to="/login" style={{
             padding: '8px 18px', borderRadius: 10,
             border: '1px solid rgba(201,168,76,0.25)',
