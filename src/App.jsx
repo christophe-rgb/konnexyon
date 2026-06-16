@@ -88,30 +88,6 @@ export default function App() {
   return (
     <div className="min-h-dvh bg-bg text-text" style={{ position: 'relative' }}>
 
-      {/* Filigrane logo — toutes les pages */}
-      <div style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 0,
-        pointerEvents: 'none',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'hidden',
-      }}>
-        <img
-          src="/logo.png"
-          alt=""
-          aria-hidden="true"
-          style={{
-            width: '110vw',
-            maxWidth: '680px',
-            opacity: 0.18,
-            filter: 'brightness(1.3)',
-            userSelect: 'none',
-          }}
-        />
-      </div>
 
       <ToastContainer />
 

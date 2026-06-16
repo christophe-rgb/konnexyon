@@ -71,11 +71,13 @@ export default function Onboarding() {
         resolve()
       }, resolve, { timeout: 5000 })
     })
-    await supabase.from('profiles').update({
+    await supabase.from('profiles').upsert({
+      id: user.id,
+      email_1: user.email,
       ...data,
       email_1_confirmed: true,
       ...(locationSql ? { location: locationSql, location_updated_at: new Date().toISOString() } : {}),
-    }).eq('id', user.id)
+    })
     await fetchProfile(user.id)
     const { data: updatedProfile } = await supabase
       .from('profiles').select('email_2').eq('id', user.id).single()
@@ -97,10 +99,6 @@ export default function Onboarding() {
         background: 'radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.04) 0%, transparent 60%)',
       }} />
 
-      {/* filigrane logo grand format */}
-      <div style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-        <img src="/logo.png" alt="" aria-hidden="true" style={{ width: '160vw', maxWidth: '900px', opacity: 0.15, filter: 'brightness(1.4)', userSelect: 'none' }} />
-      </div>
 
 
       <div className="w-full max-w-sm relative z-10">

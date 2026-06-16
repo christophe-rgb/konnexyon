@@ -36,16 +36,6 @@ export default function Register() {
   return (
     <div className="min-h-dvh flex flex-col items-center justify-center px-6 py-12 relative overflow-hidden">
 
-      {/* fond logo filigrane */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-center">
-        <img
-          src="/logo.png" alt="" aria-hidden="true"
-          style={{ width: '120vw', maxWidth: '780px', opacity: 0.35, filter: 'brightness(0.8)', userSelect: 'none' }}
-        />
-        <div className="absolute inset-0" style={{
-          background: 'radial-gradient(ellipse at center, rgba(5,5,5,0.5) 0%, rgba(5,5,5,0.85) 60%, rgba(5,5,5,0.98) 100%)',
-        }} />
-      </div>
 
       <div className="w-full max-w-sm relative z-10">
 
