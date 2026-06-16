@@ -142,32 +142,35 @@ export default function Login() {
             }} />
           </div>
 
-          {/* Logo titre image — recadré sur la bande KONNEXYON uniquement */}
-          <div
-            className="animate-fade-in-up delay-100 shine-img"
+          {/* Nom de marque shimmer */}
+          <h1
+            className="animate-fade-in-up delay-100 shine-text"
             style={{
+              fontFamily: 'Cormorant, serif',
+              fontWeight: 600,
+              fontSize: '3rem',
+              letterSpacing: '0.15em',
+              lineHeight: 1,
+              textTransform: 'uppercase',
               animationFillMode: 'both',
-              width: '100%',
-              maxWidth: '340px',
-              height: '96px',
-              overflow: 'hidden',
-              position: 'relative',
             }}
           >
-            <img
-              src="/logo-titre.png"
-              alt="KONNEXYON"
-              style={{
-                width: '100%',
-                height: '340px',
-                objectFit: 'cover',
-                objectPosition: 'center 52%',
-                display: 'block',
-                mixBlendMode: 'screen',
-                filter: 'brightness(1.15) drop-shadow(0 0 20px rgba(201,168,76,0.5))',
-                marginTop: '-115px',
-              }}
-            />
+            Konnexyon
+          </h1>
+
+          {/* tagline */}
+          <div className="animate-fade-in delay-200 flex items-center gap-3 mt-3" style={{ animationFillMode: 'both' }}>
+            <div className="w-8 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.4))' }} />
+            <span className="shine-text" style={{
+              fontSize: '9px',
+              letterSpacing: '0.22em',
+              textTransform: 'uppercase',
+              fontFamily: 'Inter, sans-serif',
+              fontWeight: 400,
+              animationDuration: '12s',
+              animationDelay: '1s',
+            }}>Libertins par choix · Connectés par désir</span>
+            <div className="w-8 h-px" style={{ background: 'linear-gradient(90deg, rgba(201,168,76,0.4), transparent)' }} />
           </div>
         </div>
 
