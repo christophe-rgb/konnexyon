@@ -134,8 +134,12 @@ export default function App() {
           <Route path="/contact"           element={<Contact />} />
           <Route path="/blog"                        element={<Blog />} />
           <Route path="/blog/:slug"                  element={<BlogArticle />} />
-          <Route path="/blog-:country"               element={<BlogCountryList />} />
-          <Route path="/blog-:country/:slug"         element={<BlogCountryArticle />} />
+          <Route path="/belgique"                    element={<BlogCountryList country="belgique" />} />
+          <Route path="/belgique/:slug"              element={<BlogCountryArticle country="belgique" />} />
+          <Route path="/suisse"                      element={<BlogCountryList country="suisse" />} />
+          <Route path="/suisse/:slug"                element={<BlogCountryArticle country="suisse" />} />
+          <Route path="/quebec"                      element={<BlogCountryList country="quebec" />} />
+          <Route path="/quebec/:slug"                element={<BlogCountryArticle country="quebec" />} />
 
           <Route path="/onboarding" element={
             <RequireAuth><Onboarding /></RequireAuth>

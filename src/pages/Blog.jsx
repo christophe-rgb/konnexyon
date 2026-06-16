@@ -73,9 +73,9 @@ export default function Blog() {
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
             {[
-              { to: '/blog-belgique', flag: '🇧🇪', label: 'Belgique' },
-              { to: '/blog-suisse',   flag: '🇨🇭', label: 'Suisse romande' },
-              { to: '/blog-quebec',   flag: '🇨🇦', label: 'Québec' },
+              { to: '/belgique', flag: '🇧🇪', label: 'Belgique' },
+              { to: '/suisse',   flag: '🇨🇭', label: 'Suisse romande' },
+              { to: '/quebec',   flag: '🇨🇦', label: 'Québec' },
             ].map(({ to, flag, label }) => (
               <Link key={to} to={to} style={{ fontSize: 12, color: 'rgba(201,168,76,0.55)', textDecoration: 'none', padding: '7px 16px', borderRadius: 99, border: '1px solid rgba(201,168,76,0.18)', transition: 'all 0.2s' }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.4)'; e.currentTarget.style.color = '#C9A84C' }}

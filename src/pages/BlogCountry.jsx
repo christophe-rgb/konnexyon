@@ -24,13 +24,12 @@ const COUNTRIES = {
   },
 }
 
-export function BlogCountryList() {
-  const { country } = useParams()
+export function BlogCountryList({ country }) {
   const data = COUNTRIES[country]
   if (!data) return <Navigate to="/blog" replace />
 
   const { articles, label, flag, desc } = data
-  const prefix = `/blog-${country}`
+  const prefix = `/${country}`
 
   return (
     <div className="min-h-dvh" style={{ background: '#050505' }}>
@@ -83,7 +82,7 @@ export function BlogCountryList() {
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
             <Link to="/blog" style={{ fontSize: 12, color: 'rgba(201,168,76,0.5)', textDecoration: 'none', padding: '6px 14px', borderRadius: 99, border: '1px solid rgba(201,168,76,0.15)' }}>🇫🇷 France</Link>
             {Object.entries(COUNTRIES).filter(([k]) => k !== country).map(([k, v]) => (
-              <Link key={k} to={`/blog-${k}`} style={{ fontSize: 12, color: 'rgba(201,168,76,0.5)', textDecoration: 'none', padding: '6px 14px', borderRadius: 99, border: '1px solid rgba(201,168,76,0.15)' }}>
+              <Link key={k} to={`/${k}`} style={{ fontSize: 12, color: 'rgba(201,168,76,0.5)', textDecoration: 'none', padding: '6px 14px', borderRadius: 99, border: '1px solid rgba(201,168,76,0.15)' }}>
                 {v.flag} {v.label}
               </Link>
             ))}
@@ -94,18 +93,18 @@ export function BlogCountryList() {
   )
 }
 
-export function BlogCountryArticle() {
-  const { country, slug } = useParams()
+export function BlogCountryArticle({ country }) {
+  const { slug } = useParams()
   const data = COUNTRIES[country]
   if (!data) return <Navigate to="/blog" replace />
 
   const article = data.articles.find(a => a.slug === slug)
-  if (!article) return <Navigate to={`/blog-${country}`} replace />
+  if (!article) return <Navigate to={`/${country}`} replace />
 
   const idx = data.articles.indexOf(article)
   const prev = data.articles[idx - 1]
   const next = data.articles[idx + 1]
-  const prefix = `/blog-${country}`
+  const prefix = `/${country}`
 
   return (
     <div className="min-h-dvh" style={{ background: '#050505' }}>
