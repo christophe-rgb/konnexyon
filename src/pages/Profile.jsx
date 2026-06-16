@@ -8,17 +8,23 @@ import XLogo from '../components/XLogo'
 import { toast } from '../components/Toast'
 
 const LIMITS_LABELS = {
-  pas_photo:             'Pas de photo sans accord',
-  discretion:            'Discrétion totale',
+  pas_photo:             'Aucune photo partagée sans accord mutuel préalable',
+  discretion:            'Discrétion absolue — identité et vie privée protégées',
   pas_contact_hors_site: 'Pas de contact hors site avant rencontre',
   preservatif:           'Préservatif obligatoire',
+  pas_penetration:       'Pas de pénétration',
 }
 
 const SEEKING_LABELS = {
-  rencontres_occasionnelles: 'Rencontres',
-  echangisme:                'Échangisme',
-  amis_libertins:            'Amis libertins',
-  decouverte:                'Découverte',
+  decouverte:                'Découverte · curieux',
+  rencontres_occasionnelles: 'Rencontres occasionnelles',
+  echangisme:                'Échangisme · soirées',
+  expert:                    'Expert',
+}
+
+const ORIENTATION_LABELS = {
+  hetero: 'Hétéro',
+  bi:     'Bi',
 }
 
 
@@ -61,13 +67,13 @@ export default function Profile() {
     if (isOwn) {
       setProfile(myProfile)
       setForm({
-        couple_name: myProfile?.couple_name || '',
-        bio:         myProfile?.bio || '',
-        orientation: myProfile?.orientation || 'hetero_hetero',
-        looking_for: myProfile?.looking_for || ['couple'],
-        seeking:     myProfile?.seeking || [],
-        limits:      myProfile?.limits || [],
-        availabilities: myProfile?.availabilities || [],
+        couple_name:      myProfile?.couple_name || '',
+        bio:              myProfile?.bio || '',
+        orientation_lui:  myProfile?.orientation_lui || 'hetero',
+        orientation_elle: myProfile?.orientation_elle || 'hetero',
+        seeking:          myProfile?.seeking || [],
+        limits:           myProfile?.limits || [],
+        availabilities:   myProfile?.availabilities || [],
       })
     } else if (demoMode) {
       const demo = DEMO_PROFILES.find(p => p.id === uid)
@@ -242,9 +248,10 @@ export default function Profile() {
           }}>
             {profile.couple_name}
           </h1>
-          {profile.orientation && (
+          {(profile.orientation_lui || profile.orientation_elle) && (
             <p style={{ fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.55)' }}>
-              {profile.orientation.replace('_', ' · ')}
+              Lui · {ORIENTATION_LABELS[profile.orientation_lui] || profile.orientation_lui || '—'}
+              {' '}/ Elle · {ORIENTATION_LABELS[profile.orientation_elle] || profile.orientation_elle || '—'}
             </p>
           )}
           {profile.bio && (
@@ -527,6 +534,41 @@ function EditForm({ form, setForm, onSave, onCancel, saving }) {
           onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,0.18)'; e.target.style.boxShadow = 'none'; }}
         />
       </div>
+      {/* Orientation */}
+      <div style={{ display: 'flex', gap: 12 }}>
+        {[
+          { label: 'LUI', key: 'orientation_lui' },
+          { label: 'ELLE', key: 'orientation_elle' },
+        ].map(({ label, key }) => (
+          <div key={key} style={{ flex: 1 }}>
+            <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.5)', marginBottom: '8px' }}>
+              {label}
+            </label>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {[
+                { value: 'hetero', label: 'Hétéro' },
+                { value: 'bi', label: 'Bi' },
+              ].map(o => (
+                <button
+                  key={o.value}
+                  type="button"
+                  onClick={() => set(key, o.value)}
+                  style={{
+                    flex: 1, padding: '10px 8px', borderRadius: '10px', cursor: 'pointer',
+                    fontSize: '12px', letterSpacing: '0.06em', transition: 'all 0.2s',
+                    border: form[key] === o.value ? '1px solid rgba(201,168,76,0.7)' : '1px solid rgba(201,168,76,0.15)',
+                    background: form[key] === o.value ? 'rgba(201,168,76,0.12)' : 'transparent',
+                    color: form[key] === o.value ? '#C9A84C' : 'rgba(255,255,255,0.3)',
+                  }}
+                >
+                  {o.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
       <div className="flex gap-3 mt-1">
         <button className="erb-btn"
           onClick={onCancel}
