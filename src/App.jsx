@@ -6,6 +6,7 @@ import { supabase } from './lib/supabase'
 import Navbar       from './components/Navbar'
 import { ToastContainer } from './components/Toast'
 import MatchModal   from './components/MatchModal'
+import AgeGate      from './components/AgeGate'
 import Home           from './pages/Home'
 import Login          from './pages/Login'
 import Register       from './pages/Register'
@@ -48,6 +49,9 @@ export default function App() {
   const profile = useAuthStore(s => s.profile)
   const user    = useAuthStore(s => s.user)
   const [newMatch, setNewMatch] = useState(null)
+  const [ageConfirmed, setAgeConfirmed] = useState(
+    () => sessionStorage.getItem('age_confirmed') === '1'
+  )
 
   useEffect(() => { init() }, [init])
 
@@ -75,6 +79,8 @@ export default function App() {
   }, [profile])
 
   const showNav = user && profile?.email_1_confirmed
+
+  if (!ageConfirmed) return <AgeGate onConfirm={() => setAgeConfirmed(true)} />
 
   return (
     <div className="min-h-dvh bg-bg text-text" style={{ position: 'relative' }}>
