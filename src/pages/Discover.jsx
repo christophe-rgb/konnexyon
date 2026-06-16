@@ -108,6 +108,7 @@ export default function Discover() {
           <button
             onClick={() => setShowPanier(true)}
             aria-label="Profils mis de côté"
+            className="erb-btn"
             style={{
               position: 'relative',
               width: 36, height: 36, borderRadius: '10px',
@@ -138,7 +139,7 @@ export default function Discover() {
           <button
             onClick={() => setShowFilters(true)}
             aria-label="Filtres de connexion"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 cursor-pointer"
+            className="erb-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 cursor-pointer"
             style={{
               background: 'rgba(20,20,20,0.9)',
               border: '1px solid rgba(201,168,76,0.2)',
@@ -163,7 +164,7 @@ export default function Discover() {
                 onClick={() => setView(id)}
                 aria-pressed={view === id}
                 aria-label={aria}
-                className="px-3 py-1.5 text-sm transition-all duration-200 cursor-pointer"
+                className="erb-btn px-3 py-1.5 text-sm transition-all duration-200 cursor-pointer"
                 style={{
                   background: view === id
                     ? 'linear-gradient(135deg, #A07830, #C9A84C, #E8CC7A)'

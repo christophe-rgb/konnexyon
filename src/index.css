@@ -354,6 +354,25 @@
   100% { left: 120%; opacity: 0; }
 }
 
+/* ── ERB sur boutons toolbar ── */
+.erb-btn {
+  position: relative;
+  overflow: hidden;
+}
+.erb-btn::after {
+  content: '';
+  position: absolute;
+  top: -50%; left: -60%;
+  width: 35%; height: 200%;
+  background: linear-gradient(90deg, transparent, rgba(255,253,200,0.22), transparent);
+  transform: skewX(-18deg);
+  pointer-events: none;
+  animation: btnShine 4.5s ease-in-out infinite;
+}
+.erb-btn:nth-child(2)::after { animation-delay: 1.2s; }
+.erb-btn:nth-child(3)::after { animation-delay: 2.4s; }
+.erb-btn:nth-child(4)::after { animation-delay: 3.6s; }
+
 /* prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
