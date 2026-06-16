@@ -66,7 +66,7 @@ export default function Home() {
       </header>
 
       {/* hero */}
-      <section style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '100px 24px 60px', position: 'relative' }}>
+      <section style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '100px 24px 60px', position: 'relative', overflow: 'hidden' }}>
 
         {/* fond logo — centré, contenu dans le hero, fondu bas discret */}
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -110,7 +110,7 @@ export default function Home() {
             Rencontrez, échangez et connectez en toute discrétion.
           </p>
 
-          <div className="animate-fade-in-up" style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', animationDelay: '0.3s', animationFillMode: 'both' }}>
+          <div className="animate-fade-in-up" style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', animationDelay: '0.3s', animationFillMode: 'both', marginTop: 24 }}>
             <Link to="/register" className="btn-gold" style={{
               padding: '17px 48px', borderRadius: 14, fontSize: 14,
               letterSpacing: '0.14em', textDecoration: 'none', display: 'inline-block',
