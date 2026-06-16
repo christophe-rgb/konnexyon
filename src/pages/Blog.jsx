@@ -65,6 +65,27 @@ export default function Blog() {
             </Link>
           ))}
         </div>
+
+        {/* autres éditions */}
+        <div style={{ marginTop: 48, paddingTop: 32, borderTop: '1px solid rgba(201,168,76,0.08)' }}>
+          <p style={{ fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.2)', marginBottom: 16 }}>
+            Éditions locales
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+            {[
+              { to: '/blog-belgique', flag: '🇧🇪', label: 'Belgique' },
+              { to: '/blog-suisse',   flag: '🇨🇭', label: 'Suisse romande' },
+              { to: '/blog-quebec',   flag: '🇨🇦', label: 'Québec' },
+            ].map(({ to, flag, label }) => (
+              <Link key={to} to={to} style={{ fontSize: 12, color: 'rgba(201,168,76,0.55)', textDecoration: 'none', padding: '7px 16px', borderRadius: 99, border: '1px solid rgba(201,168,76,0.18)', transition: 'all 0.2s' }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.4)'; e.currentTarget.style.color = '#C9A84C' }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.18)'; e.currentTarget.style.color = 'rgba(201,168,76,0.55)' }}
+              >
+                {flag} {label}
+              </Link>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )
