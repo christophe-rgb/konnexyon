@@ -129,20 +129,16 @@ export default function Login() {
               border: '1px solid rgba(201,168,76,0.38)',
               boxShadow: '0 0 50px rgba(201,168,76,0.18), inset 0 1px 0 rgba(232,204,122,0.25)',
             }}>
-              <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <svg width="42" height="42" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <defs>
-                  <linearGradient id="xgrad" x1="0" y1="0" x2="38" y2="38" gradientUnits="userSpaceOnUse">
+                  <linearGradient id="xgrad" x1="0" y1="0" x2="42" y2="42" gradientUnits="userSpaceOnUse">
                     <stop offset="0%" stopColor="#A07830"/>
                     <stop offset="50%" stopColor="#E8CC7A"/>
                     <stop offset="100%" stopColor="#C9A84C"/>
                   </linearGradient>
                 </defs>
-                <line x1="7" y1="7" x2="31" y2="31" stroke="url(#xgrad)" strokeWidth="2.5" strokeLinecap="round"/>
-                <line x1="31" y1="7" x2="7" y2="31" stroke="url(#xgrad)" strokeWidth="2.5" strokeLinecap="round"/>
-                <circle cx="7"  cy="7"  r="4" fill="url(#xgrad)"/>
-                <circle cx="31" cy="7"  r="4" fill="url(#xgrad)"/>
-                <circle cx="7"  cy="31" r="4" fill="url(#xgrad)"/>
-                <circle cx="31" cy="31" r="4" fill="url(#xgrad)"/>
+                <line x1="8" y1="8" x2="34" y2="34" stroke="url(#xgrad)" strokeWidth="6" strokeLinecap="round"/>
+                <line x1="34" y1="8" x2="8" y2="34" stroke="url(#xgrad)" strokeWidth="6" strokeLinecap="round"/>
               </svg>
             </div>
             {/* halo pulsant */}
