@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, lazy, Suspense } from 'react'
-import { SlidersHorizontal, Compass } from 'lucide-react'
+import { SlidersHorizontal, Compass, Plug } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
 import { DEMO_PROFILES } from '../lib/demo'
@@ -121,7 +121,7 @@ export default function Discover() {
             onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.55)'; e.currentTarget.style.color = '#C9A84C'; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = passed.length ? 'rgba(201,168,76,0.4)' : 'rgba(201,168,76,0.2)'; e.currentTarget.style.color = passed.length ? '#C9A84C' : 'rgba(201,168,76,0.4)'; }}
           >
-            🗂
+            <Plug size={16} strokeWidth={1.5} />
             {passed.length > 0 && (
               <span style={{
                 position: 'absolute', top: -6, right: -6,
