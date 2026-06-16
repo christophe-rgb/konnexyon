@@ -105,7 +105,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Konnexyon <bienvenue@konnexyon.com>',
+        from: 'Konnexyon <onboarding@resend.dev>',
         to: [email],
         subject: 'Bienvenue sur Konnexyon ∞',
         html,
