@@ -181,6 +181,7 @@ export default function Home() {
           © 2026 Konnexyon · Europe francophone · Réservé aux adultes consentants · 18+
         </span>
         <div style={{ display: 'flex', gap: 20 }}>
+          <Link to="/blog" style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', textDecoration: 'none', letterSpacing: '0.06em' }}>Guide & Conseils</Link>
           <Link to="/cgu" style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', textDecoration: 'none', letterSpacing: '0.06em' }}>CGU</Link>
           <Link to="/confidentialite" style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', textDecoration: 'none', letterSpacing: '0.06em' }}>Confidentialité</Link>
           <Link to="/contact" style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', textDecoration: 'none', letterSpacing: '0.06em' }}>Contact</Link>

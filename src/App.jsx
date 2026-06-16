@@ -25,6 +25,8 @@ import Abonnement     from './pages/Abonnement'
 import CGU           from './pages/CGU'
 import Confidentialite from './pages/Confidentialite'
 import Contact        from './pages/Contact'
+import Blog           from './pages/Blog'
+import BlogArticle    from './pages/BlogArticle'
 
 function RequireAuth({ children }) {
   const { user, loading } = useAuthStore()
@@ -129,6 +131,8 @@ export default function App() {
           <Route path="/cgu"               element={<CGU />} />
           <Route path="/confidentialite"   element={<Confidentialite />} />
           <Route path="/contact"           element={<Contact />} />
+          <Route path="/blog"              element={<Blog />} />
+          <Route path="/blog/:slug"        element={<BlogArticle />} />
 
           <Route path="/onboarding" element={
             <RequireAuth><Onboarding /></RequireAuth>
