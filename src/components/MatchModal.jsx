@@ -84,7 +84,7 @@ export default function MatchModal({ match, onClose }) {
         </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <button
+          <button className="erb-btn"
             onClick={() => { navigate(`/messages/${match.id}`); onClose() }}
             className="btn-gold"
             style={{
@@ -97,7 +97,7 @@ export default function MatchModal({ match, onClose }) {
             <MessageCircle size={16} strokeWidth={2} />
             Envoyer un message
           </button>
-          <button
+          <button className="erb-btn"
             onClick={onClose}
             style={{
               width: '100%', padding: '14px', borderRadius: '14px',

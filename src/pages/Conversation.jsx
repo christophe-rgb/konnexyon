@@ -179,7 +179,7 @@ export default function Conversation() {
         WebkitBackdropFilter: 'blur(24px)',
         borderBottom: '1px solid rgba(201,168,76,0.1)',
       }}>
-        <button
+        <button className="erb-btn"
           onClick={() => navigate('/messages')}
           aria-label="Retour"
           style={{
@@ -213,7 +213,7 @@ export default function Conversation() {
           </p>
         </div>
 
-        <button
+        <button className="erb-btn"
           onClick={unmatch}
           aria-label="Annuler la connexion"
           style={{
@@ -265,7 +265,7 @@ export default function Conversation() {
       }}>
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px', maxWidth: '640px', margin: '0 auto' }}>
           {/* photo */}
-          <button
+          <button className="erb-btn"
             onClick={() => fileRef.current?.click()}
             disabled={uploading}
             aria-label="Envoyer une photo"

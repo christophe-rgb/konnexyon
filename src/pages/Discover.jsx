@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { SlidersHorizontal, Compass, Zap } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
+import { isPremium } from '../lib/plan'
+import UpgradeModal from '../components/UpgradeModal'
 import { DEMO_PROFILES } from '../lib/demo'
 import ProfileCard from '../components/ProfileCard'
 import SwipeStack from '../components/SwipeStack'
@@ -22,7 +24,9 @@ export default function Discover() {
   const [passed,     setPassed]     = useState([])
   const [selected,   setSelected]   = useState(null)
   const [showFilters,setShowFilters] = useState(false)
-  const [showPanier, setShowPanier] = useState(false)
+  const [showPanier,  setShowPanier]  = useState(false)
+  const [showUpgrade, setShowUpgrade] = useState(false)
+  const premium = isPremium(profile)
   const [filters,    setFilters]    = useState({ orientation: 'all', seeking: [], distance: profile?.max_distance_km || 50 })
   const [loading,    setLoading]    = useState(true)
 
@@ -49,6 +53,7 @@ export default function Discover() {
   useEffect(() => { load() }, [load])
 
   const like = async (toId) => {
+    if (!premium && !demoMode) { setShowUpgrade(true); return }
     if (!demoMode) {
       const { error } = await supabase.from('likes').insert({ from_id: profile.id, to_id: toId })
       if (error) { toast('Erreur lors de la connexion', 'error'); return }
@@ -274,6 +279,13 @@ export default function Discover() {
           filters={filters}
           onChange={f => { setFilters(f); setShowFilters(false) }}
           onClose={() => setShowFilters(false)}
+        />
+      )}
+
+      {showUpgrade && (
+        <UpgradeModal
+          onClose={() => setShowUpgrade(false)}
+          message="Passez Premium pour envoyer des connexions et contacter les couples."
         />
       )}
 

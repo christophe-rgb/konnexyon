@@ -4,13 +4,17 @@ import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
 import { DEMO_MATCHES, DEMO_MESSAGES } from '../lib/demo'
 import { MessageCircle } from 'lucide-react'
+import { isPremium } from '../lib/plan'
+import UpgradeModal from '../components/UpgradeModal'
 
 export default function Messages() {
   const profile  = useAuthStore(s => s.profile)
   const demoMode = useAuthStore(s => s.demoMode)
   const navigate = useNavigate()
-  const [threads, setThreads] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [threads,     setThreads]     = useState([])
+  const [loading,     setLoading]     = useState(true)
+  const [showUpgrade, setShowUpgrade] = useState(false)
+  const premium = isPremium(profile)
 
   useEffect(() => {
     if (!profile) return
@@ -66,6 +70,30 @@ export default function Messages() {
     setThreads(threads.filter(t => t.profile))
     setLoading(false)
   }
+
+  if (!premium && !demoMode) return (
+    <div className="min-h-dvh flex flex-col items-center justify-center px-8 gap-6 text-center pb-nav">
+      <div style={{
+        width: 72, height: 72, borderRadius: '50%',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: 'radial-gradient(circle, rgba(201,168,76,0.1), transparent)',
+        border: '1px solid rgba(201,168,76,0.2)',
+        fontSize: 28,
+      }}>∞</div>
+      <div>
+        <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '1.8rem', color: '#F2EDE6', marginBottom: 8 }}>
+          Messagerie Premium
+        </h2>
+        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)', lineHeight: 1.7 }}>
+          Les messages sont réservés aux membres Premium.<br/>Passez à l'abonnement pour contacter les couples.
+        </p>
+      </div>
+      <button className="btn-gold" onClick={() => navigate('/abonnement')}
+        style={{ padding: '15px 40px', borderRadius: 14, border: 'none', cursor: 'pointer', fontSize: 13, letterSpacing: '0.12em' }}>
+        Voir les offres Premium
+      </button>
+    </div>
+  )
 
   return (
     <div className="max-w-lg mx-auto pb-nav">
@@ -127,7 +155,7 @@ export default function Messages() {
       ) : (
         <div className="flex flex-col px-4 pt-3 gap-2">
           {threads.map((t, i) => (
-            <button
+            <button className="erb-btn"
               key={t.matchId}
               onClick={() => navigate(`/messages/${t.matchId}`)}
               className="animate-fade-in-up"

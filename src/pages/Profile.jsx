@@ -192,7 +192,7 @@ export default function Profile() {
         {/* upload button (own profile) */}
         {isOwn && (
           <>
-            <button
+            <button className="erb-btn"
               onClick={() => fileRef.current?.click()}
               aria-label="Changer la photo"
               style={{
@@ -257,7 +257,7 @@ export default function Profile() {
         {/* boutons own profile */}
         {isOwn && !editing && (
           <div className="flex gap-2 animate-fade-in-up delay-200" style={{ animationFillMode: 'both', marginBottom: '24px' }}>
-            <button
+            <button className="erb-btn"
               onClick={() => setEditing(true)}
               style={{
                 flex: 1, padding: '13px', borderRadius: '14px',
@@ -272,7 +272,7 @@ export default function Profile() {
             >
               Modifier mon profil
             </button>
-            <button
+            <button className="erb-btn"
               onClick={() => navigate('/settings')}
               aria-label="Paramètres"
               style={{
@@ -361,7 +361,7 @@ export default function Profile() {
                 )}
 
                 <div className="flex gap-2">
-                  <button
+                  <button className="erb-btn"
                     onClick={() => setShowReport(true)}
                     style={{
                       flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
@@ -376,7 +376,7 @@ export default function Profile() {
                   >
                     <Flag size={13} strokeWidth={1.5} /> Signaler
                   </button>
-                  <button
+                  <button className="erb-btn"
                     onClick={block}
                     style={{
                       flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
@@ -434,7 +434,7 @@ export default function Profile() {
               onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,0.18)'; e.target.style.boxShadow = 'none'; }}
             />
             <div className="flex gap-3">
-              <button
+              <button className="erb-btn"
                 onClick={() => setShowReport(false)}
                 style={{
                   flex: 1, padding: '14px', borderRadius: '12px',
@@ -528,7 +528,7 @@ function EditForm({ form, setForm, onSave, onCancel, saving }) {
         />
       </div>
       <div className="flex gap-3 mt-1">
-        <button
+        <button className="erb-btn"
           onClick={onCancel}
           style={{
             flex: 1, padding: '14px', borderRadius: '12px',

@@ -41,7 +41,7 @@ export default function PanierSheet({ profiles, onLike, onRemove, onClose }) {
               {profiles.length} couple{profiles.length > 1 ? 's' : ''}
             </p>
           </div>
-          <button
+          <button className="erb-btn"
             onClick={onClose}
             style={{
               width: 36, height: 36, borderRadius: '50%',
@@ -123,7 +123,7 @@ function PanierCard({ profile, onLike, onRemove, index }) {
       {/* actions */}
       <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
         {/* retirer */}
-        <button
+        <button className="erb-btn"
           onClick={() => onRemove(profile.id)}
           aria-label="Retirer"
           style={{
@@ -140,7 +140,7 @@ function PanierCard({ profile, onLike, onRemove, index }) {
         >×</button>
 
         {/* connecter */}
-        <button
+        <button className="erb-btn"
           onClick={() => onLike(profile.id)}
           aria-label="Se connecter"
           style={{

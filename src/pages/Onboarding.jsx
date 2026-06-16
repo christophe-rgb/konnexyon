@@ -13,10 +13,10 @@ const STEPS = [
 ]
 
 const SEEKING_OPTIONS = [
+  { value: 'decouverte',                label: 'Découverte · curieux',          desc: 'Explorer en toute douceur' },
   { value: 'rencontres_occasionnelles', label: 'Rencontres occasionnelles',     desc: 'Des rencontres sensuelles sans engagement' },
   { value: 'echangisme',                label: 'Échangisme · soirées',          desc: 'Échanges et soirées entre couples' },
-  { value: 'amis_libertins',            label: 'Amis libertins',                desc: 'Des amis partageant vos valeurs' },
-  { value: 'decouverte',                label: 'Découverte · curieux',          desc: 'Explorer en toute douceur' },
+  { value: 'expert',                    label: 'Expert',                        desc: 'Pratiques intenses entre adultes consentants' },
 ]
 
 const AVAIL_OPTIONS = [
@@ -27,10 +27,11 @@ const AVAIL_OPTIONS = [
 ]
 
 const LIMITS_OPTIONS = [
-  { value: 'pas_photo',             label: 'Pas de photo sans accord' },
-  { value: 'discretion',            label: 'Discrétion totale' },
+  { value: 'pas_photo',             label: 'Aucune photo partagée sans accord mutuel préalable' },
+  { value: 'discretion',            label: 'Discrétion absolue — identité et vie privée protégées' },
   { value: 'pas_contact_hors_site', label: 'Pas de contact hors site avant rencontre' },
   { value: 'preservatif',           label: 'Préservatif obligatoire' },
+  { value: 'pas_penetration',       label: 'Pas de pénétration' },
 ]
 
 export default function Onboarding() {
@@ -43,7 +44,8 @@ export default function Onboarding() {
   const [data,   setData]   = useState({
     couple_name:    '',
     bio:            '',
-    orientation:    'hetero_hetero',
+    orientation_lui:  'hetero',
+    orientation_elle: 'hetero',
     looking_for:    ['couple'],
     seeking:        [],
     availabilities: [],
@@ -94,6 +96,7 @@ export default function Onboarding() {
       <div className="absolute inset-0 pointer-events-none" style={{
         background: 'radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.04) 0%, transparent 60%)',
       }} />
+
 
       <div className="w-full max-w-sm relative z-10">
 
@@ -162,7 +165,7 @@ export default function Onboarding() {
         {/* navigation */}
         <div className="flex gap-3 mt-8">
           {step > 0 && (
-            <button
+            <button className="erb-btn"
               onClick={prev}
               style={{
                 flex: 1, padding: '15px', borderRadius: '14px', cursor: 'pointer',
@@ -240,57 +243,34 @@ function StepProfil({ data, set, toggleArr }) {
         />
       </OField>
 
+      {/* Orientation Lui */}
       <div>
         <p style={{ fontSize: '11px', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.5)', marginBottom: '10px' }}>
-          Orientation
+          Lui
         </p>
-        <div className="flex flex-col gap-2">
-          {[
-            { value: 'hetero_hetero', label: 'Hétéro cherche hétéro' },
-            { value: 'hetero_bi',     label: 'Hétéro cherche bi' },
-            { value: 'bi_all',        label: 'Bi cherche tout profil' },
-          ].map(o => (
-            <OButton key={o.value} active={data.orientation === o.value} onClick={() => set('orientation', o.value)}>
+        <div className="flex gap-2">
+          {[{ value: 'hetero', label: 'Hétéro' }, { value: 'bi', label: 'Bi' }].map(o => (
+            <OButton key={o.value} active={data.orientation_lui === o.value} onClick={() => set('orientation_lui', o.value)}>
               {o.label}
             </OButton>
           ))}
         </div>
       </div>
 
+      {/* Orientation Elle */}
       <div>
         <p style={{ fontSize: '11px', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.5)', marginBottom: '10px' }}>
-          Vous cherchez
+          Elle
         </p>
         <div className="flex gap-2">
-          {[
-            { value: 'couple', label: 'Couple' },
-            { value: 'man',    label: 'Homme' },
-            { value: 'woman',  label: 'Femme' },
-          ].map(o => {
-            const active = data.looking_for.includes(o.value)
-            return (
-              <button
-                key={o.value}
-                onClick={() => {
-                  set('looking_for', active
-                    ? data.looking_for.filter(x => x !== o.value)
-                    : [...data.looking_for, o.value])
-                }}
-                style={{
-                  flex: 1, padding: '10px 8px', borderRadius: '12px',
-                  border: `1px solid ${active ? 'rgba(201,168,76,0.6)' : 'rgba(201,168,76,0.18)'}`,
-                  background: active ? 'rgba(201,168,76,0.1)' : 'transparent',
-                  color: active ? '#C9A84C' : 'rgba(255,255,255,0.35)',
-                  fontSize: '13px', cursor: 'pointer',
-                  transition: 'all 0.2s',
-                }}
-              >
-                {o.label}
-              </button>
-            )
-          })}
+          {[{ value: 'hetero', label: 'Hétéro' }, { value: 'bi', label: 'Bi' }].map(o => (
+            <OButton key={o.value} active={data.orientation_elle === o.value} onClick={() => set('orientation_elle', o.value)}>
+              {o.label}
+            </OButton>
+          ))}
         </div>
       </div>
+
     </div>
   )
 }
@@ -308,7 +288,7 @@ function StepMulti({ title, subtitle, options, field, data, toggle }) {
         {options.map(o => {
           const active = data[field]?.includes(o.value)
           return (
-            <button
+            <button className="erb-btn"
               key={o.value}
               onClick={() => toggle(field, o.value)}
               style={{
@@ -349,7 +329,7 @@ function StepDistance({ data, set }) {
       </div>
       <div className="flex flex-col gap-2">
         {options.map(o => (
-          <button
+          <button className="erb-btn"
             key={o.value}
             onClick={() => set('max_distance_km', o.value)}
             style={{
@@ -374,7 +354,6 @@ function StepVisibility({ data, set }) {
   const options = [
     { value: 'public',       label: 'Visible par tous', desc: 'Votre profil apparaît dans les connexions à proximité' },
     { value: 'matches_only', label: 'Connexions uniquement', desc: 'Seuls vos matchs peuvent voir votre profil' },
-    { value: 'discreet',     label: 'Mode discret', desc: 'Invisible sur la carte — vous voyez les autres sans être vus' },
   ]
   return (
     <div className="flex flex-col gap-5">
@@ -386,7 +365,7 @@ function StepVisibility({ data, set }) {
       </div>
       <div className="flex flex-col gap-2">
         {options.map(o => (
-          <button
+          <button className="erb-btn"
             key={o.value}
             onClick={() => set('visibility', o.value)}
             style={{
@@ -436,7 +415,7 @@ function OField({ label, children }) {
 
 function OButton({ active, onClick, children }) {
   return (
-    <button
+    <button className="erb-btn"
       onClick={onClick}
       style={{
         textAlign: 'left', padding: '12px 16px', borderRadius: '12px',

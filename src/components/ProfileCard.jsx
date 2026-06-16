@@ -207,7 +207,7 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
         {showActions && (
           <div className="flex gap-2" onClick={e => e.stopPropagation()}>
             {onPass && (
-              <button
+              <button className="erb-btn"
                 onClick={e => { e.stopPropagation(); onPass(profile.id); }}
                 aria-label={`Passer ${profile.couple_name}`}
                 style={{

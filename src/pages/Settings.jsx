@@ -74,7 +74,7 @@ export default function Settings() {
           ].map(o => {
             const isActive = profile.visibility === o.value
             return (
-              <button
+              <button className="erb-btn"
                 key={o.value}
                 onClick={() => update({ visibility: o.value }, 'visibility')}
                 style={{
@@ -162,7 +162,7 @@ export default function Settings() {
               Votre profil, vos connexions et vos messages seront définitivement supprimés. Cette action est irréversible.
             </p>
             <div className="flex gap-3">
-              <button
+              <button className="erb-btn"
                 onClick={() => setConfirm(false)}
                 style={{
                   flex: 1, padding: '14px', borderRadius: '12px',
@@ -172,7 +172,7 @@ export default function Settings() {
               >
                 Annuler
               </button>
-              <button
+              <button className="erb-btn"
                 onClick={deleteAccount}
                 style={{
                   flex: 1, padding: '14px', borderRadius: '12px',
@@ -208,7 +208,7 @@ function Section({ title, children }) {
 
 function Row({ icon: Icon, label, desc, onClick, loading, danger = false }) {
   return (
-    <button
+    <button className="erb-btn"
       onClick={onClick}
       style={{
         width: '100%', display: 'flex', alignItems: 'center', gap: '14px',

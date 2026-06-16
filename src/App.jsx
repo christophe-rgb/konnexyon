@@ -20,6 +20,7 @@ import Conversation from './pages/Conversation'
 import Profile      from './pages/Profile'
 import Settings     from './pages/Settings'
 import Admin        from './pages/Admin'
+import Abonnement  from './pages/Abonnement'
 
 function RequireAuth({ children }) {
   const { user, loading } = useAuthStore()
@@ -82,22 +83,20 @@ export default function App() {
         zIndex: 0,
         pointerEvents: 'none',
         display: 'flex',
-        alignItems: 'flex-end',
+        alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden',
-        paddingBottom: '0',
       }}>
         <img
           src="/logo.png"
           alt=""
           aria-hidden="true"
           style={{
-            width: '120vw',
-            maxWidth: '700px',
+            width: '110vw',
+            maxWidth: '680px',
             opacity: 0.18,
             filter: 'brightness(1.3)',
             userSelect: 'none',
-            transform: 'translateY(25%)',
           }}
         />
       </div>
@@ -140,6 +139,9 @@ export default function App() {
           } />
           <Route path="/settings" element={
             <RequireAuth><RequireProfile><Settings /></RequireProfile></RequireAuth>
+          } />
+          <Route path="/abonnement" element={
+            <RequireAuth><RequireProfile><Abonnement /></RequireProfile></RequireAuth>
           } />
           <Route path="/admin" element={
             <RequireAuth><Admin /></RequireAuth>

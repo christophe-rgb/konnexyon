@@ -69,7 +69,7 @@ export default function ResetPassword() {
 
           <button
             type="submit" disabled={loading}
-            className="w-full py-3 rounded-xl bg-gold text-bg font-semibold hover:bg-[#d4ae58] disabled:opacity-50 transition-colors duration-150 cursor-pointer"
+            className="w-full py-3 rounded-xl bg-gold text-bg font-semibold hover:bg-[#d4ae58] disabled:opacity-50 transition-colors duration-150 cursor-pointer erb-btn"
           >
             {loading ? 'Enregistrement…' : 'Enregistrer le mot de passe'}
           </button>

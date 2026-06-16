@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from 'react'
 import XLogo from './XLogo'
-import { Compass, LinkOff } from 'lucide-react'
+import { Compass, Unlink } from 'lucide-react'
 
 const THRESHOLD = 70
 
@@ -179,7 +179,7 @@ export default function SwipeStack({ profiles, onLike, onPass }) {
       {/* boutons action */}
       <div style={{ display: 'flex', gap: 28, alignItems: 'center' }}>
         <ActionBtn onClick={handlePass} aria="Plus tard">
-          <LinkOff size={26} strokeWidth={1.5} color="rgba(248,113,113,0.85)" />
+          <Unlink size={26} strokeWidth={1.5} color="rgba(248,113,113,0.85)" />
         </ActionBtn>
 
         <ActionBtn onClick={handleLike} aria="Se connecter" gold>
@@ -205,7 +205,7 @@ function CardPhoto({ profile }) {
 
 function ActionBtn({ onClick, children, aria, gold }) {
   return (
-    <button
+    <button className="erb-btn"
       onClick={onClick}
       aria-label={aria}
       style={{

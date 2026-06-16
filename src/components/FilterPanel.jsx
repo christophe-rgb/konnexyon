@@ -26,7 +26,7 @@ export default function FilterPanel({ filters, onChange, onClose }) {
         {/* header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="font-serif text-2xl">Filtres</h2>
-          <button onClick={onClose} className="text-muted hover:text-text cursor-pointer">
+          <button onClick={onClose} className="text-muted hover:text-text cursor-pointer erb-btn">
             <X size={22} />
           </button>
         </div>
@@ -36,7 +36,7 @@ export default function FilterPanel({ filters, onChange, onClose }) {
           <p className="text-sm text-muted mb-2">Orientation</p>
           <div className="flex flex-wrap gap-2">
             {ORIENTATIONS.map(o => (
-              <button
+              <button className="erb-btn"
                 key={o.value}
                 onClick={() => set('orientation', o.value)}
                 className={clsx(
@@ -59,7 +59,7 @@ export default function FilterPanel({ filters, onChange, onClose }) {
             {SEEKING.map(s => {
               const active = filters.seeking?.includes(s.value)
               return (
-                <button
+                <button className="erb-btn"
                   key={s.value}
                   onClick={() => {
                     const cur = filters.seeking || []
@@ -84,7 +84,7 @@ export default function FilterPanel({ filters, onChange, onClose }) {
           <p className="text-sm text-muted mb-2">Distance max</p>
           <div className="flex gap-2">
             {DISTANCES.map(d => (
-              <button
+              <button className="erb-btn"
                 key={d}
                 onClick={() => set('distance', d)}
                 className={clsx(
@@ -102,7 +102,7 @@ export default function FilterPanel({ filters, onChange, onClose }) {
 
         <button
           onClick={onClose}
-          className="mt-6 w-full py-3 rounded-xl bg-gold text-bg font-semibold hover:bg-[#d4ae58] transition-colors duration-150 cursor-pointer"
+          className="mt-6 w-full py-3 rounded-xl bg-gold text-bg font-semibold hover:bg-[#d4ae58] transition-colors duration-150 cursor-pointer erb-btn"
         >
           Appliquer
         </button>

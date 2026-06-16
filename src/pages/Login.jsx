@@ -234,7 +234,7 @@ export default function Login() {
                 onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,0.5)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,0.07)'; }}
                 onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,0.18)'; e.target.style.boxShadow = 'none'; }}
               />
-              <button
+              <button className="erb-btn"
                 type="button"
                 onClick={() => setShowPwd(v => !v)}
                 aria-label={showPwd ? 'Masquer' : 'Afficher'}
@@ -290,7 +290,7 @@ export default function Login() {
         {/* bouton démo */}
         <button
           onClick={handleDemo}
-          className="animate-fade-in-up delay-700"
+          className="animate-fade-in-up delay-700 erb-btn"
           style={{
             width: '100%', padding: '15px', borderRadius: '14px', cursor: 'pointer',
             background: 'rgba(201,168,76,0.04)',
