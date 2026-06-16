@@ -5,6 +5,7 @@ import { useAuthStore } from '../store/auth'
 import { DEMO_PROFILES } from '../lib/demo'
 import ProfileCard from '../components/ProfileCard'
 import SwipeStack from '../components/SwipeStack'
+import PanierSheet from '../components/PanierSheet'
 import { ProfileCardSkeleton } from '../components/Skeleton'
 import FilterPanel from '../components/FilterPanel'
 import { toast } from '../components/Toast'
@@ -16,8 +17,10 @@ export default function Discover() {
   const demoMode = useAuthStore(s => s.demoMode)
   const [view,       setView]       = useState('swipe')
   const [profiles,   setProfiles]   = useState([])
+  const [passed,     setPassed]     = useState([])
   const [selected,   setSelected]   = useState(null)
   const [showFilters,setShowFilters] = useState(false)
+  const [showPanier, setShowPanier] = useState(false)
   const [filters,    setFilters]    = useState({ orientation: 'all', seeking: [], distance: profile?.max_distance_km || 50 })
   const [loading,    setLoading]    = useState(true)
 
@@ -101,6 +104,37 @@ export default function Discover() {
 
         {/* actions toolbar */}
         <div className="flex items-center gap-2">
+          {/* bouton panier */}
+          <button
+            onClick={() => setShowPanier(true)}
+            aria-label="Profils mis de côté"
+            style={{
+              position: 'relative',
+              width: 36, height: 36, borderRadius: '10px',
+              background: 'rgba(20,20,20,0.9)',
+              border: `1px solid ${passed.length ? 'rgba(201,168,76,0.4)' : 'rgba(201,168,76,0.2)'}`,
+              color: passed.length ? '#C9A84C' : 'rgba(201,168,76,0.4)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', transition: 'all 0.2s',
+              fontSize: 16,
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.55)'; e.currentTarget.style.color = '#C9A84C'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = passed.length ? 'rgba(201,168,76,0.4)' : 'rgba(201,168,76,0.2)'; e.currentTarget.style.color = passed.length ? '#C9A84C' : 'rgba(201,168,76,0.4)'; }}
+          >
+            🗂
+            {passed.length > 0 && (
+              <span style={{
+                position: 'absolute', top: -6, right: -6,
+                minWidth: 18, height: 18, borderRadius: 9,
+                background: 'linear-gradient(135deg, #A07830, #E8CC7A)',
+                color: '#050505', fontSize: 10, fontWeight: 700,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                padding: '0 4px',
+                boxShadow: '0 0 8px rgba(201,168,76,0.5)',
+              }}>{passed.length}</span>
+            )}
+          </button>
+
           <button
             onClick={() => setShowFilters(true)}
             aria-label="Filtres de connexion"
@@ -157,7 +191,12 @@ export default function Discover() {
         <SwipeStack
           profiles={profiles}
           onLike={like}
-          onPass={id => { setProfiles(ps => ps.filter(p => p.id !== id)); toast('Mis de côté') }}
+          onPass={id => {
+            const p = profiles.find(x => x.id === id)
+            if (p) setPassed(ps => [...ps, p])
+            setProfiles(ps => ps.filter(p => p.id !== id))
+            toast('Mis de côté')
+          }}
         />
       ) : view === 'map' ? (
         <div className="flex-1 relative">
@@ -193,6 +232,18 @@ export default function Discover() {
           filters={filters}
           onChange={f => { setFilters(f); setShowFilters(false) }}
           onClose={() => setShowFilters(false)}
+        />
+      )}
+
+      {showPanier && (
+        <PanierSheet
+          profiles={passed}
+          onLike={id => {
+            like(id)
+            setPassed(ps => ps.filter(p => p.id !== id))
+          }}
+          onRemove={id => setPassed(ps => ps.filter(p => p.id !== id))}
+          onClose={() => setShowPanier(false)}
         />
       )}
     </div>
