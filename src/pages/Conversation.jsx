@@ -171,38 +171,76 @@ export default function Conversation() {
   return (
     <div className="flex flex-col h-dvh bg-bg">
       {/* header */}
-      <div className="flex items-center gap-3 px-4 py-3 bg-surface border-b border-[rgba(201,168,76,0.2)] flex-shrink-0">
-        <button onClick={() => navigate('/messages')} className="text-muted hover:text-text cursor-pointer">
-          <ArrowLeft size={22} strokeWidth={1.5} />
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: '12px',
+        padding: '12px 16px', flexShrink: 0,
+        background: 'rgba(5,5,5,0.96)',
+        backdropFilter: 'blur(24px)',
+        WebkitBackdropFilter: 'blur(24px)',
+        borderBottom: '1px solid rgba(201,168,76,0.1)',
+      }}>
+        <button
+          onClick={() => navigate('/messages')}
+          aria-label="Retour"
+          style={{
+            width: 38, height: 38, borderRadius: '12px', flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(20,20,20,0.8)', border: '1px solid rgba(201,168,76,0.12)',
+            color: 'rgba(255,255,255,0.4)', cursor: 'pointer', transition: 'all 0.2s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.color = 'rgba(201,168,76,0.8)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.3)'; }}
+          onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.4)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.12)'; }}
+        >
+          <ArrowLeft size={18} strokeWidth={1.5} />
         </button>
 
-        <div className="w-9 h-9 rounded-full bg-surface2 overflow-hidden flex-shrink-0">
+        <div style={{ width: 38, height: 38, borderRadius: '12px', overflow: 'hidden', flexShrink: 0, border: '1px solid rgba(201,168,76,0.2)', background: '#111' }}>
           {otherProfile?.avatar_url ? (
-            <img src={otherProfile.avatar_url} alt="" className="w-full h-full object-cover" />
+            <img src={otherProfile.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           ) : (
-            <div className="w-full h-full flex items-center justify-center font-serif text-gold/40">
+            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Cormorant, serif', fontSize: '18px', color: 'rgba(201,168,76,0.35)' }}>
               {otherProfile?.couple_name?.[0]}
             </div>
           )}
         </div>
 
-        <div className="flex-1 min-w-0">
-          <p className="font-medium truncate">{otherProfile?.couple_name}</p>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.1rem', fontWeight: 600, color: '#F2EDE6', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {otherProfile?.couple_name}
+          </p>
+          <p style={{ fontSize: '10px', color: 'rgba(201,168,76,0.4)', letterSpacing: '0.1em' }}>
+            ∞ connectés
+          </p>
         </div>
 
-        <button onClick={unmatch} className="text-muted hover:text-red-400 cursor-pointer" title="Annuler le match">
-          <Trash2 size={18} strokeWidth={1.5} />
+        <button
+          onClick={unmatch}
+          aria-label="Annuler la connexion"
+          style={{
+            width: 38, height: 38, borderRadius: '12px', flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(20,20,20,0.8)', border: '1px solid rgba(239,68,68,0.12)',
+            color: 'rgba(239,68,68,0.4)', cursor: 'pointer', transition: 'all 0.2s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.color = 'rgba(239,68,68,0.8)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.35)'; }}
+          onMouseLeave={e => { e.currentTarget.style.color = 'rgba(239,68,68,0.4)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.12)'; }}
+        >
+          <Trash2 size={16} strokeWidth={1.5} />
         </button>
       </div>
 
       {/* messages */}
       <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3">
         {loading ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="w-6 h-6 border-2 border-gold/20 border-t-gold rounded-full animate-spin" />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 0' }}>
+            <div style={{ width: 22, height: 22, border: '2px solid rgba(201,168,76,0.15)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite' }} />
           </div>
         ) : messages.length === 0 ? (
-          <p className="text-muted text-sm text-center mt-8">Commencez la conversation !</p>
+          <div style={{ textAlign: 'center', marginTop: '40px' }}>
+            <p style={{ fontSize: '11px', letterSpacing: '0.15em', color: 'rgba(201,168,76,0.3)', textTransform: 'uppercase' }}>
+              ∞ · La connexion commence ici · ∞
+            </p>
+          </div>
         ) : (
           messages.map(m => (
             <ChatBubble
@@ -217,21 +255,36 @@ export default function Conversation() {
       </div>
 
       {/* input */}
-      <div className="flex-shrink-0 border-t border-[rgba(201,168,76,0.2)] bg-surface px-4 py-3">
-        <div className="flex items-end gap-2 max-w-lg mx-auto">
+      <div style={{
+        flexShrink: 0,
+        borderTop: '1px solid rgba(201,168,76,0.1)',
+        background: 'rgba(5,5,5,0.96)',
+        backdropFilter: 'blur(24px)',
+        WebkitBackdropFilter: 'blur(24px)',
+        padding: '12px 16px',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px', maxWidth: '640px', margin: '0 auto' }}>
           {/* photo */}
           <button
             onClick={() => fileRef.current?.click()}
             disabled={uploading}
-            className="flex-shrink-0 w-10 h-10 rounded-xl bg-surface2 flex items-center justify-center text-muted hover:text-gold disabled:opacity-50 transition-colors duration-150 cursor-pointer"
             aria-label="Envoyer une photo"
+            style={{
+              flexShrink: 0, width: 40, height: 40, borderRadius: '12px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'rgba(20,20,20,0.9)', border: '1px solid rgba(201,168,76,0.12)',
+              color: 'rgba(201,168,76,0.5)', cursor: 'pointer', transition: 'all 0.2s',
+              opacity: uploading ? 0.5 : 1,
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.3)'; e.currentTarget.style.color = 'rgba(201,168,76,0.8)'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.12)'; e.currentTarget.style.color = 'rgba(201,168,76,0.5)'; }}
           >
             {uploading
-              ? <div className="w-4 h-4 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
-              : <Image size={18} strokeWidth={1.5} />
+              ? <div style={{ width: 14, height: 14, border: '2px solid rgba(201,168,76,0.2)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite' }} />
+              : <Image size={17} strokeWidth={1.5} />
             }
           </button>
-          <input ref={fileRef} type="file" accept="image/*" className="hidden"
+          <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }}
             onChange={e => { if (e.target.files[0]) { sendPhoto(e.target.files[0]); e.target.value = '' } }} />
 
           {/* emoji */}
@@ -245,17 +298,39 @@ export default function Conversation() {
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
             placeholder="Votre message…"
             rows={1}
-            className="flex-1 bg-surface2 border border-[rgba(201,168,76,0.2)] rounded-xl px-4 py-2.5 text-text placeholder-muted focus:outline-none focus:border-gold resize-none text-sm transition-colors duration-150 leading-relaxed"
+            style={{
+              flex: 1,
+              background: 'rgba(15,15,15,0.9)',
+              border: '1px solid rgba(201,168,76,0.15)',
+              borderRadius: '14px',
+              padding: '10px 16px',
+              color: '#F2EDE6',
+              fontSize: '14px',
+              outline: 'none',
+              resize: 'none',
+              lineHeight: 1.5,
+              transition: 'border-color 0.2s',
+              fontFamily: 'inherit',
+            }}
+            onFocus={e => e.target.style.borderColor = 'rgba(201,168,76,0.4)'}
+            onBlur={e => e.target.style.borderColor = 'rgba(201,168,76,0.15)'}
           />
 
           {/* envoyer */}
           <button
             onClick={send}
             disabled={sending || !text.trim()}
-            className="flex-shrink-0 w-10 h-10 rounded-xl bg-gold flex items-center justify-center text-bg hover:bg-[#d4ae58] disabled:opacity-40 transition-colors duration-150 cursor-pointer"
             aria-label="Envoyer"
+            className="btn-gold"
+            style={{
+              flexShrink: 0, width: 40, height: 40, borderRadius: '12px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              border: 'none', cursor: sending || !text.trim() ? 'default' : 'pointer',
+              opacity: sending || !text.trim() ? 0.35 : 1,
+              transition: 'opacity 0.2s',
+            }}
           >
-            <Send size={18} strokeWidth={2} />
+            <Send size={16} strokeWidth={2} />
           </button>
         </div>
       </div>

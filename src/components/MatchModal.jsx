@@ -1,36 +1,119 @@
 import { useNavigate } from 'react-router-dom'
-import { Heart, MessageCircle } from 'lucide-react'
+import { MessageCircle } from 'lucide-react'
 
 export default function MatchModal({ match, onClose }) {
   const navigate = useNavigate()
 
   return (
-    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/80 px-6">
-      <div className="bg-surface border border-[rgba(201,168,76,0.3)] rounded-3xl p-8 w-full max-w-sm text-center gold-glow">
-        {/* icône */}
-        <div className="flex items-center justify-center gap-3 mb-6">
+    <div
+      className="fixed inset-0 z-[90] flex items-center justify-center px-6 animate-fade-in"
+      style={{ background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(12px)', animationFillMode: 'both' }}
+    >
+      {/* particules dorées */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {[...Array(6)].map((_, i) => (
+          <div key={i} style={{
+            position: 'absolute',
+            width: 3, height: 3, borderRadius: '50%',
+            background: 'rgba(201,168,76,0.6)',
+            left: `${15 + i * 14}%`,
+            top: `${20 + (i % 3) * 20}%`,
+            animation: `float ${2 + i * 0.4}s ease-in-out infinite`,
+            animationDelay: `${i * 0.3}s`,
+          }} />
+        ))}
+      </div>
+
+      <div
+        className="animate-fade-in-up"
+        style={{
+          background: 'linear-gradient(145deg, rgba(12,10,5,0.99) 0%, rgba(8,7,3,0.99) 100%)',
+          border: '1px solid rgba(201,168,76,0.3)',
+          borderRadius: '28px',
+          padding: '40px 32px',
+          width: '100%', maxWidth: '380px',
+          textAlign: 'center',
+          boxShadow: '0 0 80px rgba(201,168,76,0.12), 0 40px 80px rgba(0,0,0,0.9)',
+          animationFillMode: 'both',
+          position: 'relative',
+        }}
+      >
+        {/* avatars */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', marginBottom: '28px' }}>
           <Avatar profile={match.me} />
-          <Heart size={28} className="text-gold flex-shrink-0" fill="currentColor" />
+
+          {/* icône X connexion centrale */}
+          <div style={{
+            width: 44, height: 44, borderRadius: '50%', flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'linear-gradient(135deg, #A07830, #C9A84C, #E8CC7A)',
+            boxShadow: '0 0 24px rgba(201,168,76,0.5)',
+            animation: 'pulseGold 2s ease-in-out infinite',
+          }}>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <line x1="4" y1="4" x2="16" y2="16" stroke="#050505" strokeWidth="2.5" strokeLinecap="round"/>
+              <line x1="16" y1="4" x2="4" y2="16" stroke="#050505" strokeWidth="2.5" strokeLinecap="round"/>
+              <circle cx="4"  cy="4"  r="2.5" fill="#050505"/>
+              <circle cx="16" cy="4"  r="2.5" fill="#050505"/>
+              <circle cx="4"  cy="16" r="2.5" fill="#050505"/>
+              <circle cx="16" cy="16" r="2.5" fill="#050505"/>
+            </svg>
+          </div>
+
           <Avatar profile={match.other} />
         </div>
 
-        <h2 className="font-serif text-4xl font-semibold text-gold mb-2">Match !</h2>
-        <p className="text-muted text-sm leading-relaxed mb-8">
-          Vous et <strong className="text-text">{match.other?.couple_name}</strong> vous êtes likés mutuellement.
+        {/* titre */}
+        <p style={{
+          fontFamily: 'Cormorant, serif',
+          fontSize: '2.4rem',
+          fontWeight: 600,
+          background: 'linear-gradient(135deg, #A07830, #C9A84C, #E8CC7A)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+          letterSpacing: '0.05em',
+          marginBottom: '10px',
+          lineHeight: 1.1,
+        }}>
+          Connexion !
+        </p>
+
+        <div style={{ fontSize: '10px', letterSpacing: '0.2em', color: 'rgba(201,168,76,0.4)', textTransform: 'uppercase', marginBottom: '16px' }}>
+          ∞ · Connexion mutuelle · ∞
+        </div>
+
+        <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', lineHeight: 1.7, marginBottom: '28px' }}>
+          Vous et <strong style={{ color: 'rgba(255,255,255,0.7)' }}>{match.other?.couple_name}</strong> vous êtes connectés mutuellement.
           Le chat est maintenant débloqué.
         </p>
 
-        <div className="flex flex-col gap-3">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <button
             onClick={() => { navigate(`/messages/${match.id}`); onClose() }}
-            className="w-full py-3 rounded-xl bg-gold text-bg font-semibold flex items-center justify-center gap-2 hover:bg-[#d4ae58] transition-colors duration-150 cursor-pointer"
+            className="btn-gold"
+            style={{
+              width: '100%', padding: '15px', borderRadius: '14px',
+              border: 'none', fontSize: '13px', letterSpacing: '0.1em',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+              cursor: 'pointer',
+            }}
           >
-            <MessageCircle size={18} strokeWidth={2} />
+            <MessageCircle size={16} strokeWidth={2} />
             Envoyer un message
           </button>
           <button
             onClick={onClose}
-            className="w-full py-3 rounded-xl border border-[rgba(201,168,76,0.2)] text-muted hover:text-text transition-colors duration-150 cursor-pointer text-sm"
+            style={{
+              width: '100%', padding: '14px', borderRadius: '14px',
+              background: 'transparent',
+              border: '1px solid rgba(201,168,76,0.12)',
+              color: 'rgba(255,255,255,0.3)',
+              fontSize: '12px', letterSpacing: '0.06em',
+              cursor: 'pointer', transition: 'all 0.2s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.25)'; e.currentTarget.style.color = 'rgba(255,255,255,0.55)'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.12)'; e.currentTarget.style.color = 'rgba(255,255,255,0.3)'; }}
           >
             Continuer à explorer
           </button>
@@ -42,12 +125,23 @@ export default function MatchModal({ match, onClose }) {
 
 function Avatar({ profile }) {
   return (
-    <div className="w-16 h-16 rounded-full bg-surface2 border-2 border-[rgba(201,168,76,0.3)] overflow-hidden flex-shrink-0">
+    <div style={{
+      width: 64, height: 64, borderRadius: '20px', flexShrink: 0,
+      overflow: 'hidden',
+      border: '1px solid rgba(201,168,76,0.3)',
+      boxShadow: '0 0 20px rgba(201,168,76,0.15)',
+    }}>
       {profile?.avatar_url ? (
-        <img src={profile.avatar_url} alt={profile.couple_name} className="w-full h-full object-cover" />
+        <img src={profile.avatar_url} alt={profile.couple_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
       ) : (
-        <div className="w-full h-full flex items-center justify-center font-serif text-2xl text-gold/40">
-          {profile?.couple_name?.[0] || '?'}
+        <div style={{
+          width: '100%', height: '100%',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: '#111',
+          fontFamily: 'Cormorant, serif', fontSize: '24px',
+          color: 'rgba(201,168,76,0.35)',
+        }}>
+          {profile?.couple_name?.[0] || '∞'}
         </div>
       )}
     </div>
