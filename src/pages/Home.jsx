@@ -68,9 +68,17 @@ export default function Home() {
       {/* hero */}
       <section style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '100px 24px 60px', position: 'relative' }}>
 
-        {/* fond logo */}
-        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', pointerEvents: 'none' }}>
-          <img src="/logo.png" alt="" aria-hidden style={{ width: '140vw', maxWidth: 900, opacity: 0.12, filter: 'brightness(1.4)' }} />
+        {/* fond logo — masque dégradé pour cacher la partie texte */}
+        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+          <img src="/logo.png" alt="" aria-hidden style={{
+            position: 'absolute',
+            width: '100vw', maxWidth: 660,
+            top: '-5%', left: '50%',
+            transform: 'translateX(-50%)',
+            opacity: 0.15, filter: 'brightness(1.4)',
+            maskImage: 'linear-gradient(to bottom, black 0%, black 50%, transparent 72%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 50%, transparent 72%)',
+          }} />
         </div>
 
         <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', maxWidth: 520 }}>
