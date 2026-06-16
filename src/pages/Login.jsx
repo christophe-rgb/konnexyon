@@ -167,7 +167,7 @@ export default function Login() {
               textTransform: 'uppercase',
               fontFamily: 'Inter, sans-serif',
               fontWeight: 400,
-              animationDuration: '12s',
+              animationDuration: '22s',
               animationDelay: '1s',
             }}>Libertins par choix · Connectés par désir</span>
             <div className="w-8 h-px" style={{ background: 'linear-gradient(90deg, rgba(201,168,76,0.4), transparent)' }} />

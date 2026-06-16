@@ -251,7 +251,7 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    animation: jewelShine 9s ease-in-out infinite;
+    animation: jewelShine 18s ease-in-out infinite;
   }
 
   /* ── Effet bijou — reflet sur image/illustration ── */
@@ -272,7 +272,7 @@
       transparent 80%
     );
     background-size: 200% 100%;
-    animation: jewelSweep 10s ease-in-out infinite;
+    animation: jewelSweep 20s ease-in-out infinite;
     pointer-events: none;
     border-radius: inherit;
   }
