@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { MessageCircle } from 'lucide-react'
+import XLogo from './XLogo'
 
 export default function MatchModal({ match, onClose }) {
   const navigate = useNavigate()
@@ -44,20 +45,14 @@ export default function MatchModal({ match, onClose }) {
 
           {/* icône X connexion centrale */}
           <div style={{
-            width: 44, height: 44, borderRadius: '50%', flexShrink: 0,
+            width: 56, height: 56, borderRadius: '50%', flexShrink: 0,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'linear-gradient(135deg, #A07830, #C9A84C, #E8CC7A)',
-            boxShadow: '0 0 24px rgba(201,168,76,0.5)',
+            background: 'rgba(5,5,5,0.6)',
+            boxShadow: '0 0 30px rgba(201,168,76,0.4)',
             animation: 'pulseGold 2s ease-in-out infinite',
+            border: '1px solid rgba(201,168,76,0.3)',
           }}>
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <line x1="4" y1="4" x2="16" y2="16" stroke="#050505" strokeWidth="2.5" strokeLinecap="round"/>
-              <line x1="16" y1="4" x2="4" y2="16" stroke="#050505" strokeWidth="2.5" strokeLinecap="round"/>
-              <circle cx="4"  cy="4"  r="2.5" fill="#050505"/>
-              <circle cx="16" cy="4"  r="2.5" fill="#050505"/>
-              <circle cx="4"  cy="16" r="2.5" fill="#050505"/>
-              <circle cx="16" cy="16" r="2.5" fill="#050505"/>
-            </svg>
+            <XLogo size={48} />
           </div>
 
           <Avatar profile={match.other} />

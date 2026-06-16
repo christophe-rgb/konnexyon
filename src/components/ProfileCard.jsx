@@ -1,6 +1,7 @@
-import { Heart, X, MapPin, Zap } from 'lucide-react'
+import { X, MapPin, Zap } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
+import XLogo from './XLogo'
 
 const SEEKING_LABELS = {
   rencontres_occasionnelles: 'Rencontres',
@@ -255,7 +256,7 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
                   <span style={{ width: 14, height: 14, border: '2px solid rgba(0,0,0,0.25)', borderTopColor: '#050505', borderRadius: '50%', display: 'inline-block', animation: 'rotateX 0.7s linear infinite' }} />
                 ) : (
                   <>
-                    <XConnectIcon size={13} color="#050505" />
+                    <XLogo size={22} />
                     Se connecter
                   </>
                 )}

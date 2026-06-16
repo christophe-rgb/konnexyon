@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
+import XLogo from '../components/XLogo'
 
 /* Réseau de nœuds animés — évoque le X connexion du logo */
 function ConnectionNetwork() {
@@ -129,24 +130,7 @@ export default function Login() {
               border: '1px solid rgba(201,168,76,0.38)',
               boxShadow: '0 0 50px rgba(201,168,76,0.18), inset 0 1px 0 rgba(232,204,122,0.25)',
             }}>
-              <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <defs>
-                  <linearGradient id="xg1" x1="3" y1="3" x2="41" y2="41" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stopColor="#A07830"/>
-                    <stop offset="50%" stopColor="#E8CC7A"/>
-                    <stop offset="100%" stopColor="#C9A84C"/>
-                  </linearGradient>
-                  <linearGradient id="xg2" x1="41" y1="3" x2="3" y2="41" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stopColor="#A07830"/>
-                    <stop offset="50%" stopColor="#E8CC7A"/>
-                    <stop offset="100%" stopColor="#C9A84C"/>
-                  </linearGradient>
-                </defs>
-                {/* bras \ : pointe en haut-gauche, large au croisement, pointe en bas-droite */}
-                <path d="M3,3 L27,17 L41,41 L17,27 Z" fill="url(#xg1)"/>
-                {/* bras / : pointe en haut-droite, large au croisement, pointe en bas-gauche */}
-                <path d="M41,3 L27,27 L3,41 L17,17 Z" fill="url(#xg2)"/>
-              </svg>
+              <XLogo size={52} />
             </div>
             {/* halo pulsant */}
             <div className="absolute inset-0 rounded-full animate-pulse-gold" style={{

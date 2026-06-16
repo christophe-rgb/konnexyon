@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
 import { DEMO_PROFILES } from '../lib/demo'
 import { MapPin, Camera, Flag, Ban, Settings } from 'lucide-react'
+import XLogo from '../components/XLogo'
 import { toast } from '../components/Toast'
 
 const LIMITS_LABELS = {
@@ -20,19 +21,6 @@ const SEEKING_LABELS = {
   decouverte:                'Découverte',
 }
 
-/* X-connexion SVG inline */
-function XConnectIcon({ size = 16, color = 'currentColor' }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <line x1="3" y1="3" x2="13" y2="13" stroke={color} strokeWidth="2" strokeLinecap="round"/>
-      <line x1="13" y1="3" x2="3" y2="13" stroke={color} strokeWidth="2" strokeLinecap="round"/>
-      <circle cx="3"  cy="3"  r="2" fill={color}/>
-      <circle cx="13" cy="3"  r="2" fill={color}/>
-      <circle cx="3"  cy="13" r="2" fill={color}/>
-      <circle cx="13" cy="13" r="2" fill={color}/>
-    </svg>
-  )
-}
 
 const inputStyle = {
   width: '100%',
@@ -360,12 +348,12 @@ export default function Profile() {
                       <span style={{ width: 16, height: 16, border: '2px solid rgba(0,0,0,0.25)', borderTopColor: '#050505', borderRadius: '50%', display: 'inline-block', animation: 'rotateX 0.7s linear infinite' }} />
                     ) : liked ? (
                       <>
-                        <XConnectIcon size={15} color="#050505" />
+                        <XLogo size={26} />
                         Connexion envoyée — retirer
                       </>
                     ) : (
                       <>
-                        <XConnectIcon size={15} color="#050505" />
+                        <XLogo size={26} />
                         Se connecter
                       </>
                     )}
