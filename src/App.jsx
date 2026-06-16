@@ -20,7 +20,10 @@ import Conversation from './pages/Conversation'
 import Profile      from './pages/Profile'
 import Settings     from './pages/Settings'
 import Admin        from './pages/Admin'
-import Abonnement  from './pages/Abonnement'
+import Abonnement     from './pages/Abonnement'
+import CGU           from './pages/CGU'
+import Confidentialite from './pages/Confidentialite'
+import Contact        from './pages/Contact'
 
 function RequireAuth({ children }) {
   const { user, loading } = useAuthStore()
@@ -117,6 +120,9 @@ export default function App() {
           <Route path="/forgot-password"   element={<ForgotPassword />} />
           <Route path="/reset-password"    element={<ResetPassword />} />
           <Route path="/confirm-partner"   element={<ConfirmPartner />} />
+          <Route path="/cgu"               element={<CGU />} />
+          <Route path="/confidentialite"   element={<Confidentialite />} />
+          <Route path="/contact"           element={<Contact />} />
 
           <Route path="/onboarding" element={
             <RequireAuth><Onboarding /></RequireAuth>
