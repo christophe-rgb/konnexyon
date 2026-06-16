@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
 import { DEMO_PROFILES } from '../lib/demo'
 import ProfileCard from '../components/ProfileCard'
+import SwipeStack from '../components/SwipeStack'
 import { ProfileCardSkeleton } from '../components/Skeleton'
 import FilterPanel from '../components/FilterPanel'
 import { toast } from '../components/Toast'
@@ -13,7 +14,7 @@ const MapView = lazy(() => import('../components/MapView'))
 export default function Discover() {
   const profile  = useAuthStore(s => s.profile)
   const demoMode = useAuthStore(s => s.demoMode)
-  const [view,       setView]       = useState('list')
+  const [view,       setView]       = useState('swipe')
   const [profiles,   setProfiles]   = useState([])
   const [selected,   setSelected]   = useState(null)
   const [showFilters,setShowFilters] = useState(false)
@@ -116,17 +117,18 @@ export default function Discover() {
             Filtres
           </button>
 
-          {/* toggle map/list */}
+          {/* toggle swipe/grille/carte */}
           <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid rgba(201,168,76,0.2)', background: 'rgba(20,20,20,0.9)' }}>
             {[
-              { id: 'list', label: '⊞' },
-              { id: 'map',  label: '◎' },
-            ].map(({ id, label }) => (
+              { id: 'swipe', label: '⟺', aria: 'Mode swipe' },
+              { id: 'list',  label: '⊞', aria: 'Vue grille' },
+              { id: 'map',   label: '◎', aria: 'Vue carte'  },
+            ].map(({ id, label, aria }) => (
               <button
                 key={id}
                 onClick={() => setView(id)}
                 aria-pressed={view === id}
-                aria-label={id === 'list' ? 'Vue liste' : 'Vue carte'}
+                aria-label={aria}
                 className="px-3 py-1.5 text-sm transition-all duration-200 cursor-pointer"
                 style={{
                   background: view === id
@@ -151,6 +153,12 @@ export default function Discover() {
         </div>
       ) : profiles.length === 0 ? (
         <EmptyState />
+      ) : view === 'swipe' ? (
+        <SwipeStack
+          profiles={profiles}
+          onLike={like}
+          onPass={id => { setProfiles(ps => ps.filter(p => p.id !== id)); toast('Mis de côté') }}
+        />
       ) : view === 'map' ? (
         <div className="flex-1 relative">
           <Suspense fallback={
