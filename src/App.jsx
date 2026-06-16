@@ -85,7 +85,7 @@ export default function App() {
         alignItems: 'flex-end',
         justifyContent: 'center',
         overflow: 'hidden',
-        paddingBottom: '4vh',
+        paddingBottom: '0',
       }}>
         <img
           src="/logo.png"
@@ -97,6 +97,7 @@ export default function App() {
             opacity: 0.18,
             filter: 'brightness(1.3)',
             userSelect: 'none',
+            transform: 'translateY(25%)',
           }}
         />
       </div>
