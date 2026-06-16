@@ -2,78 +2,155 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
-import { AlertTriangle, CheckCircle, XCircle, ExternalLink } from 'lucide-react'
-import clsx from 'clsx'
+import { AlertTriangle, CheckCircle, XCircle, ExternalLink, ShieldOff, Shield, Filter, Trash2 } from 'lucide-react'
 
 export default function Admin() {
-  const user      = useAuthStore(s => s.user)
-  const navigate  = useNavigate()
+  const user     = useAuthStore(s => s.user)
+  const navigate = useNavigate()
+
+  const [isAdmin, setIsAdmin] = useState(false)
   const [reports, setReports] = useState([])
   const [loading, setLoading] = useState(true)
-  const [isAdmin, setIsAdmin] = useState(false)
+  const [filter,  setFilter]  = useState('pending') // pending | all | resolved
 
-  useEffect(() => {
-    checkAdmin()
-  }, [user])
+  useEffect(() => { checkAdmin() }, [user])
 
   const checkAdmin = async () => {
     const { data: { user: u } } = await supabase.auth.getUser()
-    const role = u?.app_metadata?.role
-    if (role !== 'admin') { navigate('/discover'); return }
+    if (u?.app_metadata?.role !== 'admin') { navigate('/discover'); return }
     setIsAdmin(true)
     loadReports()
   }
 
   const loadReports = async () => {
+    setLoading(true)
     const { data } = await supabase
       .from('reports')
-      .select(`
-        id, reason, status, created_at, admin_note,
+      .select(`id, reason, status, created_at, admin_note,
         reporter:reporter_id(couple_name),
-        reported:reported_id(id, couple_name, status)
-      `)
+        reported:reported_id(id, couple_name, status, avatar_url)`)
       .order('created_at', { ascending: false })
-
     setReports(data || [])
     setLoading(false)
   }
 
-  const action = async (reportId, reportedId, status, adminNote) => {
+  const action = async (reportId, reportedId, status, note) => {
     await supabase.from('reports').update({
-      status,
-      admin_note: adminNote || null,
+      status, admin_note: note || null,
       resolved_at: new Date().toISOString(),
     }).eq('id', reportId)
 
     if (status === 'suspended') {
       await supabase.from('profiles').update({ status: 'suspended' }).eq('id', reportedId)
-    } else if (status === 'dismissed') {
-      // rien à faire côté profil
+    } else if (status === 'banned') {
+      // suspension + flag banned
+      await supabase.from('profiles').update({ status: 'banned' }).eq('id', reportedId)
+      // marquer tous les reports de ce profil comme résolus
+      await supabase.from('reports')
+        .update({ status: 'banned', resolved_at: new Date().toISOString() })
+        .eq('reported_id', reportedId).eq('status', 'pending')
     }
-
     loadReports()
   }
 
   if (!isAdmin) return null
 
+  // stats
+  const pending   = reports.filter(r => r.status === 'pending').length
+  const suspended = reports.filter(r => r.status === 'suspended').length
+  const banned    = reports.filter(r => r.status === 'banned').length
+
+  // regrouper par profil signalé
+  const grouped = reports.reduce((acc, r) => {
+    const id = r.reported?.id || 'unknown'
+    if (!acc[id]) acc[id] = { profile: r.reported, reports: [] }
+    acc[id].reports.push(r)
+    return acc
+  }, {})
+
+  // filtrer
+  const filteredGroups = Object.values(grouped).filter(g => {
+    if (filter === 'pending') return g.reports.some(r => r.status === 'pending')
+    if (filter === 'resolved') return g.reports.every(r => r.status !== 'pending')
+    return true
+  }).sort((a, b) => {
+    // priorité : plus de signalements pending en premier
+    const aPending = a.reports.filter(r => r.status === 'pending').length
+    const bPending = b.reports.filter(r => r.status === 'pending').length
+    return bPending - aPending
+  })
+
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6">
-      <div className="flex items-center gap-2 mb-8">
-        <AlertTriangle size={22} className="text-gold" strokeWidth={1.5} />
-        <h1 className="font-serif text-3xl font-semibold">Signalements</h1>
+    <div style={{ maxWidth: 720, margin: '0 auto', padding: '24px 16px 80px' }}>
+
+      {/* header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28 }}>
+        <div style={{ width: 40, height: 40, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}>
+          <Shield size={18} strokeWidth={1.5} style={{ color: 'rgba(239,68,68,0.8)' }} />
+        </div>
+        <div>
+          <h1 style={{ fontFamily: 'Cormorant, serif', fontSize: '1.8rem', fontWeight: 600, color: '#F2EDE6' }}>Modération</h1>
+          <p style={{ fontSize: 11, letterSpacing: '0.12em', color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Panneau d'administration</p>
+        </div>
+      </div>
+
+      {/* stats */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 24 }}>
+        {[
+          { label: 'En attente', value: pending, color: '#FBBF24' },
+          { label: 'Total', value: reports.length, color: 'rgba(201,168,76,0.7)' },
+          { label: 'Suspendus', value: suspended, color: '#FB923C' },
+          { label: 'Bannis', value: banned, color: '#EF4444' },
+        ].map(s => (
+          <div key={s.label} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '14px 12px', textAlign: 'center' }}>
+            <p style={{ fontSize: '1.6rem', fontWeight: 700, color: s.color, fontFamily: 'Cormorant, serif' }}>{s.value}</p>
+            <p style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{s.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* filtres */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+        {[
+          { key: 'pending', label: 'En attente' },
+          { key: 'all', label: 'Tous' },
+          { key: 'resolved', label: 'Résolus' },
+        ].map(f => (
+          <button key={f.key} onClick={() => setFilter(f.key)} style={{
+            padding: '7px 16px', borderRadius: 99, fontSize: 12, cursor: 'pointer',
+            border: filter === f.key ? '1px solid rgba(201,168,76,0.6)' : '1px solid rgba(255,255,255,0.08)',
+            background: filter === f.key ? 'rgba(201,168,76,0.1)' : 'transparent',
+            color: filter === f.key ? '#C9A84C' : 'rgba(255,255,255,0.35)',
+            letterSpacing: '0.06em', transition: 'all 0.2s',
+          }}>
+            {f.label}
+          </button>
+        ))}
+        <span style={{ marginLeft: 'auto', fontSize: 11, color: 'rgba(255,255,255,0.25)', alignSelf: 'center' }}>
+          {filteredGroups.length} profil{filteredGroups.length > 1 ? 's' : ''}
+        </span>
       </div>
 
       {loading ? (
-        <p className="text-muted text-sm">Chargement…</p>
-      ) : reports.length === 0 ? (
-        <div className="text-center py-16">
-          <CheckCircle size={40} className="mx-auto text-gold/30 mb-3" strokeWidth={1} />
-          <p className="font-serif text-2xl text-muted">Aucun signalement en attente</p>
+        <div style={{ textAlign: 'center', padding: '60px 0' }}>
+          <div style={{ width: 24, height: 24, border: '2px solid rgba(201,168,76,0.2)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite', margin: '0 auto' }} />
+        </div>
+      ) : filteredGroups.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '60px 0' }}>
+          <CheckCircle size={40} strokeWidth={1} style={{ color: 'rgba(201,168,76,0.3)', margin: '0 auto 12px' }} />
+          <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.5rem', color: 'rgba(255,255,255,0.3)' }}>
+            {filter === 'pending' ? 'Aucun signalement en attente' : 'Aucun résultat'}
+          </p>
         </div>
       ) : (
-        <div className="flex flex-col gap-4">
-          {reports.map(r => (
-            <ReportCard key={r.id} report={r} onAction={action} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {filteredGroups.map(g => (
+            <ProfileReportGroup
+              key={g.profile?.id || 'unknown'}
+              group={g}
+              onAction={action}
+              onViewProfile={id => navigate(`/profile/${id}`)}
+            />
           ))}
         </div>
       )}
@@ -81,79 +158,130 @@ export default function Admin() {
   )
 }
 
-function ReportCard({ report, onAction }) {
-  const navigate = useNavigate()
-  const [note, setNote] = useState('')
-
-  const statusColor = {
-    pending:   'text-yellow-400 border-yellow-900/40 bg-yellow-900/10',
-    warned:    'text-orange-400 border-orange-900/40 bg-orange-900/10',
-    suspended: 'text-red-400 border-red-900/40 bg-red-900/10',
-    dismissed: 'text-muted border-[rgba(201,168,76,0.2)] bg-surface2',
-  }
+function ProfileReportGroup({ group, onAction, onViewProfile }) {
+  const { profile, reports } = group
+  const pendingReports = reports.filter(r => r.status === 'pending')
+  const isCritical = pendingReports.length >= 3
+  const isBanned   = profile?.status === 'banned'
+  const isSuspended = profile?.status === 'suspended'
 
   return (
-    <div className="bg-surface border border-[rgba(201,168,76,0.2)] rounded-2xl p-5">
-      {/* header */}
-      <div className="flex items-start justify-between gap-3 mb-3">
-        <div>
-          <p className="text-sm text-muted">
-            <span className="text-text font-medium">{report.reporter?.couple_name || 'Inconnu'}</span>
-            {' '}signale{' '}
-            <button
-              onClick={() => navigate(`/profile/${report.reported?.id}`)}
-              className="text-gold hover:underline font-medium cursor-pointer inline-flex items-center gap-0.5"
-            >
-              {report.reported?.couple_name || 'Inconnu'}
-              <ExternalLink size={12} strokeWidth={1.5} />
-            </button>
-          </p>
-          <p className="text-[11px] text-muted/60 mt-0.5">
-            {new Date(report.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })}
+    <div style={{
+      background: 'rgba(10,10,10,0.8)',
+      border: `1px solid ${isCritical ? 'rgba(239,68,68,0.4)' : isBanned ? 'rgba(239,68,68,0.2)' : 'rgba(201,168,76,0.12)'}`,
+      borderRadius: 20,
+      overflow: 'hidden',
+    }}>
+      {/* profil header */}
+      <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: 14 }}>
+        {/* avatar */}
+        <div style={{
+          width: 44, height: 44, borderRadius: 12, overflow: 'hidden', flexShrink: 0,
+          background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.15)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          {profile?.avatar_url
+            ? <img src={profile.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            : <span style={{ fontFamily: 'Cormorant, serif', fontSize: '1.2rem', color: 'rgba(201,168,76,0.5)' }}>{profile?.couple_name?.[0] ?? '?'}</span>
+          }
+        </div>
+
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <p style={{ fontSize: 15, fontWeight: 500, color: '#F2EDE6' }}>{profile?.couple_name || 'Profil inconnu'}</p>
+            {isCritical && <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 99, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#EF4444', letterSpacing: '0.1em' }}>⚠ CRITIQUE</span>}
+            {isBanned && <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 99, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: 'rgba(239,68,68,0.7)', letterSpacing: '0.1em' }}>BANNI</span>}
+            {isSuspended && !isBanned && <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 99, background: 'rgba(251,146,60,0.1)', border: '1px solid rgba(251,146,60,0.25)', color: 'rgba(251,146,60,0.8)', letterSpacing: '0.1em' }}>SUSPENDU</span>}
+          </div>
+          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>
+            {reports.length} signalement{reports.length > 1 ? 's' : ''} · {pendingReports.length} en attente
           </p>
         </div>
-        <span className={clsx('text-xs px-2.5 py-1 rounded-full border flex-shrink-0', statusColor[report.status])}>
-          {report.status}
-        </span>
+
+        <button onClick={() => onViewProfile(profile?.id)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 10, background: 'transparent', border: '1px solid rgba(201,168,76,0.2)', color: 'rgba(201,168,76,0.6)', fontSize: 12, cursor: 'pointer' }}>
+          <ExternalLink size={12} strokeWidth={1.5} /> Voir
+        </button>
       </div>
 
-      <p className="text-sm text-text/80 bg-surface2 rounded-xl px-4 py-3 leading-relaxed mb-4">
-        {report.reason}
-      </p>
+      {/* signalements */}
+      <div style={{ padding: '12px 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {reports.map(r => (
+          <ReportRow key={r.id} report={r} profileId={profile?.id} onAction={onAction} />
+        ))}
+      </div>
+    </div>
+  )
+}
 
-      {report.admin_note && (
-        <p className="text-xs text-muted italic mb-3">Note admin : {report.admin_note}</p>
-      )}
+function ReportRow({ report, profileId, onAction }) {
+  const [note, setNote] = useState('')
+  const [open, setOpen] = useState(report.status === 'pending')
 
-      {report.status === 'pending' && (
-        <>
-          <input
-            value={note} onChange={e => setNote(e.target.value)}
-            placeholder="Note admin (optionnel)…"
-            className="w-full bg-surface2 border border-[rgba(201,168,76,0.15)] rounded-xl px-4 py-2.5 text-sm text-text placeholder-muted focus:outline-none focus:border-gold mb-3 transition-colors duration-150"
-          />
-          <div className="flex gap-2">
-            <button
-              onClick={() => onAction(report.id, report.reported?.id, 'warned', note)}
-              className="flex-1 py-2.5 rounded-xl border border-orange-900/40 text-orange-400 text-sm hover:bg-orange-900/20 transition-colors duration-150 cursor-pointer"
-            >
-              Avertir
-            </button>
-            <button
-              onClick={() => onAction(report.id, report.reported?.id, 'suspended', note)}
-              className="flex-1 py-2.5 rounded-xl border border-red-900/40 text-red-400 text-sm hover:bg-red-900/20 transition-colors duration-150 cursor-pointer"
-            >
-              Suspendre
-            </button>
-            <button
-              onClick={() => onAction(report.id, report.reported?.id, 'dismissed', note)}
-              className="flex-1 py-2.5 rounded-xl border border-[rgba(201,168,76,0.2)] text-muted text-sm hover:text-text transition-colors duration-150 cursor-pointer flex items-center justify-center gap-1"
-            >
-              <XCircle size={14} strokeWidth={1.5} />
-              Rejeter
-            </button>
-          </div>
-        </>
+  const statusStyle = {
+    pending:   { color: '#FBBF24', label: 'En attente' },
+    warned:    { color: '#FB923C', label: 'Averti' },
+    suspended: { color: '#FB923C', label: 'Suspendu' },
+    banned:    { color: '#EF4444', label: 'Banni' },
+    dismissed: { color: 'rgba(255,255,255,0.3)', label: 'Rejeté' },
+  }[report.status] || { color: '#888', label: report.status }
+
+  return (
+    <div style={{ background: 'rgba(255,255,255,0.02)', borderRadius: 12, padding: '12px 14px', border: '1px solid rgba(255,255,255,0.04)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }} onClick={() => setOpen(o => !o)}>
+        <div style={{ width: 7, height: 7, borderRadius: '50%', background: statusStyle.color, flexShrink: 0 }} />
+        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', flex: 1 }}>
+          <span style={{ color: 'rgba(255,255,255,0.6)' }}>{report.reporter?.couple_name || '?'}</span>
+          {' · '}
+          {new Date(report.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
+        </p>
+        <span style={{ fontSize: 10, color: statusStyle.color, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{statusStyle.label}</span>
+      </div>
+
+      {open && (
+        <div style={{ marginTop: 10 }}>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.6, background: 'rgba(0,0,0,0.3)', borderRadius: 8, padding: '8px 12px', marginBottom: 10 }}>
+            {report.reason}
+          </p>
+
+          {report.admin_note && (
+            <p style={{ fontSize: 11, color: 'rgba(201,168,76,0.5)', fontStyle: 'italic', marginBottom: 8 }}>
+              Note : {report.admin_note}
+            </p>
+          )}
+
+          {report.status === 'pending' && (
+            <>
+              <input
+                value={note}
+                onChange={e => setNote(e.target.value)}
+                placeholder="Note admin (optionnel)…"
+                style={{
+                  width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: 10, padding: '9px 12px', color: '#F2EDE6', fontSize: 12,
+                  outline: 'none', marginBottom: 10, boxSizing: 'border-box',
+                }}
+              />
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <button onClick={() => onAction(report.id, profileId, 'dismissed', note)}
+                  style={{ flex: 1, minWidth: 70, padding: '8px', borderRadius: 10, cursor: 'pointer', background: 'transparent', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.3)', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+                  <XCircle size={13} strokeWidth={1.5} /> Rejeter
+                </button>
+                <button onClick={() => onAction(report.id, profileId, 'warned', note)}
+                  style={{ flex: 1, minWidth: 70, padding: '8px', borderRadius: 10, cursor: 'pointer', background: 'rgba(251,146,60,0.06)', border: '1px solid rgba(251,146,60,0.25)', color: 'rgba(251,146,60,0.8)', fontSize: 12 }}>
+                  Avertir
+                </button>
+                <button onClick={() => onAction(report.id, profileId, 'suspended', note)}
+                  style={{ flex: 1, minWidth: 70, padding: '8px', borderRadius: 10, cursor: 'pointer', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.25)', color: 'rgba(239,68,68,0.8)', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+                  <ShieldOff size={13} strokeWidth={1.5} /> Suspendre
+                </button>
+                <button onClick={() => { if (confirm(`Bannir définitivement ce profil ? Cette action est irréversible.`)) onAction(report.id, profileId, 'banned', note) }}
+                  style={{ flex: 1, minWidth: 70, padding: '8px', borderRadius: 10, cursor: 'pointer', background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.4)', color: '#EF4444', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+                  <Trash2 size={13} strokeWidth={1.5} /> Bannir
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       )}
     </div>
   )
