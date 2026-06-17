@@ -32,10 +32,17 @@ export default function Discover() {
   const [showPanier,  setShowPanier]  = useState(false)
   const [showUpgrade, setShowUpgrade] = useState(false)
   const premium = isPremium(profile)
-  const [filters,    setFilters]    = useState({ orientation: 'all', seeking: [], distance: profile?.max_distance_km || 50 })
+  const [filters,    setFilters]    = useState({ orientation: 'all', seeking: [], distance: 50 })
   const [loading,    setLoading]    = useState(true)
   const [likedIds,   setLikedIds]   = useState(new Set())
   const [myMapPos,   setMyMapPos]   = useState(null)
+
+  // synchronise la distance avec max_distance_km du profil dès qu'il est chargé
+  useEffect(() => {
+    if (profile?.max_distance_km) {
+      setFilters(f => ({ ...f, distance: profile.max_distance_km }))
+    }
+  }, [profile?.max_distance_km])
 
   // récupère la position GPS du profil connecté pour la carte
   useEffect(() => {
