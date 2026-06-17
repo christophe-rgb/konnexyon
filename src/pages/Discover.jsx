@@ -33,22 +33,25 @@ export default function Discover() {
 
   const load = useCallback(async () => {
     setLoading(true)
-    if (demoMode) {
-      let results = [...DEMO_PROFILES]
+    try {
+      if (demoMode) {
+        let results = [...DEMO_PROFILES]
+        if (filters.orientation !== 'all') results = results.filter(p => p.orientation === filters.orientation)
+        if (filters.seeking?.length > 0)   results = results.filter(p => filters.seeking.some(s => p.seeking?.includes(s)))
+        if (filters.distance > 0)          results = results.filter(p => p.distance_km <= filters.distance)
+        setProfiles(results)
+        return
+      }
+      const radius = filters.distance || 500
+      const { data, error } = await supabase.rpc('get_nearby_compatible_profiles', { radius_km: radius })
+      if (error) console.error('RPC error:', error)
+      let results = data || []
       if (filters.orientation !== 'all') results = results.filter(p => p.orientation === filters.orientation)
       if (filters.seeking?.length > 0)   results = results.filter(p => filters.seeking.some(s => p.seeking?.includes(s)))
-      if (filters.distance > 0)          results = results.filter(p => p.distance_km <= filters.distance)
       setProfiles(results)
+    } finally {
       setLoading(false)
-      return
     }
-    const radius = filters.distance || 500
-    const { data } = await supabase.rpc('get_nearby_compatible_profiles', { radius_km: radius })
-    let results = data || []
-    if (filters.orientation !== 'all') results = results.filter(p => p.orientation === filters.orientation)
-    if (filters.seeking?.length > 0)   results = results.filter(p => filters.seeking.some(s => p.seeking?.includes(s)))
-    setProfiles(results)
-    setLoading(false)
   }, [filters, demoMode])
 
   useEffect(() => { load() }, [load])

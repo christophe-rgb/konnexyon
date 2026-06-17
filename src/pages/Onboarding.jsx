@@ -68,14 +68,25 @@ export default function Onboarding() {
     let locationSql = null
     await new Promise(resolve => {
       navigator.geolocation?.getCurrentPosition(pos => {
-        locationSql = `POINT(${pos.coords.longitude} ${pos.coords.latitude})`
+        locationSql = `SRID=4326;POINT(${pos.coords.longitude} ${pos.coords.latitude})`
         resolve()
       }, resolve, { timeout: 5000 })
     })
+    // Calcule l'enum orientation depuis lui + elle
+    const orientationMap = {
+      'hetero-hetero': 'hetero_hetero',
+      'hetero-bi':     'hetero_bi',
+      'bi-hetero':     'hetero_bi',
+      'bi-bi':         'bi_all',
+    }
+    const orientationKey = `${data.orientation_lui}-${data.orientation_elle}`
+    const orientation = orientationMap[orientationKey] || 'hetero_hetero'
+
     const { error: upsertError } = await supabase.from('profiles').upsert({
       id: user.id,
       email_1: user.email,
       ...data,
+      orientation,
       email_1_confirmed: true,
       ...(locationSql ? { location: locationSql, location_updated_at: new Date().toISOString() } : {}),
     })
