@@ -35,6 +35,15 @@ export default function Discover() {
   const [filters,    setFilters]    = useState({ orientation: 'all', seeking: [], distance: profile?.max_distance_km || 50 })
   const [loading,    setLoading]    = useState(true)
   const [likedIds,   setLikedIds]   = useState(new Set())
+  const [myMapPos,   setMyMapPos]   = useState(null)
+
+  // récupère la position GPS du profil connecté pour la carte
+  useEffect(() => {
+    if (demoMode || !profile) return
+    supabase.rpc('get_my_location').then(({ data }) => {
+      if (data?.[0]) setMyMapPos(data[0])
+    })
+  }, [profile, demoMode])
 
   // synchronise view avec le paramètre URL quand on navigue entre onglets
   useEffect(() => {
@@ -257,7 +266,7 @@ export default function Discover() {
               Chargement de la carte…
             </div>
           }>
-            <MapView profiles={profiles} onSelect={setSelected} />
+            <MapView profiles={profiles} onSelect={setSelected} myProfile={myMapPos} />
           </Suspense>
           {selected && (
             <div className="absolute bottom-4 left-4 right-4 max-w-sm mx-auto z-[1000] animate-fade-in-up" style={{ animationFillMode: 'both' }}>

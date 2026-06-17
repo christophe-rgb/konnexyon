@@ -2,10 +2,11 @@ import { useEffect, useRef } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
-export default function MapView({ profiles, onSelect }) {
+export default function MapView({ profiles, onSelect, myProfile }) {
   const containerRef = useRef(null)
   const mapRef       = useRef(null)
   const markersRef   = useRef([])
+  const myMarkerRef  = useRef(null)
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
@@ -18,22 +19,39 @@ export default function MapView({ profiles, onSelect }) {
       maxZoom: 19,
     }).addTo(mapRef.current)
 
-    navigator.geolocation?.getCurrentPosition(
-      pos => mapRef.current?.setView([pos.coords.latitude, pos.coords.longitude], 11),
-      () => {}
-    )
-
     return () => { mapRef.current?.remove(); mapRef.current = null }
   }, [])
 
+  // Marqueur "Vous êtes ici" pour le profil de l'utilisateur
+  useEffect(() => {
+    if (!mapRef.current) return
+    myMarkerRef.current?.remove()
+    myMarkerRef.current = null
+
+    if (!myProfile?.lng || !myProfile?.lat) return
+
+    const myIcon = L.divIcon({
+      className: '',
+      html: `<div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#A07830,#E8CC7A);border:3px solid #fff;cursor:default;display:flex;align-items:center;justify-content:center;color:#050505;font-size:13px;font-family:Cormorant,serif;font-weight:700;box-shadow:0 0 18px rgba(201,168,76,0.8);">Vous</div>`,
+      iconSize: [38, 38],
+      iconAnchor: [19, 19],
+    })
+    myMarkerRef.current = L.marker([myProfile.lat, myProfile.lng], { icon: myIcon, zIndexOffset: 1000 })
+      .addTo(mapRef.current)
+
+    // Centre la carte sur le profil utilisateur
+    mapRef.current.setView([myProfile.lat, myProfile.lng], 11)
+  }, [myProfile])
+
+  // Marqueurs des autres profils + fit bounds
   useEffect(() => {
     if (!mapRef.current) return
     markersRef.current.forEach(m => m.remove())
     markersRef.current = []
 
-    profiles.forEach(p => {
-      if (p.lng == null || p.lat == null) return
+    const valid = profiles.filter(p => p.lng != null && p.lat != null)
 
+    valid.forEach(p => {
       const initial = p.couple_name?.[0] || '?'
       const icon = L.divIcon({
         className: '',
@@ -44,10 +62,23 @@ export default function MapView({ profiles, onSelect }) {
       const marker = L.marker([p.lat, p.lng], { icon })
         .on('click', () => onSelect?.(p))
         .addTo(mapRef.current)
-
       markersRef.current.push(marker)
     })
-  }, [profiles, onSelect])
+
+    // Si profils ET position propre : ajuste le zoom pour tout voir
+    if (valid.length > 0 && myProfile?.lat && myProfile?.lng) {
+      const allPoints = [
+        [myProfile.lat, myProfile.lng],
+        ...valid.map(p => [p.lat, p.lng]),
+      ]
+      mapRef.current.fitBounds(L.latLngBounds(allPoints), { padding: [40, 40], maxZoom: 13 })
+    } else if (valid.length > 0) {
+      mapRef.current.fitBounds(
+        L.latLngBounds(valid.map(p => [p.lat, p.lng])),
+        { padding: [40, 40], maxZoom: 13 }
+      )
+    }
+  }, [profiles, onSelect, myProfile])
 
   return <div ref={containerRef} className="w-full h-full" />
 }
