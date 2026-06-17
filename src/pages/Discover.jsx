@@ -29,6 +29,7 @@ export default function Discover() {
   const premium = isPremium(profile)
   const [filters,    setFilters]    = useState({ orientation: 'all', seeking: [], distance: profile?.max_distance_km || 50 })
   const [loading,    setLoading]    = useState(true)
+  const [likedIds,   setLikedIds]   = useState(new Set())
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -53,13 +54,13 @@ export default function Discover() {
   useEffect(() => { load() }, [load])
 
   const like = async (toId) => {
+    setLikedIds(prev => new Set([...prev, toId]))
+    setSelected(null)
     if (!premium && !demoMode) { setShowUpgrade(true); return }
     if (!demoMode) {
       const { error } = await supabase.from('likes').insert({ from_id: profile.id, to_id: toId })
       if (error) { toast('Erreur lors de la connexion', 'error'); return }
     }
-    setProfiles(ps => ps.filter(p => p.id !== toId))
-    setSelected(null)
     toast('Demande de connexion envoyée ✓')
   }
 
@@ -270,7 +271,12 @@ export default function Discover() {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {profiles.map((p, i) => (
-              <ProfileCard key={p.id} profile={p} onLike={like} index={i} />
+              <ProfileCard
+                key={p.id} profile={p} index={i}
+                isLiked={likedIds.has(p.id)}
+                onLike={likedIds.has(p.id) ? null : like}
+                onPass={likedIds.has(p.id) ? null : id => setProfiles(ps => ps.filter(x => x.id !== id))}
+              />
             ))}
           </div>
         </div>

@@ -24,7 +24,7 @@ function XConnectIcon({ size = 14, color = 'currentColor' }) {
   )
 }
 
-export default function ProfileCard({ profile, onLike, onPass, showActions = true, index = 0 }) {
+export default function ProfileCard({ profile, onLike, onPass, showActions = true, index = 0, isLiked = false }) {
   const navigate = useNavigate()
   const [hovered, setHovered] = useState(false)
   const [liking,  setLiking]  = useState(false)
@@ -113,6 +113,27 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
         border: `1px solid ${hovered ? 'rgba(201,168,76,0.45)' : 'rgba(201,168,76,0.12)'}`,
         transition: 'border-color 0.35s',
       }} />
+
+      {/* ── overlay liké ── */}
+      {isLiked && (
+        <div className="absolute inset-0 rounded-[20px] pointer-events-none" style={{
+          background: 'linear-gradient(135deg, rgba(201,168,76,0.08) 0%, transparent 60%)',
+          border: '1px solid rgba(201,168,76,0.55)',
+        }} />
+      )}
+
+      {/* ── badge X (liké) ── */}
+      {isLiked && (
+        <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1.5 rounded-full" style={{
+          background: 'linear-gradient(135deg, #A07830, #E8CC7A)',
+          boxShadow: '0 0 16px rgba(201,168,76,0.5)',
+        }}>
+          <XLogo size={13} style={{ opacity: 1 }} />
+          <span style={{ fontSize: '10px', color: '#050505', fontWeight: 700, letterSpacing: '0.08em' }}>
+            ENVOYÉ
+          </span>
+        </div>
+      )}
 
       {/* ── badge distance ── */}
       {profile.distance_km != null && (
@@ -233,11 +254,11 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
                 Passer
               </button>
             )}
-            {onLike && (
+            {(onLike || isLiked) && (
               <button
-                onClick={handleLike}
-                disabled={liking}
-                aria-label={`Se connecter avec ${profile.couple_name}`}
+                onClick={isLiked ? undefined : handleLike}
+                disabled={liking || isLiked}
+                aria-label={isLiked ? 'Connexion envoyée' : `Se connecter avec ${profile.couple_name}`}
                 className="btn-gold"
                 style={{
                   flex: onPass ? 1.4 : 1,
@@ -247,13 +268,18 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
                   borderRadius: '12px',
                   fontSize: '12px',
                   letterSpacing: '0.08em',
-                  cursor: liking ? 'default' : 'pointer',
+                  cursor: (liking || isLiked) ? 'default' : 'pointer',
                   border: 'none',
-                  opacity: liking ? 0.7 : 1,
+                  opacity: isLiked ? 0.8 : liking ? 0.7 : 1,
                 }}
               >
                 {liking ? (
                   <span style={{ width: 14, height: 14, border: '2px solid rgba(0,0,0,0.25)', borderTopColor: '#050505', borderRadius: '50%', display: 'inline-block', animation: 'rotateX 0.7s linear infinite' }} />
+                ) : isLiked ? (
+                  <>
+                    <XLogo size={18} />
+                    Connexion envoyée
+                  </>
                 ) : (
                   <>
                     <XLogo size={22} />

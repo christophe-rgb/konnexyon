@@ -94,10 +94,17 @@ export default function Onboarding() {
   return (
     <div className="min-h-dvh flex flex-col items-center justify-center px-6 py-12 relative overflow-hidden">
 
-      {/* fond subtil */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        background: 'radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.04) 0%, transparent 60%)',
-      }} />
+      {/* fond logo filigrane */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-center">
+        <img src="/logo.png" alt="" aria-hidden style={{
+          width: '130vw', maxWidth: 860,
+          opacity: 0.28, filter: 'brightness(0.85) saturate(0.9)',
+          userSelect: 'none', display: 'block',
+        }} />
+        <div className="absolute inset-0" style={{
+          background: 'radial-gradient(ellipse at center, rgba(5,5,5,0.2) 0%, rgba(5,5,5,0.65) 55%, rgba(5,5,5,0.96) 100%)',
+        }} />
+      </div>
 
 
 
