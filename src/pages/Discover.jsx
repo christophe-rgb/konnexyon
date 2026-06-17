@@ -14,7 +14,7 @@ import FilterPanel from '../components/FilterPanel'
 import { toast } from '../components/Toast'
 
 const MapView = lazy(() => import('../components/MapView').catch(() => ({ default: () => (
-  <div className="w-full h-full flex items-center justify-center" style={{ color: 'rgba(201,168,76,0.4)', fontSize: '13px', letterSpacing: '0.1em' }}>
+  <div className="w-full h-full flex items-center justify-center" style={{ color: 'rgba(201,168,76,1)', fontSize: '13px', letterSpacing: '0.1em' }}>
     Carte indisponible
   </div>
 ) })))
@@ -24,7 +24,7 @@ export default function Discover() {
   const demoMode = useAuthStore(s => s.demoMode)
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const [view,       setView]       = useState(searchParams.get('view') === 'map' ? 'map' : 'swipe')
+  const [view,       setView]       = useState(() => searchParams.get('view') || 'swipe')
   const [profiles,   setProfiles]   = useState([])
   const [passed,     setPassed]     = useState([])
   const [selected,   setSelected]   = useState(null)
@@ -35,6 +35,12 @@ export default function Discover() {
   const [filters,    setFilters]    = useState({ orientation: 'all', seeking: [], distance: profile?.max_distance_km || 50 })
   const [loading,    setLoading]    = useState(true)
   const [likedIds,   setLikedIds]   = useState(new Set())
+
+  // synchronise view avec le paramètre URL quand on navigue entre onglets
+  useEffect(() => {
+    const urlView = searchParams.get('view')
+    if (urlView) setView(urlView)
+  }, [searchParams])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -69,6 +75,9 @@ export default function Discover() {
       const { error } = await supabase.from('likes').insert({ from_id: profile.id, to_id: toId })
       if (error) { toast('Erreur lors de la connexion', 'error'); return }
     }
+    // ajoute au panier avec flag liked pour suivi visuel
+    const p = profiles.find(x => x.id === toId)
+    if (p) setPassed(prev => prev.find(x => x.id === toId) ? prev : [...prev, { ...p, liked: true }])
     toast('Demande de connexion envoyée ✓')
   }
 
@@ -82,7 +91,7 @@ export default function Discover() {
           background: 'rgba(5,5,5,0.96)',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
-          borderBottom: '1px solid rgba(201,168,76,0.1)',
+          borderBottom: '1px solid rgba(201,168,76,1)',
           animationFillMode: 'both',
         }}
       >
@@ -91,9 +100,9 @@ export default function Discover() {
           <div style={{
             width: 30, height: 30, borderRadius: '9px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'radial-gradient(circle, rgba(201,168,76,0.12), rgba(201,168,76,0.04))',
-            border: '1px solid rgba(201,168,76,0.25)',
-            boxShadow: '0 0 16px rgba(201,168,76,0.1)',
+            background: 'radial-gradient(circle, rgba(201,168,76,0.1), rgba(201,168,76,0.1))',
+            border: '1px solid rgba(201,168,76,1)',
+            boxShadow: '0 0 16px rgba(201,168,76,1)',
           }}>
             <span style={{
               fontSize: '15px',
@@ -123,35 +132,35 @@ export default function Discover() {
           onClick={() => navigate('/profile')}
           className="erb-btn flex items-center gap-2"
           style={{
-            background: 'rgba(201,168,76,0.06)',
-            border: '1px solid rgba(201,168,76,0.22)',
+            background: 'rgba(201,168,76,0.1)',
+            border: '1px solid rgba(201,168,76,1)',
             borderRadius: '999px',
             padding: '5px 12px 5px 6px',
             cursor: 'pointer',
             transition: 'all 0.2s',
           }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.5)'; e.currentTarget.style.background = 'rgba(201,168,76,0.12)'; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.22)'; e.currentTarget.style.background = 'rgba(201,168,76,0.06)'; }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.background = 'rgba(201,168,76,0.15)'; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.background = 'rgba(201,168,76,0.06)'; }}
         >
           {/* mini avatar */}
           <div style={{
             width: 26, height: 26, borderRadius: '50%', flexShrink: 0,
             overflow: 'hidden',
-            border: '1px solid rgba(201,168,76,0.35)',
+            border: '1px solid rgba(201,168,76,1)',
             background: '#111',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
             {profile?.avatar_url ? (
               <img src={profile.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
-              <span style={{ fontSize: 11, color: 'rgba(201,168,76,0.6)', fontFamily: 'Cormorant, serif' }}>
+              <span style={{ fontSize: 11, color: 'rgba(201,168,76,1)', fontFamily: 'Cormorant, serif' }}>
                 {profile?.couple_name?.[0] || '∞'}
               </span>
             )}
           </div>
           <span style={{
             fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase',
-            color: 'rgba(201,168,76,0.75)', fontWeight: 500, whiteSpace: 'nowrap',
+            color: 'rgba(201,168,76,1)', fontWeight: 500, whiteSpace: 'nowrap',
           }}>
             Votre couple
           </span>
@@ -168,14 +177,14 @@ export default function Discover() {
               position: 'relative',
               width: 36, height: 36, borderRadius: '10px',
               background: 'rgba(20,20,20,0.9)',
-              border: `1px solid ${passed.length ? 'rgba(201,168,76,0.4)' : 'rgba(201,168,76,0.2)'}`,
-              color: passed.length ? '#C9A84C' : 'rgba(201,168,76,0.4)',
+              border: `1px solid ${passed.length ? 'rgba(201,168,76,1)' : 'rgba(201,168,76,1)'}`,
+              color: passed.length ? '#C9A84C' : 'rgba(201,168,76,1)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               cursor: 'pointer', transition: 'all 0.2s',
               fontSize: 16,
             }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.55)'; e.currentTarget.style.color = '#C9A84C'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = passed.length ? 'rgba(201,168,76,0.4)' : 'rgba(201,168,76,0.2)'; e.currentTarget.style.color = passed.length ? '#C9A84C' : 'rgba(201,168,76,0.4)'; }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.color = '#C9A84C'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = passed.length ? 'rgba(201,168,76,1)' : 'rgba(201,168,76,1)'; e.currentTarget.style.color = passed.length ? '#C9A84C' : 'rgba(201,168,76,1)'; }}
           >
             <Zap size={16} strokeWidth={1.5} />
             {passed.length > 0 && (
@@ -186,7 +195,7 @@ export default function Discover() {
                 color: '#050505', fontSize: 10, fontWeight: 700,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 padding: '0 4px',
-                boxShadow: '0 0 8px rgba(201,168,76,0.5)',
+                boxShadow: '0 0 8px rgba(201,168,76,1)',
               }}>{passed.length}</span>
             )}
           </button>
@@ -197,18 +206,18 @@ export default function Discover() {
             className="erb-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 cursor-pointer"
             style={{
               background: 'rgba(20,20,20,0.9)',
-              border: '1px solid rgba(201,168,76,0.2)',
-              color: 'rgba(201,168,76,0.65)',
+              border: '1px solid rgba(201,168,76,1)',
+              color: 'rgba(201,168,76,1)',
             }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.45)'; e.currentTarget.style.color = '#C9A84C'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.2)'; e.currentTarget.style.color = 'rgba(201,168,76,0.65)'; }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.color = '#C9A84C'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.color = 'rgba(201,168,76,1)'; }}
           >
             <SlidersHorizontal size={14} strokeWidth={1.5} />
             Filtres
           </button>
 
           {/* toggle swipe/grille/carte */}
-          <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid rgba(201,168,76,0.2)', background: 'rgba(20,20,20,0.9)' }}>
+          <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid rgba(201,168,76,0.1)', background: 'rgba(20,20,20,0.9)' }}>
             {[
               { id: 'swipe', label: '⟺', aria: 'Mode swipe' },
               { id: 'list',  label: '⊞', aria: 'Vue grille' },
@@ -224,7 +233,7 @@ export default function Discover() {
                   background: view === id
                     ? 'linear-gradient(135deg, #A07830, #C9A84C, #E8CC7A)'
                     : 'transparent',
-                  color: view === id ? '#050505' : 'rgba(201,168,76,0.5)',
+                  color: view === id ? '#050505' : 'rgba(201,168,76,1)',
                   fontWeight: view === id ? 700 : 400,
                   fontSize: '13px',
                 }}
@@ -240,6 +249,21 @@ export default function Discover() {
       {loading ? (
         <div className="flex-1 overflow-y-auto p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
           {[1,2,3,4].map(i => <ProfileCardSkeleton key={i} />)}
+        </div>
+      ) : view === 'map' ? (
+        <div className="flex-1 relative">
+          <Suspense fallback={
+            <div className="w-full h-full flex items-center justify-center" style={{ color: 'rgba(201,168,76,1)', fontSize: '13px', letterSpacing: '0.1em' }}>
+              Chargement de la carte…
+            </div>
+          }>
+            <MapView profiles={profiles} onSelect={setSelected} />
+          </Suspense>
+          {selected && (
+            <div className="absolute bottom-4 left-4 right-4 max-w-sm mx-auto z-[1000] animate-fade-in-up" style={{ animationFillMode: 'both' }}>
+              <ProfileCard profile={selected} onLike={like} onPass={() => setSelected(null)} />
+            </div>
+          )}
         </div>
       ) : profiles.length === 0 ? (
         <EmptyState />
@@ -257,25 +281,10 @@ export default function Discover() {
             toast('Reproposé plus tard')
           }}
         />
-      ) : view === 'map' ? (
-        <div className="flex-1 relative">
-          <Suspense fallback={
-            <div className="w-full h-full flex items-center justify-center" style={{ color: 'rgba(201,168,76,0.4)', fontSize: '13px', letterSpacing: '0.1em' }}>
-              Chargement de la carte…
-            </div>
-          }>
-            <MapView profiles={profiles} onSelect={setSelected} />
-          </Suspense>
-          {selected && (
-            <div className="absolute bottom-4 left-4 right-4 max-w-sm mx-auto z-[1000] animate-fade-in-up" style={{ animationFillMode: 'both' }}>
-              <ProfileCard profile={selected} onLike={like} onPass={() => setSelected(null)} />
-            </div>
-          )}
-        </div>
       ) : (
         <div className="flex-1 overflow-y-auto p-4">
           {/* compteur */}
-          <p className="text-center mb-4 animate-fade-in" style={{ fontSize: '11px', letterSpacing: '0.12em', color: 'rgba(201,168,76,0.35)', textTransform: 'uppercase', animationFillMode: 'both' }}>
+          <p className="text-center mb-4 animate-fade-in" style={{ fontSize: '11px', letterSpacing: '0.12em', color: 'rgba(201,168,76,1)', textTransform: 'uppercase', animationFillMode: 'both' }}>
             {profiles.length} connexion{profiles.length > 1 ? 's' : ''} à proximité
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -328,20 +337,20 @@ function EmptyState() {
       <div style={{
         width: 72, height: 72, borderRadius: '50%',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: 'radial-gradient(circle, rgba(201,168,76,0.08), transparent)',
-        border: '1px solid rgba(201,168,76,0.15)',
+        background: 'radial-gradient(circle, rgba(201,168,76,0.1), transparent)',
+        border: '1px solid rgba(201,168,76,1)',
       }}>
-        <Compass size={28} strokeWidth={1} style={{ color: 'rgba(201,168,76,0.4)' }} />
+        <Compass size={28} strokeWidth={1} style={{ color: 'rgba(201,168,76,1)' }} />
       </div>
       <div>
-        <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.5rem', color: 'rgba(255,255,255,0.4)', marginBottom: '8px' }}>
+        <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.5rem', color: 'rgba(255,255,255,1)', marginBottom: '8px' }}>
           Aucune connexion à proximité
         </p>
-        <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.2)', lineHeight: 1.6 }}>
+        <p style={{ fontSize: '13px', color: 'rgba(255,255,255,1)', lineHeight: 1.6 }}>
           Élargissez la distance ou modifiez vos filtres<br/>pour découvrir de nouveaux couples connectés.
         </p>
       </div>
-      <div style={{ fontSize: '11px', letterSpacing: '0.15em', color: 'rgba(201,168,76,0.3)', textTransform: 'uppercase' }}>
+      <div style={{ fontSize: '11px', letterSpacing: '0.15em', color: 'rgba(201,168,76,1)', textTransform: 'uppercase' }}>
         ∞ · Libertins par choix · Connectés par désir · ∞
       </div>
     </div>
