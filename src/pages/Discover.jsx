@@ -68,6 +68,9 @@ export default function Discover() {
       let results = data || []
       if (filters.orientation !== 'all') results = results.filter(p => p.orientation === filters.orientation)
       if (filters.seeking?.length > 0)   results = results.filter(p => filters.seeking.some(s => p.seeking?.includes(s)))
+      // pré-remplir likedIds avec les profils déjà likés retournés par la RPC
+      const alreadyLiked = new Set(results.filter(p => p.already_liked).map(p => p.id))
+      setLikedIds(prev => new Set([...prev, ...alreadyLiked]))
       setProfiles(results)
     } finally {
       setLoading(false)
