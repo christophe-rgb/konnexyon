@@ -102,9 +102,9 @@ export default function Onboarding() {
     const { data: updatedProfile } = await supabase
       .from('profiles').select('email_2').eq('id', user.id).single()
     if (updatedProfile?.email_2) {
-      await supabase.functions.invoke('send-partner-confirmation', {
+      supabase.functions.invoke('send-partner-confirmation', {
         body: { profile_id: user.id, email_2: updatedProfile.email_2, app_url: window.location.origin },
-      })
+      }).catch(() => {})
     }
     navigate('/discover')
   }
