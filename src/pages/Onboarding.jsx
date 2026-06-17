@@ -106,7 +106,7 @@ export default function Onboarding() {
         body: { profile_id: user.id, email_2: updatedProfile.email_2, app_url: window.location.origin },
       }).catch(() => {})
     }
-    navigate('/discover')
+    navigate('/discover?view=map')
   }
 
   const currentStep = STEPS[step]

@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, lazy, Suspense } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { SlidersHorizontal, Compass, Zap } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
@@ -19,7 +19,8 @@ export default function Discover() {
   const profile  = useAuthStore(s => s.profile)
   const demoMode = useAuthStore(s => s.demoMode)
   const navigate = useNavigate()
-  const [view,       setView]       = useState('swipe')
+  const [searchParams] = useSearchParams()
+  const [view,       setView]       = useState(searchParams.get('view') === 'map' ? 'map' : 'swipe')
   const [profiles,   setProfiles]   = useState([])
   const [passed,     setPassed]     = useState([])
   const [selected,   setSelected]   = useState(null)
