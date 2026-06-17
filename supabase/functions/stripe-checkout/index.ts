@@ -40,6 +40,10 @@ serve(async (req) => {
       client_reference_id: user.id,
       customer_email: user.email,
       metadata: { user_id: user.id, plan },
+      // Propager user_id sur la subscription pour le webhook subscription.deleted
+      subscription_data: {
+        metadata: { user_id: user.id, plan },
+      },
     })
 
     return new Response(JSON.stringify({ url: session.url }), {

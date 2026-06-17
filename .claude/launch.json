@@ -2,10 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "couples-app",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
-      "autoPort": true
+      "name": "konnexyon",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "dist", "-p", "5173", "--no-clipboard", "--single"],
+      "port": 5173
     }
   ]
 }

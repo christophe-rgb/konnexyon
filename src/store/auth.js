@@ -48,7 +48,8 @@ export const useAuthStore = create((set, get) => ({
   },
 
   signOut: async () => {
+    const wasDemo = get().demoMode
     set({ user: null, profile: null, demoMode: false })
-    if (!get().demoMode) await supabase.auth.signOut()
+    if (!wasDemo) await supabase.auth.signOut()
   },
 }))

@@ -13,7 +13,11 @@ import { ProfileCardSkeleton } from '../components/Skeleton'
 import FilterPanel from '../components/FilterPanel'
 import { toast } from '../components/Toast'
 
-const MapView = lazy(() => import('../components/MapView'))
+const MapView = lazy(() => import('../components/MapView').catch(() => ({ default: () => (
+  <div className="w-full h-full flex items-center justify-center" style={{ color: 'rgba(201,168,76,0.4)', fontSize: '13px', letterSpacing: '0.1em' }}>
+    Carte indisponible
+  </div>
+) })))
 
 export default function Discover() {
   const profile  = useAuthStore(s => s.profile)
@@ -247,6 +251,7 @@ export default function Discover() {
             setProfiles(ps => {
               const p = ps.find(x => x.id === id)
               if (!p) return ps
+              setPassed(prev => prev.find(x => x.id === id) ? prev : [...prev, p])
               return [...ps.filter(x => x.id !== id), p]
             })
             toast('Reproposé plus tard')

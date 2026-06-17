@@ -27,6 +27,28 @@ const ORIENTATION_LABELS = {
   bi:     'Bi',
 }
 
+const SEEKING_OPTIONS = [
+  { value: 'decouverte',                label: 'Découverte · curieux' },
+  { value: 'rencontres_occasionnelles', label: 'Rencontres occasionnelles' },
+  { value: 'echangisme',                label: 'Échangisme · soirées' },
+  { value: 'expert',                    label: 'Expert' },
+]
+
+const AVAIL_OPTIONS = [
+  { value: 'semaine',      label: 'En semaine' },
+  { value: 'weekend',      label: 'Le week-end' },
+  { value: 'rdv',          label: 'Sur rendez-vous' },
+  { value: 'spontanement', label: 'Spontanément' },
+]
+
+const LIMITS_OPTIONS = [
+  { value: 'pas_photo',             label: 'Pas de photo sans accord' },
+  { value: 'discretion',            label: 'Discrétion absolue' },
+  { value: 'pas_contact_hors_site', label: 'Pas de contact hors site' },
+  { value: 'preservatif',           label: 'Préservatif obligatoire' },
+  { value: 'pas_penetration',       label: 'Pas de pénétration' },
+]
+
 
 const inputStyle = {
   width: '100%',
@@ -48,7 +70,9 @@ export default function Profile() {
   const navigate     = useNavigate()
 
   const demoMode = useAuthStore(s => s.demoMode)
-  const isOwn   = !id || id === myProfile?.id
+  // isOwn = true si pas d'id dans l'URL, OU si l'id correspond au profil connecté
+  // Si myProfile pas encore chargé et qu'un id est présent, on attend (neither own nor other)
+  const isOwn   = !id || (!!myProfile && id === myProfile.id)
   const uid     = isOwn ? myProfile?.id : id
 
   const [profile,    setProfile]    = useState(isOwn ? myProfile : null)
@@ -149,10 +173,33 @@ export default function Profile() {
 
   const save = async () => {
     setSaving(true)
-    await supabase.from('profiles').update(form).eq('id', myProfile.id)
-    await fetchProfile(myProfile.id)
-    setSaving(false)
-    setEditing(false)
+    try {
+      const orientationMap = {
+        'hetero-hetero': 'hetero_hetero',
+        'hetero-bi':     'hetero_bi',
+        'bi-hetero':     'hetero_bi',
+        'bi-bi':         'bi_all',
+      }
+      const { orientation_lui, orientation_elle, ...profileData } = form
+      const orientation = orientationMap[`${orientation_lui}-${orientation_elle}`] || 'hetero_hetero'
+      const { error } = await supabase
+        .from('profiles')
+        .update({ ...profileData, orientation })
+        .eq('id', myProfile.id)
+      if (error) {
+        console.error('Erreur Supabase save():', error)
+        toast('Erreur lors de la sauvegarde — ' + (error.message || 'réessayez'))
+        return
+      }
+      await fetchProfile(myProfile.id)
+      setEditing(false)
+      navigate('/discover?view=map')
+    } catch (err) {
+      console.error('Exception save():', err)
+      toast('Une erreur inattendue est survenue')
+    } finally {
+      setSaving(false)
+    }
   }
 
   if (!profile) return (
@@ -571,6 +618,78 @@ function EditForm({ form, setForm, onSave, onCancel, saving }) {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Désirs */}
+      <div>
+        <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.5)', marginBottom: '10px' }}>
+          Vos désirs
+        </label>
+        <div className="flex flex-col gap-2">
+          {SEEKING_OPTIONS.map(o => {
+            const active = form.seeking?.includes(o.value)
+            return (
+              <button key={o.value} type="button"
+                onClick={() => set('seeking', active ? form.seeking.filter(x => x !== o.value) : [...(form.seeking || []), o.value])}
+                style={{
+                  textAlign: 'left', padding: '12px 14px', borderRadius: '12px', cursor: 'pointer',
+                  border: `1px solid ${active ? 'rgba(201,168,76,0.55)' : 'rgba(201,168,76,0.15)'}`,
+                  background: active ? 'rgba(201,168,76,0.08)' : 'transparent',
+                  color: active ? '#C9A84C' : 'rgba(255,255,255,0.45)',
+                  fontSize: '13px', transition: 'all 0.2s',
+                }}
+              >{o.label}</button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Disponibilités */}
+      <div>
+        <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.5)', marginBottom: '10px' }}>
+          Disponibilités
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {AVAIL_OPTIONS.map(o => {
+            const active = form.availabilities?.includes(o.value)
+            return (
+              <button key={o.value} type="button"
+                onClick={() => set('availabilities', active ? form.availabilities.filter(x => x !== o.value) : [...(form.availabilities || []), o.value])}
+                style={{
+                  padding: '9px 14px', borderRadius: '99px', cursor: 'pointer',
+                  border: `1px solid ${active ? 'rgba(201,168,76,0.55)' : 'rgba(201,168,76,0.15)'}`,
+                  background: active ? 'rgba(201,168,76,0.08)' : 'transparent',
+                  color: active ? '#C9A84C' : 'rgba(255,255,255,0.45)',
+                  fontSize: '12px', transition: 'all 0.2s',
+                }}
+              >{o.label}</button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Limites */}
+      <div>
+        <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.5)', marginBottom: '10px' }}>
+          Non négociable
+        </label>
+        <div className="flex flex-col gap-2">
+          {LIMITS_OPTIONS.map(o => {
+            const active = form.limits?.includes(o.value)
+            return (
+              <button key={o.value} type="button"
+                onClick={() => set('limits', active ? form.limits.filter(x => x !== o.value) : [...(form.limits || []), o.value])}
+                style={{
+                  textAlign: 'left', padding: '12px 14px', borderRadius: '12px', cursor: 'pointer',
+                  border: `1px solid ${active ? 'rgba(201,168,76,0.35)' : 'rgba(201,168,76,0.12)'}`,
+                  background: active ? 'rgba(201,168,76,0.06)' : 'transparent',
+                  color: active ? 'rgba(201,168,76,0.9)' : 'rgba(255,255,255,0.4)',
+                  fontSize: '13px', transition: 'all 0.2s',
+                }}
+              >{o.label}</button>
+            )
+          })}
+        </div>
       </div>
 
       <div className="flex gap-3 mt-1">

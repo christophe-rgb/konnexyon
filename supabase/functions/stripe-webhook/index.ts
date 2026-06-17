@@ -41,12 +41,27 @@ serve(async (req) => {
 
   if (event.type === 'customer.subscription.deleted') {
     const sub    = event.data.object as Stripe.Subscription
+    // user_id peut être dans sub.metadata ou dans customer metadata
+    // On cherche le profil via plan_expires_at et le customer_id Stripe
     const userId = sub.metadata?.user_id
     if (userId) {
       await supabase.from('profiles').update({
         plan: 'free',
         plan_expires_at: null,
       }).eq('id', userId)
+    } else {
+      // Fallback : chercher via l'email du customer Stripe
+      const customerId = sub.customer as string
+      const customer = await stripe.customers.retrieve(customerId)
+      if (!customer.deleted && customer.email) {
+        const { data: authUser } = await supabase.auth.admin.getUserByEmail(customer.email)
+        if (authUser?.user?.id) {
+          await supabase.from('profiles').update({
+            plan: 'free',
+            plan_expires_at: null,
+          }).eq('id', authUser.user.id)
+        }
+      }
     }
   }
 

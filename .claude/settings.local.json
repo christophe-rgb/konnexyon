@@ -78,7 +78,9 @@
       "mcp__Claude_in_Chrome__navigate",
       "mcp__Claude_in_Chrome__read_network_requests",
       "mcp__d5b72b84-6b83-4bbe-8cec-c534e63277ad__search_threads",
-      "mcp__Claude_in_Chrome__shortcuts_list"
+      "mcp__Claude_in_Chrome__shortcuts_list",
+      "mcp__visualize__read_me",
+      "mcp__visualize__show_widget"
     ]
   }
 }

@@ -20,6 +20,7 @@ export default function Register() {
     setLoading(true)
     const { data, error: err } = await supabase.auth.signUp({ email: form.email, password: form.password })
     if (err) { setError(err.message); setLoading(false); return }
+    if (!data.user) { setError('Compte déjà existant. Connectez-vous ou réinitialisez votre mot de passe.'); setLoading(false); return }
     await supabase.from('profiles').insert({
       id:      data.user.id,
       email_1: form.email,
@@ -30,6 +31,7 @@ export default function Register() {
     supabase.functions.invoke('welcome-email', {
       body: { email: form.email, couple_name: 'Nouveau couple' },
     }).catch(() => {}) // non-bloquant
+    setLoading(false)
     navigate('/onboarding')
   }
 

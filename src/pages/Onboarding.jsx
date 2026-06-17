@@ -60,18 +60,29 @@ export default function Onboarding() {
     const arr = data[k]
     set(k, arr.includes(v) ? arr.filter(x => x !== v) : [...arr, v])
   }
-  const next = () => setStep(s => Math.min(s + 1, STEPS.length - 1))
+  const [stepError, setStepError] = useState('')
+
+  const next = () => {
+    setStepError('')
+    if (step === 0 && data.couple_name.trim().length < 2) {
+      setStepError('Le pseudo du couple doit comporter au moins 2 caractères.')
+      return
+    }
+    setStep(s => Math.min(s + 1, STEPS.length - 1))
+  }
   const prev = () => setStep(s => Math.max(s - 1, 0))
 
   const finish = async () => {
     setSaving(true)
     let locationSql = null
-    await new Promise(resolve => {
-      navigator.geolocation?.getCurrentPosition(pos => {
-        locationSql = `SRID=4326;POINT(${pos.coords.longitude} ${pos.coords.latitude})`
-        resolve()
-      }, resolve, { timeout: 5000 })
-    })
+    if (navigator.geolocation) {
+      await new Promise(resolve => {
+        navigator.geolocation.getCurrentPosition(pos => {
+          locationSql = `SRID=4326;POINT(${pos.coords.longitude} ${pos.coords.latitude})`
+          resolve()
+        }, resolve, { timeout: 5000 })
+      })
+    }
     // Calcule l'enum orientation depuis lui + elle
     const orientationMap = {
       'hetero-hetero': 'hetero_hetero',
@@ -82,10 +93,12 @@ export default function Onboarding() {
     const orientationKey = `${data.orientation_lui}-${data.orientation_elle}`
     const orientation = orientationMap[orientationKey] || 'hetero_hetero'
 
+    // eslint-disable-next-line no-unused-vars
+    const { orientation_lui, orientation_elle, ...profileData } = data
     const { error: upsertError } = await supabase.from('profiles').upsert({
       id: user.id,
       email_1: user.email,
-      ...data,
+      ...profileData,
       orientation,
       email_1_confirmed: true,
       ...(locationSql ? { location: locationSql, location_updated_at: new Date().toISOString() } : {}),
@@ -95,9 +108,9 @@ export default function Onboarding() {
       setSaving(false)
       return
     }
-    // Force le store immédiatement — sans attendre fetchProfile qui peut échouer
-    setProfile({ id: user.id, email_1: user.email, ...data, email_1_confirmed: true })
-    // Refresh en arrière-plan
+    // Force le store immédiatement avec orientation calculée
+    setProfile({ id: user.id, email_1: user.email, ...profileData, orientation, email_1_confirmed: true })
+    // Refresh en arrière-plan pour synchroniser les données Supabase
     fetchProfile(user.id)
     const { data: updatedProfile } = await supabase
       .from('profiles').select('email_2').eq('id', user.id).single()
@@ -191,6 +204,18 @@ export default function Onboarding() {
           {step === 4 && <StepDistance data={data} set={set} />}
           {step === 5 && <StepVisibility data={data} set={set} />}
         </div>
+
+        {/* erreur step */}
+        {stepError && (
+          <p role="alert" style={{
+            color: '#f87171', fontSize: '13px', marginTop: '12px',
+            background: 'rgba(239,68,68,0.07)',
+            border: '1px solid rgba(239,68,68,0.18)',
+            borderRadius: '10px', padding: '10px 14px',
+          }}>
+            {stepError}
+          </p>
+        )}
 
         {/* navigation */}
         <div className="flex gap-3 mt-8">

@@ -37,7 +37,8 @@ create type report_status as enum (
   'pending',
   'warned',
   'suspended',
-  'dismissed'
+  'dismissed',
+  'banned'
 );
 
 -- ============================================================
@@ -225,6 +226,11 @@ create trigger on_like_deleted
 -- ============================================================
 -- PHOTO EXPIRY — cron job (pg_cron, tourne toutes les heures)
 -- ============================================================
+-- Note : le cron efface les références en DB mais pas les fichiers dans storage.
+-- Pour supprimer les fichiers Storage, utiliser une Edge Function dédiée déclenchée par ce cron,
+-- ou utiliser les Storage Lifecycle Rules dans le dashboard Supabase (bucket chat-photos TTL 7j).
+-- La suppression DB seule empêche l'affichage — les fichiers orphelins dans Storage
+-- doivent être nettoyés via une règle de rétention côté Supabase Storage.
 select cron.schedule(
   'delete-expired-photos',
   '0 * * * *',

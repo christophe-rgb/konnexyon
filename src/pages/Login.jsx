@@ -24,7 +24,7 @@ export default function Login() {
     await fetchProfile(data.user.id)
     navigator.geolocation?.getCurrentPosition(async pos => {
       await supabase.from('profiles').update({
-        location: `POINT(${pos.coords.longitude} ${pos.coords.latitude})`,
+        location: `SRID=4326;POINT(${pos.coords.longitude} ${pos.coords.latitude})`,
         location_updated_at: new Date().toISOString(),
       }).eq('id', data.user.id)
     })

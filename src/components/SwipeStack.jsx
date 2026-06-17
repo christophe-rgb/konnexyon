@@ -8,8 +8,9 @@ export default function SwipeStack({ profiles, onLike, onPass }) {
   const [index,  setIndex]  = useState(0)
   const [drag,   setDrag]   = useState({ x: 0, y: 0 })
   const [flying, setFlying] = useState(null) // 'left' | 'right' | null
-  const activeRef = useRef(false)
-  const startRef  = useRef({ x: 0, y: 0 })
+  const activeRef  = useRef(false)
+  const startRef   = useRef({ x: 0, y: 0 })
+  const indexRef   = useRef(0)
 
   const current  = profiles[index]
   const next     = profiles[index + 1]
@@ -38,11 +39,13 @@ export default function SwipeStack({ profiles, onLike, onPass }) {
   }, []) // eslint-disable-line
 
   const triggerFly = (dir) => {
+    const capturedIndex = indexRef.current
     setFlying(dir)
     setTimeout(() => {
-      if (dir === 'right') onLike(profiles[index]?.id)
-      else                 onPass?.(profiles[index]?.id)
-      setIndex(i => i + 1)
+      if (dir === 'right') onLike(profiles[capturedIndex]?.id)
+      else                 onPass?.(profiles[capturedIndex]?.id)
+      indexRef.current = capturedIndex + 1
+      setIndex(capturedIndex + 1)
       setFlying(null)
       setDrag({ x: 0, y: 0 })
     }, 380)

@@ -85,9 +85,51 @@ export default function App() {
 
   if (!ageConfirmed) return <AgeGate onConfirm={() => setAgeConfirmed(true)} />
 
+  const panicExit = () => {
+    sessionStorage.removeItem('age_confirmed')
+    window.location.replace('https://www.google.fr')
+  }
+
   return (
     <div className="min-h-dvh bg-bg text-text" style={{ position: 'relative' }}>
 
+      {/* Bouton panique — discret, toujours visible */}
+      <button
+        onClick={panicExit}
+        title="Fermer"
+        aria-label="Fermer le site"
+        style={{
+          position: 'fixed',
+          top: '14px',
+          right: '14px',
+          zIndex: 9999,
+          width: 32,
+          height: 32,
+          borderRadius: '50%',
+          background: 'rgba(30,30,30,0.55)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          color: 'rgba(255,255,255,0.3)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          fontSize: '14px',
+          backdropFilter: 'blur(6px)',
+          transition: 'all 0.2s',
+        }}
+        onMouseEnter={e => {
+          e.currentTarget.style.background = 'rgba(60,60,60,0.85)'
+          e.currentTarget.style.color = 'rgba(255,255,255,0.7)'
+          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.background = 'rgba(30,30,30,0.55)'
+          e.currentTarget.style.color = 'rgba(255,255,255,0.3)'
+          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'
+        }}
+      >
+        ✕
+      </button>
 
       <ToastContainer />
 
