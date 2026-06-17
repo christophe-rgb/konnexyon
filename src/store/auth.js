@@ -36,6 +36,8 @@ export const useAuthStore = create((set, get) => ({
     })
   },
 
+  setProfile: (profile) => set({ profile }),
+
   fetchProfile: async (uid) => {
     const { data } = await supabase
       .from('profiles')

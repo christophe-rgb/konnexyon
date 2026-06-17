@@ -37,6 +37,7 @@ const LIMITS_OPTIONS = [
 export default function Onboarding() {
   const user         = useAuthStore(s => s.user)
   const fetchProfile = useAuthStore(s => s.fetchProfile)
+  const setProfile   = useAuthStore(s => s.setProfile)
   const navigate     = useNavigate()
 
   const [step,   setStep]   = useState(0)
@@ -71,14 +72,22 @@ export default function Onboarding() {
         resolve()
       }, resolve, { timeout: 5000 })
     })
-    await supabase.from('profiles').upsert({
+    const { error: upsertError } = await supabase.from('profiles').upsert({
       id: user.id,
       email_1: user.email,
       ...data,
       email_1_confirmed: true,
       ...(locationSql ? { location: locationSql, location_updated_at: new Date().toISOString() } : {}),
     })
-    await fetchProfile(user.id)
+    if (upsertError) {
+      console.error('Upsert error:', upsertError)
+      setSaving(false)
+      return
+    }
+    // Force le store immédiatement — sans attendre fetchProfile qui peut échouer
+    setProfile({ id: user.id, email_1: user.email, ...data, email_1_confirmed: true })
+    // Refresh en arrière-plan
+    fetchProfile(user.id)
     const { data: updatedProfile } = await supabase
       .from('profiles').select('email_2').eq('id', user.id).single()
     if (updatedProfile?.email_2) {
