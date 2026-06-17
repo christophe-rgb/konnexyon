@@ -1,14 +1,40 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Compass, Zap, MessageCircle, User } from 'lucide-react'
+import { Compass, Zap, MessageCircle, User, Map } from 'lucide-react'
 import { useAuthStore } from '../store/auth'
 import { supabase } from '../lib/supabase'
 import { useEffect, useState } from 'react'
 
 const tabs = [
-  { to: '/discover', icon: Compass,       label: 'Explorer'   },
-  { to: '/matches',  icon: Zap,           label: 'Connexions' },
-  { to: '/messages', icon: MessageCircle, label: 'Messages'   },
-  { to: '/profile',  icon: User,          label: 'Profil'     },
+  {
+    to: '/discover',
+    icon: Compass,
+    label: 'Explorer',
+    match: loc => loc.pathname === '/discover' && !loc.search.includes('view=map'),
+  },
+  {
+    to: '/discover?view=map',
+    icon: Map,
+    label: 'Carte',
+    match: loc => loc.pathname === '/discover' && loc.search.includes('view=map'),
+  },
+  {
+    to: '/matches',
+    icon: Zap,
+    label: 'Connexions',
+    match: loc => loc.pathname.startsWith('/matches'),
+  },
+  {
+    to: '/messages',
+    icon: MessageCircle,
+    label: 'Messages',
+    match: loc => loc.pathname.startsWith('/messages'),
+  },
+  {
+    to: '/profile',
+    icon: User,
+    label: 'Profil',
+    match: loc => loc.pathname.startsWith('/profile'),
+  },
 ]
 
 export default function Navbar() {
@@ -48,14 +74,14 @@ export default function Navbar() {
           background: 'rgba(8,8,8,0.94)',
           backdropFilter: 'blur(28px)',
           WebkitBackdropFilter: 'blur(28px)',
-          border: '1px solid rgba(201,168,76,0.16)',
+          border: '1px solid rgba(201,168,76,1)',
           borderRadius: '999px',
           padding: '6px',
-          boxShadow: '0 8px 40px rgba(0,0,0,0.85), 0 0 0 1px rgba(201,168,76,0.07), inset 0 1px 0 rgba(201,168,76,0.08)',
+          boxShadow: '0 8px 40px rgba(0,0,0,0.85), 0 0 0 1px rgba(201,168,76,1), inset 0 1px 0 rgba(201,168,76,1)',
         }}
       >
-        {tabs.map(({ to, icon: Icon, label }) => {
-          const isActive = location.pathname === to || (to !== '/discover' && location.pathname.startsWith(to))
+        {tabs.map(({ to, icon: Icon, label, match }) => {
+          const isActive = match(location)
           return (
             <li key={to} className="flex-1">
               <NavLink
@@ -66,11 +92,11 @@ export default function Navbar() {
                   transition: 'all 0.25s cubic-bezier(0.34,1.56,0.64,1)',
                   ...(isActive ? {
                     background: 'linear-gradient(135deg, #A07830 0%, #C9A84C 40%, #E8CC7A 70%, #C9A84C 100%)',
-                    boxShadow: '0 2px 20px rgba(201,168,76,0.45)',
+                    boxShadow: '0 2px 20px rgba(201,168,76,1)',
                     color: '#050505',
                     transform: 'scale(1.06)',
                   } : {
-                    color: 'rgba(255,255,255,0.28)',
+                    color: 'rgba(255,255,255,1)',
                     transform: 'scale(1)',
                   }),
                 }}
