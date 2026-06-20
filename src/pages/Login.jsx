@@ -6,7 +6,7 @@ import XLogo from '../components/XLogo'
 
 
 export default function Login() {
-  const [email,    setEmail]    = useState('')
+  const [email,    setEmail]    = useState(() => localStorage.getItem('last_email') || '')
   const [password, setPassword] = useState('')
   const [error,    setError]    = useState('')
   const [loading,  setLoading]  = useState(false)
@@ -21,6 +21,7 @@ export default function Login() {
     setLoading(true)
     const { data, error: err } = await supabase.auth.signInWithPassword({ email, password })
     if (err) { setError('Email ou mot de passe incorrect.'); setLoading(false); return }
+    localStorage.setItem('last_email', email)
     await fetchProfile(data.user.id)
     navigator.geolocation?.getCurrentPosition(async pos => {
       await supabase.from('profiles').update({
@@ -54,7 +55,7 @@ export default function Login() {
           />
         </div>
         <div className="absolute inset-0" style={{
-          background: 'radial-gradient(ellipse at center, rgba(5,5,5,0.2) 0%, rgba(5,5,5,0.7) 55%, rgba(5,5,5,0.96) 100%)',
+          background: 'radial-gradient(ellipse at center, rgba(253,250,246,0.2) 0%, rgba(253,250,246,0.7) 55%, rgba(253,250,246,0.96) 100%)',
         }} />
       </div>
 
@@ -70,14 +71,14 @@ export default function Login() {
           >
             <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{
               background: 'radial-gradient(circle at 40% 35%, rgba(232,204,122,0.18), rgba(160,120,48,0.06))',
-              border: '1px solid rgba(201,168,76,0.38)',
-              boxShadow: '0 0 50px rgba(201,168,76,0.18), inset 0 1px 0 rgba(232,204,122,0.25)',
+              border: '1px solid rgba(201,168,76,1)',
+              boxShadow: '0 0 50px rgba(201,168,76,1), inset 0 1px 0 rgba(232,204,122,0.25)',
             }}>
               <XLogo size={52} />
             </div>
             {/* halo pulsant */}
             <div className="absolute inset-0 rounded-full animate-pulse-gold" style={{
-              border: '1px solid rgba(201,168,76,0.2)',
+              border: '1px solid rgba(201,168,76,1)',
               transform: 'scale(1.3)',
             }} />
           </div>
@@ -100,7 +101,7 @@ export default function Login() {
 
           {/* tagline */}
           <div className="animate-fade-in delay-200 flex items-center gap-3 mt-3" style={{ animationFillMode: 'both' }}>
-            <div className="w-8 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.4))' }} />
+            <div className="w-8 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.1))' }} />
             <span className="shine-text" style={{
               fontSize: '9px',
               letterSpacing: '0.22em',
@@ -110,7 +111,7 @@ export default function Login() {
               animationDuration: '22s',
               animationDelay: '1s',
             }}>Libertins par choix · Connectés par désir</span>
-            <div className="w-8 h-px" style={{ background: 'linear-gradient(90deg, rgba(201,168,76,0.4), transparent)' }} />
+            <div className="w-8 h-px" style={{ background: 'linear-gradient(90deg, rgba(201,168,76,0.1), transparent)' }} />
           </div>
         </div>
 
@@ -118,7 +119,7 @@ export default function Login() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {/* email */}
           <div className="animate-fade-in-up delay-300 flex flex-col gap-2" style={{ animationFillMode: 'both' }}>
-            <label htmlFor="email" style={{ fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.55)' }}>
+            <label htmlFor="email" style={{ fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)' }}>
               Email
             </label>
             <input
@@ -127,52 +128,52 @@ export default function Login() {
               placeholder="votre@email.com"
               className="input-gold"
               style={{
-                background: 'rgba(15,15,15,0.85)',
-                border: '1px solid rgba(201,168,76,0.18)',
+                background: 'rgba(245,240,232,0.85)',
+                border: '1px solid rgba(201,168,76,1)',
                 borderRadius: '14px',
                 padding: '15px 18px',
-                color: '#F2EDE6',
+                color: '#1C1814',
                 fontSize: '15px',
                 outline: 'none',
                 transition: 'border-color 0.2s, box-shadow 0.2s',
                 backdropFilter: 'blur(12px)',
               }}
-              onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,0.5)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,0.07)'; }}
-              onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,0.18)'; e.target.style.boxShadow = 'none'; }}
+              onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,1)'; }}
+              onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = 'none'; }}
             />
           </div>
 
           {/* mot de passe */}
           <div className="animate-fade-in-up delay-400 flex flex-col gap-2" style={{ animationFillMode: 'both' }}>
             <div className="flex items-center justify-between">
-              <label htmlFor="password" style={{ fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.55)' }}>
+              <label htmlFor="password" style={{ fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)' }}>
                 Mot de passe
               </label>
-              <Link to="/forgot-password" style={{ fontSize: '11px', color: 'rgba(201,168,76,0.5)', textDecoration: 'none', transition: 'color 0.2s' }}
+              <Link to="/forgot-password" style={{ fontSize: '11px', color: 'rgba(201,168,76,1)', textDecoration: 'none', transition: 'color 0.2s' }}
                 onMouseEnter={e => e.target.style.color = '#C9A84C'}
-                onMouseLeave={e => e.target.style.color = 'rgba(201,168,76,0.5)'}>
+                onMouseLeave={e => e.target.style.color = 'rgba(201,168,76,1)'}>
                 Oublié ?
               </Link>
             </div>
             <div className="relative">
               <input
-                id="password" type={showPwd ? 'text' : 'password'} required autoComplete="current-password"
+                id="password" type={showPwd ? 'text' : 'password'} required autoComplete="off"
                 value={password} onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
                 style={{
                   width: '100%',
-                  background: 'rgba(15,15,15,0.85)',
-                  border: '1px solid rgba(201,168,76,0.18)',
+                  background: 'rgba(245,240,232,0.85)',
+                  border: '1px solid rgba(201,168,76,1)',
                   borderRadius: '14px',
                   padding: '15px 48px 15px 18px',
-                  color: '#F2EDE6',
+                  color: '#1C1814',
                   fontSize: '15px',
                   outline: 'none',
                   transition: 'border-color 0.2s, box-shadow 0.2s',
                   backdropFilter: 'blur(12px)',
                 }}
-                onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,0.5)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,0.07)'; }}
-                onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,0.18)'; e.target.style.boxShadow = 'none'; }}
+                onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,1)'; }}
+                onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = 'none'; }}
               />
               <button className="erb-btn"
                 type="button"
@@ -181,11 +182,11 @@ export default function Login() {
                 style={{
                   position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)',
                   background: 'none', border: 'none', cursor: 'pointer',
-                  color: 'rgba(201,168,76,0.4)', fontSize: '12px', letterSpacing: '0.05em',
+                  color: 'rgba(201,168,76,1)', fontSize: '12px', letterSpacing: '0.05em',
                   padding: '4px', transition: 'color 0.2s',
                 }}
                 onMouseEnter={e => e.currentTarget.style.color = '#C9A84C'}
-                onMouseLeave={e => e.currentTarget.style.color = 'rgba(201,168,76,0.4)'}
+                onMouseLeave={e => e.currentTarget.style.color = 'rgba(201,168,76,1)'}
               >
                 {showPwd ? '●●●' : '···'}
               </button>
@@ -224,7 +225,7 @@ export default function Login() {
 
         {/* séparateur */}
         <div className="animate-fade-in delay-600 separator-gold my-6" style={{ animationFillMode: 'both' }}>
-          <span style={{ fontSize: '11px', color: 'rgba(201,168,76,0.3)', letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>ou</span>
+          <span style={{ fontSize: '11px', color: 'rgba(201,168,76,1)', letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>ou</span>
         </div>
 
         {/* bouton démo */}
@@ -233,25 +234,25 @@ export default function Login() {
           className="animate-fade-in-up delay-700 erb-btn"
           style={{
             width: '100%', padding: '15px', borderRadius: '14px', cursor: 'pointer',
-            background: 'rgba(201,168,76,0.04)',
-            border: '1px solid rgba(201,168,76,0.2)',
-            color: 'rgba(201,168,76,0.7)',
+            background: 'rgba(201,168,76,0.1)',
+            border: '1px solid rgba(201,168,76,1)',
+            color: 'rgba(201,168,76,1)',
             fontSize: '12px', letterSpacing: '0.12em',
             transition: 'all 0.25s',
             textTransform: 'uppercase',
             animationFillMode: 'both',
           }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.45)'; e.currentTarget.style.color = '#C9A84C'; e.currentTarget.style.background = 'rgba(201,168,76,0.08)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.2)'; e.currentTarget.style.color = 'rgba(201,168,76,0.7)'; e.currentTarget.style.background = 'rgba(201,168,76,0.04)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.color = '#C9A84C'; e.currentTarget.style.background = 'rgba(201,168,76,0.15)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.color = 'rgba(201,168,76,1)'; e.currentTarget.style.background = 'rgba(201,168,76,0.06)'; e.currentTarget.style.transform = 'translateY(0)'; }}
         >
           ∞ &nbsp; Explorer les connexions
         </button>
 
-        <p className="animate-fade-in delay-800" style={{ textAlign: 'center', fontSize: '12px', color: 'rgba(255,255,255,0.2)', marginTop: '28px', animationFillMode: 'both' }}>
+        <p className="animate-fade-in delay-800" style={{ textAlign: 'center', fontSize: '12px', color: 'rgba(28,24,20,0.9)', marginTop: '28px', animationFillMode: 'both' }}>
           Pas encore connecté ?{' '}
-          <Link to="/register" style={{ color: 'rgba(201,168,76,0.6)', textDecoration: 'none', transition: 'color 0.2s' }}
+          <Link to="/register" style={{ color: 'rgba(201,168,76,1)', textDecoration: 'none', transition: 'color 0.2s' }}
             onMouseEnter={e => e.target.style.color = '#C9A84C'}
-            onMouseLeave={e => e.target.style.color = 'rgba(201,168,76,0.6)'}
+            onMouseLeave={e => e.target.style.color = 'rgba(201,168,76,1)'}
           >
             Créer ma connexion
           </Link>

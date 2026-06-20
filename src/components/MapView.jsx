@@ -59,11 +59,14 @@ export default function MapView({ profiles, onSelect, myProfile }) {
 
     valid.forEach(p => {
       const initial = p.couple_name?.[0] || '?'
+      const inner = p.avatar_url
+        ? `<img src="${p.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
+        : `<span style="font-family:Cormorant,serif;font-weight:700;font-size:13px;color:#0D0D0D;">${initial}</span>`
       const icon = L.divIcon({
         className: '',
-        html: `<div style="width:32px;height:32px;border-radius:50%;background:#C9A84C;border:2px solid #0D0D0D;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#0D0D0D;font-size:13px;font-family:Cormorant,serif;font-weight:700;box-shadow:0 0 12px rgba(201,168,76,0.4);">${initial}</div>`,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16],
+        html: `<div style="width:36px;height:36px;border-radius:50%;background:#C9A84C;border:2px solid #fff;cursor:pointer;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 0 12px rgba(201,168,76,0.6);">${inner}</div>`,
+        iconSize: [36, 36],
+        iconAnchor: [18, 18],
       })
       const marker = L.marker([p.lat, p.lng], { icon })
         .on('click', () => onSelect?.(p))

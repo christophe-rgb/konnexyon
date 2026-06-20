@@ -2,6 +2,12 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "dossierculture",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["scripts/dossierculture-dev.sh"],
+      "port": 5174
+    },
+    {
       "name": "konnexyon",
       "runtimeExecutable": "npx",
       "runtimeArgs": ["serve", "dist", "-p", "5173", "--no-clipboard", "--single"],

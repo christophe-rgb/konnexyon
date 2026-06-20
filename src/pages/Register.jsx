@@ -43,9 +43,9 @@ export default function Register() {
 
         {/* header */}
         <div className="flex flex-col items-center mb-8 animate-fade-in-up" style={{ animationFillMode: 'both' }}>
-          <Link to="/login" style={{ color: 'rgba(201,168,76,0.4)', fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', textDecoration: 'none', marginBottom: '24px', transition: 'color 0.2s' }}
+          <Link to="/login" style={{ color: 'rgba(201,168,76,1)', fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', textDecoration: 'none', marginBottom: '24px', transition: 'color 0.2s' }}
             onMouseEnter={e => e.target.style.color = '#C9A84C'}
-            onMouseLeave={e => e.target.style.color = 'rgba(201,168,76,0.4)'}>
+            onMouseLeave={e => e.target.style.color = 'rgba(201,168,76,1)'}>
             ← Retour
           </Link>
           <span style={{
@@ -60,7 +60,7 @@ export default function Register() {
           }}>
             Créer ma connexion
           </span>
-          <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', marginTop: '6px', letterSpacing: '0.05em' }}>
+          <p style={{ fontSize: '12px', color: 'rgba(28,24,20,0.9)', marginTop: '6px', letterSpacing: '0.05em' }}>
             Connectez-vous à ceux qui vous correspondent
           </p>
         </div>
@@ -97,8 +97,8 @@ export default function Register() {
               className="mt-0.5 w-5 h-5 flex-shrink-0"
               style={{ accentColor: '#C9A84C' }}
             />
-            <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', lineHeight: 1.6 }}>
-              J'ai <strong style={{ color: 'rgba(201,168,76,0.7)' }}>18 ans ou plus</strong> et je certifie être majeur(e).
+            <span style={{ fontSize: '12px', color: 'rgba(28,24,20,0.9)', lineHeight: 1.6 }}>
+              J'ai <strong style={{ color: 'rgba(201,168,76,1)' }}>18 ans ou plus</strong> et je certifie être majeur(e).
               Ce site s'adresse exclusivement aux adultes consentants.
             </span>
           </label>
@@ -135,11 +135,11 @@ export default function Register() {
           </button>
         </form>
 
-        <p className="animate-fade-in" style={{ textAlign: 'center', fontSize: '12px', color: 'rgba(255,255,255,0.2)', marginTop: '24px', animationDelay: '400ms', animationFillMode: 'both' }}>
+        <p className="animate-fade-in" style={{ textAlign: 'center', fontSize: '12px', color: 'rgba(28,24,20,0.9)', marginTop: '24px', animationDelay: '400ms', animationFillMode: 'both' }}>
           Déjà connecté ?{' '}
-          <Link to="/login" style={{ color: 'rgba(201,168,76,0.6)', textDecoration: 'none', transition: 'color 0.2s' }}
+          <Link to="/login" style={{ color: 'rgba(201,168,76,1)', textDecoration: 'none', transition: 'color 0.2s' }}
             onMouseEnter={e => e.target.style.color = '#C9A84C'}
-            onMouseLeave={e => e.target.style.color = 'rgba(201,168,76,0.6)'}>
+            onMouseLeave={e => e.target.style.color = 'rgba(201,168,76,1)'}>
             Se reconnecter
           </Link>
         </p>
@@ -151,7 +151,7 @@ export default function Register() {
 function Field({ label, id, type, value, onChange, placeholder, autoComplete, delay = '0ms' }) {
   return (
     <div className="animate-fade-in-up" style={{ animationDelay: delay, animationFillMode: 'both' }}>
-      <label htmlFor={id} style={{ display: 'block', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.5)', marginBottom: '7px' }}>
+      <label htmlFor={id} style={{ display: 'block', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)', marginBottom: '7px' }}>
         {label}
       </label>
       <input
@@ -160,18 +160,18 @@ function Field({ label, id, type, value, onChange, placeholder, autoComplete, de
         placeholder={placeholder}
         style={{
           width: '100%',
-          background: 'rgba(15,15,15,0.85)',
-          border: '1px solid rgba(201,168,76,0.18)',
+          background: 'rgba(245,240,232,0.85)',
+          border: '1px solid rgba(201,168,76,1)',
           borderRadius: '14px',
           padding: '14px 18px',
-          color: '#F2EDE6',
+          color: '#1C1814',
           fontSize: '15px',
           outline: 'none',
           transition: 'border-color 0.2s, box-shadow 0.2s',
           backdropFilter: 'blur(12px)',
         }}
-        onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,0.5)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,0.07)'; }}
-        onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,0.18)'; e.target.style.boxShadow = 'none'; }}
+        onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,1)'; }}
+        onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = 'none'; }}
       />
     </div>
   )

@@ -32,7 +32,7 @@ export function BlogCountryList({ country }) {
   const prefix = `/${country}`
 
   return (
-    <div className="min-h-dvh" style={{ background: '#050505' }}>
+    <div className="min-h-dvh" style={{ background: '#FDFAF6' }}>
       <header style={{
         padding: '16px 24px', borderBottom: '1px solid rgba(201,168,76,0.1)',
         display: 'flex', alignItems: 'center', gap: 12,
@@ -47,7 +47,7 @@ export function BlogCountryList({ country }) {
         <p style={{ fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.4)', marginBottom: 8 }}>
           Konnexyon · {label}
         </p>
-        <h1 style={{ fontFamily: 'Cormorant, serif', fontSize: 'clamp(1.8rem, 6vw, 2.8rem)', fontWeight: 600, color: '#F2EDE6', lineHeight: 1.15, marginBottom: 8 }}>
+        <h1 style={{ fontFamily: 'Cormorant, serif', fontSize: 'clamp(1.8rem, 6vw, 2.8rem)', fontWeight: 600, color: '#1C1814', lineHeight: 1.15, marginBottom: 8 }}>
           Rencontres couples<br />{label}
         </h1>
         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', marginBottom: 48 }}>{desc}</p>
@@ -68,7 +68,7 @@ export function BlogCountryList({ country }) {
                   <span style={{ color: 'rgba(201,168,76,0.2)', fontSize: 10 }}>·</span>
                   <span style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.4)' }}>{a.readTime}</span>
                 </div>
-                <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '1.3rem', fontWeight: 600, color: '#F2EDE6', lineHeight: 1.3, marginBottom: 8 }}>{a.title}</h2>
+                <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '1.3rem', fontWeight: 600, color: '#1C1814', lineHeight: 1.3, marginBottom: 8 }}>{a.title}</h2>
                 <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', lineHeight: 1.65 }}>{a.excerpt}</p>
                 <p style={{ marginTop: 14, fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.55)' }}>Lire →</p>
               </article>
@@ -107,12 +107,12 @@ export function BlogCountryArticle({ country }) {
   const prefix = `/${country}`
 
   return (
-    <div className="min-h-dvh" style={{ background: '#050505' }}>
+    <div className="min-h-dvh" style={{ background: '#FDFAF6' }}>
       <header style={{
         position: 'sticky', top: 0, zIndex: 10,
         padding: '14px 24px', borderBottom: '1px solid rgba(201,168,76,0.08)',
         display: 'flex', alignItems: 'center', gap: 12,
-        background: 'rgba(5,5,5,0.95)', backdropFilter: 'blur(20px)',
+        background: 'rgba(253,250,246,0.95)', backdropFilter: 'blur(20px)',
       }}>
         <Link to={prefix} style={{ color: 'rgba(201,168,76,0.5)', textDecoration: 'none', fontSize: 20 }}>←</Link>
         <span style={{ fontFamily: 'Cormorant, serif', fontSize: '1rem', color: 'rgba(201,168,76,0.5)', letterSpacing: '0.08em' }}>
@@ -129,7 +129,7 @@ export function BlogCountryArticle({ country }) {
           <span style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.4)' }}>{article.readTime} de lecture</span>
         </div>
 
-        <h1 style={{ fontFamily: 'Cormorant, serif', fontSize: 'clamp(1.8rem, 5vw, 2.8rem)', fontWeight: 700, color: '#F2EDE6', lineHeight: 1.2, marginBottom: 20 }}>
+        <h1 style={{ fontFamily: 'Cormorant, serif', fontSize: 'clamp(1.8rem, 5vw, 2.8rem)', fontWeight: 700, color: '#1C1814', lineHeight: 1.2, marginBottom: 20 }}>
           {article.title}
         </h1>
         <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.45)', lineHeight: 1.8, marginBottom: 40, borderLeft: '2px solid rgba(201,168,76,0.3)', paddingLeft: 16 }}>
@@ -141,7 +141,7 @@ export function BlogCountryArticle({ country }) {
         </div>
 
         <div style={{ marginTop: 56, padding: '32px', borderRadius: 20, background: 'linear-gradient(145deg, rgba(201,168,76,0.07), rgba(201,168,76,0.02))', border: '1px solid rgba(201,168,76,0.18)', textAlign: 'center' }}>
-          <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.5rem', color: '#F2EDE6', marginBottom: 8 }}>
+          <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.5rem', color: '#1C1814', marginBottom: 8 }}>
             Rejoignez Konnexyon {data.flag}
           </p>
           <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24, lineHeight: 1.6 }}>
@@ -181,7 +181,7 @@ function MarkdownLite({ content }) {
     if (line.startsWith('### ')) {
       elements.push(<h3 key={key++} style={{ fontFamily: 'Cormorant, serif', fontSize: '1.3rem', fontWeight: 600, color: '#C9A84C', marginTop: 32, marginBottom: 12 }}>{line.slice(4)}</h3>)
     } else if (line.startsWith('## ')) {
-      elements.push(<h2 key={key++} style={{ fontFamily: 'Cormorant, serif', fontSize: '1.6rem', fontWeight: 600, color: '#F2EDE6', marginTop: 40, marginBottom: 16 }}>{line.slice(3)}</h2>)
+      elements.push(<h2 key={key++} style={{ fontFamily: 'Cormorant, serif', fontSize: '1.6rem', fontWeight: 600, color: '#1C1814', marginTop: 40, marginBottom: 16 }}>{line.slice(3)}</h2>)
     } else if (line.startsWith('- ')) {
       elements.push(<li key={key++} style={{ marginBottom: 8, paddingLeft: 8, color: 'rgba(255,255,255,0.55)' }}>{renderInline(line.slice(2))}</li>)
     } else if (line.startsWith('**') && line.endsWith('**')) {

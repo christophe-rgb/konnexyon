@@ -53,8 +53,8 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
         aspectRatio: '3/4',
         borderRadius: '20px',
         boxShadow: hovered
-          ? '0 20px 60px rgba(0,0,0,0.85), 0 0 0 1px rgba(201,168,76,0.35)'
-          : '0 8px 32px rgba(0,0,0,0.7), 0 0 0 1px rgba(201,168,76,0.08)',
+          ? '0 20px 60px rgba(0,0,0,0.85), 0 0 0 1px rgba(201,168,76,1)'
+          : '0 8px 32px rgba(0,0,0,0.7), 0 0 0 1px rgba(201,168,76,1)',
         transition: 'box-shadow 0.35s, transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94)',
         transform: hovered ? 'translateY(-4px) scale(1.01)' : 'translateY(0) scale(1)',
         animationDelay: `${index * 80}ms`,
@@ -75,7 +75,7 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
         />
       ) : (
         <div className="absolute inset-0 flex flex-col items-center justify-center" style={{
-          background: 'linear-gradient(145deg, #111 0%, #0a0a0a 100%)',
+          background: 'linear-gradient(145deg, #F0EBE2 0%, #EDE7DB 100%)',
         }}>
           {/* initiale stylisée */}
           <span style={{
@@ -91,7 +91,7 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
           }}>
             {profile.couple_name?.[0] ?? '∞'}
           </span>
-          <span style={{ fontSize: '10px', letterSpacing: '0.2em', color: 'rgba(201,168,76,0.2)', marginTop: '8px', textTransform: 'uppercase' }}>
+          <span style={{ fontSize: '10px', letterSpacing: '0.2em', color: 'rgba(201,168,76,1)', marginTop: '8px', textTransform: 'uppercase' }}>
             {profile.couple_name}
           </span>
         </div>
@@ -110,15 +110,15 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
 
       {/* ── bordure or au hover ── */}
       <div className="absolute inset-0 rounded-[20px] pointer-events-none" style={{
-        border: `1px solid ${hovered ? 'rgba(201,168,76,0.45)' : 'rgba(201,168,76,0.12)'}`,
+        border: `1px solid ${hovered ? 'rgba(201,168,76,1)' : 'rgba(201,168,76,1)'}`,
         transition: 'border-color 0.35s',
       }} />
 
       {/* ── overlay liké ── */}
       {isLiked && (
         <div className="absolute inset-0 rounded-[20px] pointer-events-none" style={{
-          background: 'linear-gradient(135deg, rgba(201,168,76,0.08) 0%, transparent 60%)',
-          border: '1px solid rgba(201,168,76,0.55)',
+          background: 'linear-gradient(135deg, rgba(201,168,76,0.1) 0%, transparent 60%)',
+          border: '1px solid rgba(201,168,76,1)',
         }} />
       )}
 
@@ -126,7 +126,7 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
       {isLiked && (
         <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1.5 rounded-full" style={{
           background: 'linear-gradient(135deg, #A07830, #E8CC7A)',
-          boxShadow: '0 0 16px rgba(201,168,76,0.5)',
+          boxShadow: '0 0 16px rgba(201,168,76,1)',
         }}>
           <XLogo size={13} style={{ opacity: 1 }} />
           <span style={{ fontSize: '10px', color: '#050505', fontWeight: 700, letterSpacing: '0.08em' }}>
@@ -138,12 +138,12 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
       {/* ── badge distance ── */}
       {profile.distance_km != null && (
         <div className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full" style={{
-          background: 'rgba(0,0,0,0.72)',
+          background: 'rgba(245,240,232,0.9)',
           backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(255,255,255,0.07)',
+          border: '1px solid rgba(28,24,20,0.15)',
         }}>
-          <MapPin size={9} strokeWidth={2} style={{ color: 'rgba(201,168,76,0.8)' }} />
-          <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>
+          <MapPin size={9} strokeWidth={2} style={{ color: 'rgba(201,168,76,1)' }} />
+          <span style={{ fontSize: '11px', color: 'rgba(28,24,20,0.9)', fontWeight: 500 }}>
             {profile.distance_km} km
           </span>
         </div>
@@ -152,7 +152,7 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
       {/* ── badge "nouveau" si récent ── */}
       {profile.is_new && (
         <div className="absolute top-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full" style={{
-          background: 'linear-gradient(135deg, rgba(201,168,76,0.9), rgba(232,204,122,0.9))',
+          background: 'linear-gradient(135deg, rgba(201,168,76,0.1), rgba(232,204,122,0.9))',
         }}>
           <Zap size={9} strokeWidth={2.5} color="#050505" />
           <span style={{ fontSize: '10px', color: '#050505', fontWeight: 700, letterSpacing: '0.05em' }}>
@@ -182,7 +182,7 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
             fontSize: '10px',
             letterSpacing: '0.12em',
             textTransform: 'uppercase',
-            color: 'rgba(201,168,76,0.6)',
+            color: 'rgba(201,168,76,1)',
             marginBottom: '6px',
           }}>
             {profile.orientation.replace('_', ' · ')}
@@ -193,7 +193,7 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
         {profile.bio && (
           <p style={{
             fontSize: '12px',
-            color: 'rgba(255,255,255,0.5)',
+            color: 'rgba(255,255,255,1)',
             lineHeight: 1.5,
             marginBottom: '10px',
             display: '-webkit-box',
@@ -212,9 +212,9 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
               <span key={s} className="tag-connection" style={{
                 fontSize: '10px',
                 letterSpacing: '0.06em',
-                color: 'rgba(201,168,76,0.85)',
-                background: 'rgba(201,168,76,0.09)',
-                border: '1px solid rgba(201,168,76,0.22)',
+                color: 'rgba(201,168,76,1)',
+                background: 'rgba(201,168,76,0.1)',
+                border: '1px solid rgba(201,168,76,1)',
                 borderRadius: '99px',
                 padding: '3px 10px',
               }}>
@@ -238,8 +238,8 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
                   minHeight: '44px',
                   borderRadius: '12px',
                   background: 'rgba(255,255,255,0.07)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  color: 'rgba(255,255,255,0.55)',
+                  border: '1px solid rgba(255,255,255,0.25)',
+                  color: '#ffffff',
                   fontSize: '12px',
                   letterSpacing: '0.06em',
                   textTransform: 'uppercase',
@@ -247,8 +247,8 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
                   backdropFilter: 'blur(8px)',
                   transition: 'all 0.2s',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = 'rgba(255,255,255,0.8)'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = 'rgba(255,255,255,0.55)'; }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.5)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)'; }}
               >
                 <X size={14} strokeWidth={2} />
                 Passer

@@ -67,18 +67,18 @@ export default function SwipeStack({ profiles, onLike, onPass }) {
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', padding: '8px 16px 16px', gap: 14, overflow: 'hidden' }}>
 
       {/* stack */}
-      <div style={{ position: 'relative', width: '100%', maxWidth: 400, height: 520, flexShrink: 0 }}>
+      <div style={{ position: 'relative', width: '100%', maxWidth: 400, height: 'min(520px, calc(100dvh - 320px))', flexShrink: 0 }}>
 
         {/* carte 3 */}
         {nextnext && (
-          <div style={{ position: 'absolute', inset: 0, borderRadius: 24, overflow: 'hidden', transform: 'scale(0.88) translateY(16px)', transformOrigin: 'bottom center', border: '1px solid rgba(201,168,76,0.12)', background: '#111' }}>
+          <div style={{ position: 'absolute', inset: 0, borderRadius: 24, overflow: 'hidden', transform: 'scale(0.88) translateY(16px)', transformOrigin: 'bottom center', border: '1px solid rgba(201,168,76,0.1)', background: '#EDE7DB' }}>
             <CardPhoto profile={nextnext} />
           </div>
         )}
 
         {/* carte 2 */}
         {next && (
-          <div style={{ position: 'absolute', inset: 0, borderRadius: 24, overflow: 'hidden', transform: 'scale(0.94) translateY(8px)', transformOrigin: 'bottom center', border: '1px solid rgba(201,168,76,0.16)', background: '#111' }}>
+          <div style={{ position: 'absolute', inset: 0, borderRadius: 24, overflow: 'hidden', transform: 'scale(0.94) translateY(8px)', transformOrigin: 'bottom center', border: '1px solid rgba(201,168,76,0.1)', background: '#EDE7DB' }}>
             <CardPhoto profile={next} />
           </div>
         )}
@@ -100,9 +100,9 @@ export default function SwipeStack({ profiles, onLike, onPass }) {
             transition: isFlying ? 'transform 0.38s cubic-bezier(0.4,0,1,1)' : activeRef.current ? 'none' : 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94)',
             userSelect: 'none',
             touchAction: 'none',
-            border: '1px solid rgba(201,168,76,0.22)',
-            boxShadow: '0 24px 64px rgba(0,0,0,0.75), 0 0 0 1px rgba(201,168,76,0.06)',
-            background: '#0a0a0a',
+            border: '1px solid rgba(201,168,76,1)',
+            boxShadow: '0 24px 64px rgba(0,0,0,0.75), 0 0 0 1px rgba(201,168,76,1)',
+            background: '#F0EBE2',
           }}
         >
           <CardPhoto profile={current} />
@@ -151,11 +151,11 @@ export default function SwipeStack({ profiles, onLike, onPass }) {
             <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '2rem', fontWeight: 600, color: '#fff', marginBottom: 4, lineHeight: 1.1 }}>
               {current.couple_name}
             </h2>
-            <p style={{ fontSize: 11, color: 'rgba(201,168,76,0.65)', letterSpacing: '0.16em', textTransform: 'uppercase', marginBottom: 10 }}>
+            <p style={{ fontSize: 11, color: 'rgba(201,168,76,1)', letterSpacing: '0.16em', textTransform: 'uppercase', marginBottom: 10 }}>
               {current.orientation}{current.distance_km ? ` · ${Math.round(current.distance_km)} km` : ''}
             </p>
             {current.bio && (
-              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.55, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', lineHeight: 1.55, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                 {current.bio}
               </p>
             )}
@@ -164,8 +164,8 @@ export default function SwipeStack({ profiles, onLike, onPass }) {
                 {current.seeking.map(s => (
                   <span key={s} style={{
                     padding: '3px 10px', borderRadius: 20, fontSize: 11,
-                    background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.22)',
-                    color: 'rgba(201,168,76,0.75)', letterSpacing: '0.06em',
+                    background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.1)',
+                    color: 'rgba(201,168,76,1)', letterSpacing: '0.06em',
                   }}>{s}</span>
                 ))}
               </div>
@@ -175,7 +175,7 @@ export default function SwipeStack({ profiles, onLike, onPass }) {
       </div>
 
       {/* compteur */}
-      <p style={{ fontSize: 11, letterSpacing: '0.14em', color: 'rgba(201,168,76,0.3)', textTransform: 'uppercase' }}>
+      <p style={{ fontSize: 11, letterSpacing: '0.14em', color: 'rgba(201,168,76,1)', textTransform: 'uppercase' }}>
         {profiles.length - index} connexion{profiles.length - index > 1 ? 's' : ''} restante{profiles.length - index > 1 ? 's' : ''}
       </p>
 
@@ -196,8 +196,8 @@ export default function SwipeStack({ profiles, onLike, onPass }) {
 function CardPhoto({ profile }) {
   if (!profile.avatar_url) {
     return (
-      <div style={{ width: '100%', height: '100%', background: '#0d0d0d', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ fontFamily: 'Cormorant', fontSize: 90, color: 'rgba(201,168,76,0.15)' }}>
+      <div style={{ width: '100%', height: '100%', background: '#EDE7DB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ fontFamily: 'Cormorant', fontSize: 90, color: 'rgba(201,168,76,1)' }}>
           {profile.couple_name?.[0] || '∞'}
         </span>
       </div>
@@ -215,17 +215,17 @@ function ActionBtn({ onClick, children, aria, gold }) {
         width: gold ? 72 : 60,
         height: gold ? 72 : 60,
         borderRadius: '50%',
-        border: gold ? '1px solid rgba(201,168,76,0.4)' : '1px solid rgba(248,113,113,0.3)',
+        border: gold ? '1px solid rgba(201,168,76,1)' : '1px solid rgba(248,113,113,0.3)',
         background: gold
           ? 'radial-gradient(circle at 40% 35%, rgba(232,204,122,0.18), rgba(160,120,48,0.06))'
           : 'rgba(248,113,113,0.06)',
-        boxShadow: gold ? '0 0 30px rgba(201,168,76,0.2)' : '0 0 20px rgba(248,113,113,0.1)',
+        boxShadow: gold ? '0 0 30px rgba(201,168,76,1)' : '0 0 20px rgba(248,113,113,0.1)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         cursor: 'pointer',
         transition: 'transform 0.15s, box-shadow 0.15s',
       }}
-      onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.1)'; e.currentTarget.style.boxShadow = gold ? '0 0 40px rgba(201,168,76,0.35)' : '0 0 30px rgba(248,113,113,0.25)' }}
-      onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)';   e.currentTarget.style.boxShadow = gold ? '0 0 30px rgba(201,168,76,0.2)' : '0 0 20px rgba(248,113,113,0.1)' }}
+      onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.1)'; e.currentTarget.style.boxShadow = gold ? '0 0 40px rgba(201,168,76,1)' : '0 0 30px rgba(248,113,113,0.25)' }}
+      onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)';   e.currentTarget.style.boxShadow = gold ? '0 0 30px rgba(201,168,76,1)' : '0 0 20px rgba(248,113,113,0.1)' }}
     >
       {children}
     </button>
@@ -235,13 +235,13 @@ function ActionBtn({ onClick, children, aria, gold }) {
 function EmptySwipe() {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20, padding: '0 32px', textAlign: 'center' }}>
-      <div style={{ width: 72, height: 72, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle, rgba(201,168,76,0.08), transparent)', border: '1px solid rgba(201,168,76,0.15)' }}>
-        <Compass size={28} strokeWidth={1} style={{ color: 'rgba(201,168,76,0.4)' }} />
+      <div style={{ width: 72, height: 72, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle, rgba(201,168,76,0.1), transparent)', border: '1px solid rgba(201,168,76,0.1)' }}>
+        <Compass size={28} strokeWidth={1} style={{ color: 'rgba(201,168,76,1)' }} />
       </div>
-      <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.5rem', color: 'rgba(255,255,255,0.35)' }}>
+      <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.5rem', color: 'rgba(28,24,20,0.9)' }}>
         Plus de connexions à proximité
       </p>
-      <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.2)', lineHeight: 1.6 }}>
+      <p style={{ fontSize: 13, color: 'rgba(28,24,20,0.9)', lineHeight: 1.6 }}>
         Élargissez la distance ou modifiez vos filtres.
       </p>
     </div>

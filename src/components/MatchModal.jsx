@@ -16,7 +16,7 @@ export default function MatchModal({ match, onClose }) {
           <div key={i} style={{
             position: 'absolute',
             width: 3, height: 3, borderRadius: '50%',
-            background: 'rgba(201,168,76,0.6)',
+            background: 'rgba(201,168,76,0.1)',
             left: `${15 + i * 14}%`,
             top: `${20 + (i % 3) * 20}%`,
             animation: `float ${2 + i * 0.4}s ease-in-out infinite`,
@@ -28,13 +28,13 @@ export default function MatchModal({ match, onClose }) {
       <div
         className="animate-fade-in-up"
         style={{
-          background: 'linear-gradient(145deg, rgba(12,10,5,0.99) 0%, rgba(8,7,3,0.99) 100%)',
-          border: '1px solid rgba(201,168,76,0.3)',
+          background: 'linear-gradient(145deg, rgba(253,250,246,0.99) 0%, rgba(245,240,232,0.99) 100%)',
+          border: '1px solid rgba(201,168,76,1)',
           borderRadius: '28px',
           padding: '40px 32px',
           width: '100%', maxWidth: '380px',
           textAlign: 'center',
-          boxShadow: '0 0 80px rgba(201,168,76,0.12), 0 40px 80px rgba(0,0,0,0.9)',
+          boxShadow: '0 0 80px rgba(201,168,76,1), 0 40px 80px rgba(0,0,0,0.9)',
           animationFillMode: 'both',
           position: 'relative',
         }}
@@ -47,10 +47,10 @@ export default function MatchModal({ match, onClose }) {
           <div style={{
             width: 56, height: 56, borderRadius: '50%', flexShrink: 0,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'rgba(5,5,5,0.6)',
-            boxShadow: '0 0 30px rgba(201,168,76,0.4)',
+            background: 'rgba(245,240,232,0.6)',
+            boxShadow: '0 0 30px rgba(201,168,76,1)',
             animation: 'pulseGold 2s ease-in-out infinite',
-            border: '1px solid rgba(201,168,76,0.3)',
+            border: '1px solid rgba(201,168,76,1)',
           }}>
             <XLogo size={48} />
           </div>
@@ -74,12 +74,12 @@ export default function MatchModal({ match, onClose }) {
           Connexion !
         </p>
 
-        <div style={{ fontSize: '10px', letterSpacing: '0.2em', color: 'rgba(201,168,76,0.4)', textTransform: 'uppercase', marginBottom: '16px' }}>
+        <div style={{ fontSize: '10px', letterSpacing: '0.2em', color: 'rgba(201,168,76,1)', textTransform: 'uppercase', marginBottom: '16px' }}>
           ∞ · Connexion mutuelle · ∞
         </div>
 
-        <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', lineHeight: 1.7, marginBottom: '28px' }}>
-          Vous et <strong style={{ color: 'rgba(255,255,255,0.7)' }}>{match.other?.couple_name}</strong> vous êtes connectés mutuellement.
+        <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.9)', lineHeight: 1.7, marginBottom: '28px' }}>
+          Vous et <strong style={{ color: 'rgba(28,24,20,0.9)' }}>{match.other?.couple_name}</strong> vous êtes connectés mutuellement.
           Le chat est maintenant débloqué.
         </p>
 
@@ -102,13 +102,13 @@ export default function MatchModal({ match, onClose }) {
             style={{
               width: '100%', padding: '14px', borderRadius: '14px',
               background: 'transparent',
-              border: '1px solid rgba(201,168,76,0.12)',
-              color: 'rgba(255,255,255,0.3)',
+              border: '1px solid rgba(201,168,76,1)',
+              color: 'rgba(28,24,20,0.9)',
               fontSize: '12px', letterSpacing: '0.06em',
               cursor: 'pointer', transition: 'all 0.2s',
             }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.25)'; e.currentTarget.style.color = 'rgba(255,255,255,0.55)'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.12)'; e.currentTarget.style.color = 'rgba(255,255,255,0.3)'; }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.color = 'rgba(28,24,20,0.9)'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.color = 'rgba(28,24,20,0.9)'; }}
           >
             Continuer à explorer
           </button>
@@ -123,8 +123,8 @@ function Avatar({ profile }) {
     <div style={{
       width: 64, height: 64, borderRadius: '20px', flexShrink: 0,
       overflow: 'hidden',
-      border: '1px solid rgba(201,168,76,0.3)',
-      boxShadow: '0 0 20px rgba(201,168,76,0.15)',
+      border: '1px solid rgba(201,168,76,1)',
+      boxShadow: '0 0 20px rgba(201,168,76,1)',
     }}>
       {profile?.avatar_url ? (
         <img src={profile.avatar_url} alt={profile.couple_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -132,9 +132,9 @@ function Avatar({ profile }) {
         <div style={{
           width: '100%', height: '100%',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          background: '#111',
+          background: '#EDE7DB',
           fontFamily: 'Cormorant, serif', fontSize: '24px',
-          color: 'rgba(201,168,76,0.35)',
+          color: 'rgba(201,168,76,1)',
         }}>
           {profile?.couple_name?.[0] || '∞'}
         </div>

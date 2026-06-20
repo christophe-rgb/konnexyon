@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#C9A84C" />
+    <meta name="theme-color" content="#FDFAF6" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Konnexyon" />
@@ -22,7 +22,7 @@
     <meta property="og:url" content="https://konnexyon.com/" />
     <meta property="og:title" content="Konnexyon — Rencontres discrètes pour couples ouverts" />
     <meta property="og:description" content="La plateforme de rencontres exclusive pour couples ouverts. Discrétion absolue, zéro célibataire. France, Belgique, Suisse, Québec." />
-    <meta property="og:image" content="https://konnexyon.com/logo.png" />
+    <meta property="og:image" content="https://konnexyon.com/og-image.jpg" />
     <meta property="og:locale" content="fr_FR" />
     <meta property="og:site_name" content="Konnexyon" />
 
@@ -30,7 +30,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Konnexyon — Rencontres discrètes pour couples ouverts" />
     <meta name="twitter:description" content="La plateforme de rencontres exclusive pour couples ouverts. Discrétion absolue, zéro célibataire." />
-    <meta name="twitter:image" content="https://konnexyon.com/logo.png" />
+    <meta name="twitter:image" content="https://konnexyon.com/og-image.jpg" />
 
     <!-- JSON-LD -->
     <script type="application/ld+json">
@@ -44,10 +44,24 @@
     }
     </script>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
-    <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet" />
+    <link rel="preload" href="/fonts/cormorant.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/inter.woff2" as="font" type="font/woff2" crossorigin />
+    <style>
+      @font-face {
+        font-family: 'Cormorant';
+        src: url('/fonts/cormorant.woff2') format('woff2');
+        font-weight: 100 900;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'Inter';
+        src: url('/fonts/inter.woff2') format('woff2');
+        font-weight: 100 900;
+        font-style: normal;
+        font-display: swap;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>

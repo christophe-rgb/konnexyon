@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from './store/auth'
 import { supabase } from './lib/supabase'
@@ -7,27 +7,36 @@ import Navbar       from './components/Navbar'
 import { ToastContainer } from './components/Toast'
 import MatchModal   from './components/MatchModal'
 import AgeGate      from './components/AgeGate'
-import Home           from './pages/Home'
-import Login          from './pages/Login'
-import Register       from './pages/Register'
-import ForgotPassword from './pages/ForgotPassword'
-import ResetPassword  from './pages/ResetPassword'
-import ConfirmPartner from './pages/ConfirmPartner'
-import Onboarding     from './pages/Onboarding'
-import Discover     from './pages/Discover'
-import Matches      from './pages/Matches'
-import Messages     from './pages/Messages'
-import Conversation from './pages/Conversation'
-import Profile      from './pages/Profile'
-import Settings     from './pages/Settings'
-import Admin        from './pages/Admin'
-import Abonnement     from './pages/Abonnement'
-import CGU           from './pages/CGU'
-import Confidentialite from './pages/Confidentialite'
-import Contact        from './pages/Contact'
-import Blog           from './pages/Blog'
-import BlogArticle    from './pages/BlogArticle'
-import { BlogCountryList, BlogCountryArticle } from './pages/BlogCountry'
+import CookieBanner from './components/CookieBanner'
+
+const Home           = lazy(() => import('./pages/Home'))
+const Login          = lazy(() => import('./pages/Login'))
+const Register       = lazy(() => import('./pages/Register'))
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
+const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
+const ConfirmPartner = lazy(() => import('./pages/ConfirmPartner'))
+const Onboarding     = lazy(() => import('./pages/Onboarding'))
+const Discover       = lazy(() => import('./pages/Discover'))
+const Matches        = lazy(() => import('./pages/Matches'))
+const Messages       = lazy(() => import('./pages/Messages'))
+const Conversation   = lazy(() => import('./pages/Conversation'))
+const Profile        = lazy(() => import('./pages/Profile'))
+const Settings       = lazy(() => import('./pages/Settings'))
+const Admin          = lazy(() => import('./pages/Admin'))
+const Abonnement     = lazy(() => import('./pages/Abonnement'))
+const CGU            = lazy(() => import('./pages/CGU'))
+const Confidentialite = lazy(() => import('./pages/Confidentialite'))
+const Contact        = lazy(() => import('./pages/Contact'))
+const Blog           = lazy(() => import('./pages/Blog'))
+const BlogArticle    = lazy(() => import('./pages/BlogArticle'))
+const BlogCountryList    = lazy(() => import('./pages/BlogCountry').then(m => ({ default: m.BlogCountryList })))
+const BlogCountryArticle = lazy(() => import('./pages/BlogCountry').then(m => ({ default: m.BlogCountryArticle })))
+
+const PageLoader = () => (
+  <div className="flex h-dvh items-center justify-center">
+    <div className="w-8 h-8 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+  </div>
+)
 
 function RequireAuth({ children }) {
   const { user, loading } = useAuthStore()
@@ -53,7 +62,7 @@ export default function App() {
   const user    = useAuthStore(s => s.user)
   const [newMatch, setNewMatch] = useState(null)
   const [ageConfirmed, setAgeConfirmed] = useState(
-    () => sessionStorage.getItem('age_confirmed') === '1'
+    () => localStorage.getItem('age_confirmed') === '1'
   )
 
   useEffect(() => { init() }, [init])
@@ -85,8 +94,9 @@ export default function App() {
 
   if (!ageConfirmed) return <AgeGate onConfirm={() => setAgeConfirmed(true)} />
 
-  const panicExit = () => {
-    sessionStorage.removeItem('age_confirmed')
+  const panicExit = async () => {
+    localStorage.removeItem('age_confirmed')
+    await supabase.auth.signOut()
     window.location.replace('https://www.google.fr')
   }
 
@@ -100,38 +110,39 @@ export default function App() {
         aria-label="Fermer le site"
         style={{
           position: 'fixed',
-          top: '14px',
+          top: '90px',
           right: '14px',
           zIndex: 9999,
           width: 32,
           height: 32,
           borderRadius: '50%',
-          background: 'rgba(30,30,30,0.55)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          color: 'rgba(255,255,255,0.3)',
+          background: 'rgba(200,190,175,0.55)',
+          border: '1px solid rgba(28,24,20,0.08)',
+          color: 'rgba(220,50,50,0.85)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           cursor: 'pointer',
-          fontSize: '14px',
+          fontSize: '16px',
           backdropFilter: 'blur(6px)',
           transition: 'all 0.2s',
         }}
         onMouseEnter={e => {
-          e.currentTarget.style.background = 'rgba(60,60,60,0.85)'
-          e.currentTarget.style.color = 'rgba(255,255,255,0.7)'
-          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'
+          e.currentTarget.style.background = 'rgba(60,20,20,0.85)'
+          e.currentTarget.style.color = 'rgba(255,80,80,1)'
+          e.currentTarget.style.borderColor = 'rgba(220,50,50,0.4)'
         }}
         onMouseLeave={e => {
-          e.currentTarget.style.background = 'rgba(30,30,30,0.55)'
-          e.currentTarget.style.color = 'rgba(255,255,255,0.3)'
-          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'
+          e.currentTarget.style.background = 'rgba(200,190,175,0.55)'
+          e.currentTarget.style.color = 'rgba(220,50,50,0.85)'
+          e.currentTarget.style.borderColor = 'rgba(28,24,20,0.08)'
         }}
       >
-        ✕
+        ⚠
       </button>
 
       <ToastContainer />
+      <CookieBanner />
 
       {showNav && <Navbar />}
 
@@ -140,54 +151,56 @@ export default function App() {
       )}
 
       <div className={showNav ? 'pb-20' : ''} style={{ position: 'relative', zIndex: 1 }}>
-        <Routes>
-          <Route path="/"                  element={<Home />} />
-          <Route path="/login"             element={<Login />} />
-          <Route path="/register"          element={<Register />} />
-          <Route path="/forgot-password"   element={<ForgotPassword />} />
-          <Route path="/reset-password"    element={<ResetPassword />} />
-          <Route path="/confirm-partner"   element={<ConfirmPartner />} />
-          <Route path="/cgu"               element={<CGU />} />
-          <Route path="/confidentialite"   element={<Confidentialite />} />
-          <Route path="/contact"           element={<Contact />} />
-          <Route path="/blog"                        element={<Blog />} />
-          <Route path="/blog/:slug"                  element={<BlogArticle />} />
-          <Route path="/belgique"                    element={<BlogCountryList country="belgique" />} />
-          <Route path="/belgique/:slug"              element={<BlogCountryArticle country="belgique" />} />
-          <Route path="/suisse"                      element={<BlogCountryList country="suisse" />} />
-          <Route path="/suisse/:slug"                element={<BlogCountryArticle country="suisse" />} />
-          <Route path="/quebec"                      element={<BlogCountryList country="quebec" />} />
-          <Route path="/quebec/:slug"                element={<BlogCountryArticle country="quebec" />} />
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/"                  element={<Home />} />
+            <Route path="/login"             element={<Login />} />
+            <Route path="/register"          element={<Register />} />
+            <Route path="/forgot-password"   element={<ForgotPassword />} />
+            <Route path="/reset-password"    element={<ResetPassword />} />
+            <Route path="/confirm-partner"   element={<ConfirmPartner />} />
+            <Route path="/cgu"               element={<CGU />} />
+            <Route path="/confidentialite"   element={<Confidentialite />} />
+            <Route path="/contact"           element={<Contact />} />
+            <Route path="/blog"              element={<Blog />} />
+            <Route path="/blog/:slug"        element={<BlogArticle />} />
+            <Route path="/belgique"          element={<BlogCountryList country="belgique" />} />
+            <Route path="/belgique/:slug"    element={<BlogCountryArticle country="belgique" />} />
+            <Route path="/suisse"            element={<BlogCountryList country="suisse" />} />
+            <Route path="/suisse/:slug"      element={<BlogCountryArticle country="suisse" />} />
+            <Route path="/quebec"            element={<BlogCountryList country="quebec" />} />
+            <Route path="/quebec/:slug"      element={<BlogCountryArticle country="quebec" />} />
 
-          <Route path="/onboarding" element={
-            <RequireAuth><Onboarding /></RequireAuth>
-          } />
+            <Route path="/onboarding" element={
+              <RequireAuth><Onboarding /></RequireAuth>
+            } />
 
-          <Route path="/discover" element={
-            <RequireAuth><RequireProfile><Discover /></RequireProfile></RequireAuth>
-          } />
-          <Route path="/matches" element={
-            <RequireAuth><RequireProfile><Matches /></RequireProfile></RequireAuth>
-          } />
-          <Route path="/messages/:matchId" element={
-            <RequireAuth><RequireProfile><Conversation /></RequireProfile></RequireAuth>
-          } />
-          <Route path="/messages" element={
-            <RequireAuth><RequireProfile><Messages /></RequireProfile></RequireAuth>
-          } />
-          <Route path="/profile/:id?" element={
-            <RequireAuth><RequireProfile><Profile /></RequireProfile></RequireAuth>
-          } />
-          <Route path="/settings" element={
-            <RequireAuth><RequireProfile><Settings /></RequireProfile></RequireAuth>
-          } />
-          <Route path="/abonnement" element={
-            <RequireAuth><RequireProfile><Abonnement /></RequireProfile></RequireAuth>
-          } />
-          <Route path="/admin" element={
-            <RequireAuth><Admin /></RequireAuth>
-          } />
-        </Routes>
+            <Route path="/discover" element={
+              <RequireAuth><RequireProfile><Discover /></RequireProfile></RequireAuth>
+            } />
+            <Route path="/matches" element={
+              <RequireAuth><RequireProfile><Matches /></RequireProfile></RequireAuth>
+            } />
+            <Route path="/messages/:matchId" element={
+              <RequireAuth><RequireProfile><Conversation /></RequireProfile></RequireAuth>
+            } />
+            <Route path="/messages" element={
+              <RequireAuth><RequireProfile><Messages /></RequireProfile></RequireAuth>
+            } />
+            <Route path="/profile/:id?" element={
+              <RequireAuth><RequireProfile><Profile /></RequireProfile></RequireAuth>
+            } />
+            <Route path="/settings" element={
+              <RequireAuth><RequireProfile><Settings /></RequireProfile></RequireAuth>
+            } />
+            <Route path="/abonnement" element={
+              <RequireAuth><RequireProfile><Abonnement /></RequireProfile></RequireAuth>
+            } />
+            <Route path="/admin" element={
+              <RequireAuth><Admin /></RequireAuth>
+            } />
+          </Routes>
+        </Suspense>
       </div>
     </div>
   )

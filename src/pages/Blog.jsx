@@ -3,7 +3,7 @@ import { ARTICLES } from '../data/articles'
 
 export default function Blog() {
   return (
-    <div className="min-h-dvh" style={{ background: '#050505' }}>
+    <div className="min-h-dvh" style={{ background: '#FDFAF6' }}>
       <header style={{
         padding: '16px 24px', borderBottom: '1px solid rgba(201,168,76,0.1)',
         display: 'flex', alignItems: 'center', gap: 12,
@@ -19,7 +19,7 @@ export default function Blog() {
         <p style={{ fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.4)', marginBottom: 12 }}>
           Le blog Konnexyon
         </p>
-        <h1 style={{ fontFamily: 'Cormorant, serif', fontSize: 'clamp(2rem, 6vw, 3rem)', fontWeight: 600, color: '#F2EDE6', lineHeight: 1.15, marginBottom: 48 }}>
+        <h1 style={{ fontFamily: 'Cormorant, serif', fontSize: 'clamp(2rem, 6vw, 3rem)', fontWeight: 600, color: '#1C1814', lineHeight: 1.15, marginBottom: 48 }}>
           Conseils pour couples<br />ouverts et libertins
         </h1>
 
@@ -52,7 +52,7 @@ export default function Blog() {
                     {a.readTime}
                   </span>
                 </div>
-                <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '1.35rem', fontWeight: 600, color: '#F2EDE6', lineHeight: 1.3, marginBottom: 10 }}>
+                <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '1.35rem', fontWeight: 600, color: '#1C1814', lineHeight: 1.3, marginBottom: 10 }}>
                   {a.title}
                 </h2>
                 <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.38)', lineHeight: 1.7 }}>

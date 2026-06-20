@@ -75,9 +75,6 @@ export default function Discover() {
       let results = data || []
       if (filters.orientation !== 'all') results = results.filter(p => p.orientation === filters.orientation)
       if (filters.seeking?.length > 0)   results = results.filter(p => filters.seeking.some(s => p.seeking?.includes(s)))
-      // pré-remplir likedIds avec les profils déjà likés retournés par la RPC
-      const alreadyLiked = new Set(results.filter(p => p.already_liked).map(p => p.id))
-      setLikedIds(prev => new Set([...prev, ...alreadyLiked]))
       setProfiles(results)
     } finally {
       setLoading(false)
@@ -89,10 +86,11 @@ export default function Discover() {
   const like = async (toId) => {
     setLikedIds(prev => new Set([...prev, toId]))
     setSelected(null)
-    if (!premium && !demoMode) { setShowUpgrade(true); return }
+    // accès libre temporairement
     if (!demoMode) {
       const { error } = await supabase.from('likes').insert({ from_id: profile.id, to_id: toId })
-      if (error) { toast('Erreur lors de la connexion', 'error'); return }
+      // 23505 = duplicate key (déjà liké) → pas une vraie erreur
+      if (error && error.code !== '23505') { toast(`Erreur ${error.code}: ${error.message}`, 'error'); return }
     }
     // ajoute au panier avec flag liked pour suivi visuel
     const p = profiles.find(x => x.id === toId)
@@ -107,7 +105,7 @@ export default function Discover() {
       <header
         className="flex items-center justify-between px-4 py-3 animate-fade-in"
         style={{
-          background: 'rgba(5,5,5,0.96)',
+          background: 'rgba(253,250,246,0.96)',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
           borderBottom: '1px solid rgba(201,168,76,1)',
@@ -166,7 +164,7 @@ export default function Discover() {
             width: 26, height: 26, borderRadius: '50%', flexShrink: 0,
             overflow: 'hidden',
             border: '1px solid rgba(201,168,76,1)',
-            background: '#111',
+            background: '#F0EBE2',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
             {profile?.avatar_url ? (
@@ -187,44 +185,12 @@ export default function Discover() {
 
         {/* actions toolbar */}
         <div className="flex items-center gap-2">
-          {/* bouton panier */}
-          <button
-            onClick={() => setShowPanier(true)}
-            aria-label="Profils mis de côté"
-            className="erb-btn"
-            style={{
-              position: 'relative',
-              width: 36, height: 36, borderRadius: '10px',
-              background: 'rgba(20,20,20,0.9)',
-              border: `1px solid ${passed.length ? 'rgba(201,168,76,1)' : 'rgba(201,168,76,1)'}`,
-              color: passed.length ? '#C9A84C' : 'rgba(201,168,76,1)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', transition: 'all 0.2s',
-              fontSize: 16,
-            }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.color = '#C9A84C'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = passed.length ? 'rgba(201,168,76,1)' : 'rgba(201,168,76,1)'; e.currentTarget.style.color = passed.length ? '#C9A84C' : 'rgba(201,168,76,1)'; }}
-          >
-            <Zap size={16} strokeWidth={1.5} />
-            {passed.length > 0 && (
-              <span style={{
-                position: 'absolute', top: -6, right: -6,
-                minWidth: 18, height: 18, borderRadius: 9,
-                background: 'linear-gradient(135deg, #A07830, #E8CC7A)',
-                color: '#050505', fontSize: 10, fontWeight: 700,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                padding: '0 4px',
-                boxShadow: '0 0 8px rgba(201,168,76,1)',
-              }}>{passed.length}</span>
-            )}
-          </button>
-
           <button
             onClick={() => setShowFilters(true)}
             aria-label="Filtres de connexion"
             className="erb-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 cursor-pointer"
             style={{
-              background: 'rgba(20,20,20,0.9)',
+              background: 'rgba(237,231,219,0.9)',
               border: '1px solid rgba(201,168,76,1)',
               color: 'rgba(201,168,76,1)',
             }}
@@ -236,7 +202,7 @@ export default function Discover() {
           </button>
 
           {/* toggle swipe/grille/carte */}
-          <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid rgba(201,168,76,0.1)', background: 'rgba(20,20,20,0.9)' }}>
+          <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid rgba(201,168,76,0.1)', background: 'rgba(237,231,219,0.9)' }}>
             {[
               { id: 'swipe', label: '⟺', aria: 'Mode swipe' },
               { id: 'list',  label: '⊞', aria: 'Vue grille' },
@@ -327,13 +293,6 @@ export default function Discover() {
         />
       )}
 
-      {showUpgrade && (
-        <UpgradeModal
-          onClose={() => setShowUpgrade(false)}
-          message="Passez Premium pour envoyer des connexions et contacter les couples."
-        />
-      )}
-
       {showPanier && (
         <PanierSheet
           profiles={passed}
@@ -362,10 +321,10 @@ function EmptyState() {
         <Compass size={28} strokeWidth={1} style={{ color: 'rgba(201,168,76,1)' }} />
       </div>
       <div>
-        <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.5rem', color: 'rgba(255,255,255,1)', marginBottom: '8px' }}>
+        <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.5rem', color: 'rgba(28,24,20,1)', marginBottom: '8px' }}>
           Aucune connexion à proximité
         </p>
-        <p style={{ fontSize: '13px', color: 'rgba(255,255,255,1)', lineHeight: 1.6 }}>
+        <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.7)', lineHeight: 1.6 }}>
           Élargissez la distance ou modifiez vos filtres<br/>pour découvrir de nouveaux couples connectés.
         </p>
       </div>

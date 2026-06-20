@@ -85,7 +85,7 @@ export default function Matches() {
       <header
         className="sticky top-0 z-10 flex items-center justify-between px-1 py-4 mb-2 animate-fade-in"
         style={{
-          background: 'rgba(5,5,5,0.95)',
+          background: 'rgba(253,250,246,0.95)',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
           borderBottom: '1px solid rgba(201,168,76,1)',
@@ -184,10 +184,10 @@ function EmptyState() {
       </div>
 
       <div>
-        <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.6rem', color: 'rgba(255,255,255,1)', marginBottom: '10px' }}>
+        <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.6rem', color: 'rgba(28,24,20,0.9)', marginBottom: '10px' }}>
           Pas encore de connexion
         </p>
-        <p style={{ fontSize: '13px', color: 'rgba(255,255,255,1)', lineHeight: 1.7 }}>
+        <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.9)', lineHeight: 1.7 }}>
           Explorez des profils et envoyez<br/>des demandes de connexion.
         </p>
       </div>

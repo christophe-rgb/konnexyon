@@ -71,7 +71,7 @@ export default function Navbar() {
       <ul
         className="flex justify-around items-center w-full max-w-sm pointer-events-auto"
         style={{
-          background: 'rgba(8,8,8,0.94)',
+          background: 'rgba(253,250,246,0.94)',
           backdropFilter: 'blur(28px)',
           WebkitBackdropFilter: 'blur(28px)',
           border: '1px solid rgba(201,168,76,1)',
@@ -96,7 +96,7 @@ export default function Navbar() {
                     color: '#050505',
                     transform: 'scale(1.06)',
                   } : {
-                    color: 'rgba(255,255,255,1)',
+                    color: 'rgba(28,24,20,0.9)',
                     transform: 'scale(1)',
                   }),
                 }}

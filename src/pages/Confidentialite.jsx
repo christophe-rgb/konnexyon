@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 export default function Confidentialite() {
   return (
-    <div className="min-h-dvh" style={{ background: '#050505' }}>
+    <div className="min-h-dvh" style={{ background: '#FDFAF6' }}>
       <header style={{
         padding: '16px 24px', borderBottom: '1px solid rgba(201,168,76,0.1)',
         display: 'flex', alignItems: 'center', gap: 12,

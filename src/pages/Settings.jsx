@@ -37,10 +37,10 @@ export default function Settings() {
       <header
         className="sticky top-0 z-10 flex items-center justify-between px-5 py-4"
         style={{
-          background: 'rgba(5,5,5,0.95)',
+          background: 'rgba(253,250,246,0.95)',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
-          borderBottom: '1px solid rgba(201,168,76,0.1)',
+          borderBottom: '1px solid rgba(201,168,76,1)',
         }}
       >
         <h1 style={{
@@ -58,10 +58,10 @@ export default function Settings() {
         <div style={{
           width: 36, height: 36, borderRadius: '12px',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          background: 'radial-gradient(circle, rgba(201,168,76,0.1), rgba(201,168,76,0.03))',
-          border: '1px solid rgba(201,168,76,0.2)',
+          background: 'radial-gradient(circle, rgba(201,168,76,0.1), rgba(201,168,76,0.1))',
+          border: '1px solid rgba(201,168,76,1)',
         }}>
-          <SettingsIcon size={16} strokeWidth={1.5} style={{ color: 'rgba(201,168,76,0.7)' }} />
+          <SettingsIcon size={16} strokeWidth={1.5} style={{ color: 'rgba(201,168,76,1)' }} />
         </div>
       </header>
 
@@ -84,24 +84,24 @@ export default function Settings() {
                   padding: '14px 16px', borderRadius: '14px',
                   marginBottom: '8px', cursor: 'pointer',
                   textAlign: 'left',
-                  background: isActive ? 'rgba(201,168,76,0.05)' : 'rgba(12,12,12,0.8)',
-                  border: isActive ? '1px solid rgba(201,168,76,0.3)' : '1px solid rgba(201,168,76,0.1)',
+                  background: isActive ? 'rgba(201,168,76,0.28)' : 'rgba(245,240,232,0.8)',
+                  border: isActive ? '1px solid rgba(201,168,76,1)' : '1px solid rgba(201,168,76,1)',
                   transition: 'all 0.2s',
                 }}
-                onMouseEnter={e => !isActive && (e.currentTarget.style.borderColor = 'rgba(201,168,76,0.22)')}
-                onMouseLeave={e => !isActive && (e.currentTarget.style.borderColor = 'rgba(201,168,76,0.1)')}
+                onMouseEnter={e => !isActive && (e.currentTarget.style.borderColor = 'rgba(201,168,76,1)')}
+                onMouseLeave={e => !isActive && (e.currentTarget.style.borderColor = 'rgba(201,168,76,1)')}
               >
                 <div>
-                  <p style={{ fontSize: '13px', fontWeight: 500, color: isActive ? '#C9A84C' : 'rgba(255,255,255,0.7)', marginBottom: '2px' }}>
+                  <p style={{ fontSize: '13px', fontWeight: 500, color: isActive ? '#C9A84C' : 'rgba(28,24,20,0.9)', marginBottom: '2px' }}>
                     {o.label}
                   </p>
-                  <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)' }}>{o.desc}</p>
+                  <p style={{ fontSize: '11px', color: 'rgba(28,24,20,0.9)' }}>{o.desc}</p>
                 </div>
                 {isActive && saving !== 'visibility' && (
                   <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'linear-gradient(135deg, #A07830, #E8CC7A)', flexShrink: 0 }} />
                 )}
                 {saving === 'visibility' && isActive && (
-                  <div style={{ width: 14, height: 14, border: '2px solid rgba(201,168,76,0.2)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite', flexShrink: 0 }} />
+                  <div style={{ width: 14, height: 14, border: '2px solid rgba(201,168,76,1)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite', flexShrink: 0 }} />
                 )}
               </button>
             )
@@ -138,25 +138,25 @@ export default function Settings() {
             style={{
               width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               padding: '16px', borderRadius: '14px', cursor: 'pointer', textAlign: 'left',
-              background: premium ? 'rgba(201,168,76,0.07)' : 'rgba(12,12,12,0.8)',
-              border: premium ? '1px solid rgba(201,168,76,0.35)' : '1px solid rgba(201,168,76,0.15)',
+              background: premium ? 'rgba(201,168,76,0.28)' : 'rgba(245,240,232,0.8)',
+              border: premium ? '1px solid rgba(201,168,76,1)' : '1px solid rgba(201,168,76,1)',
               transition: 'all 0.2s',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <Crown size={18} strokeWidth={1.5} style={{ color: premium ? '#C9A84C' : 'rgba(201,168,76,0.4)', flexShrink: 0 }} />
+              <Crown size={18} strokeWidth={1.5} style={{ color: premium ? '#C9A84C' : 'rgba(201,168,76,1)', flexShrink: 0 }} />
               <div>
-                <p style={{ fontSize: 13, fontWeight: 500, color: premium ? '#C9A84C' : 'rgba(255,255,255,0.7)', marginBottom: 2 }}>
+                <p style={{ fontSize: 13, fontWeight: 500, color: premium ? '#C9A84C' : 'rgba(28,24,20,0.9)', marginBottom: 2 }}>
                   {premium ? 'Premium actif' : 'Passer Premium'}
                 </p>
-                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>
+                <p style={{ fontSize: 11, color: 'rgba(28,24,20,0.9)' }}>
                   {premium
                     ? (profile?.plan_expires_at ? `Expire le ${new Date(profile.plan_expires_at).toLocaleDateString('fr-FR')}` : 'Abonnement actif')
                     : 'À partir de 9,90 €/mois'}
                 </p>
               </div>
             </div>
-            <ChevronRight size={16} strokeWidth={1.5} style={{ color: 'rgba(201,168,76,0.4)' }} />
+            <ChevronRight size={16} strokeWidth={1.5} style={{ color: 'rgba(201,168,76,1)' }} />
           </button>
         </Section>
 
@@ -179,7 +179,7 @@ export default function Settings() {
             className="animate-fade-in-up"
             onClick={e => e.stopPropagation()}
             style={{
-              background: 'rgba(10,10,10,0.98)',
+              background: 'rgba(253,250,246,0.98)',
               border: '1px solid rgba(239,68,68,0.2)',
               borderRadius: '24px 24px 0 0',
               width: '100%', maxWidth: '480px',
@@ -190,7 +190,7 @@ export default function Settings() {
             <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '1.7rem', color: 'rgba(239,68,68,0.85)', marginBottom: '12px' }}>
               Supprimer le compte
             </h2>
-            <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', lineHeight: 1.7, marginBottom: '24px' }}>
+            <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.9)', lineHeight: 1.7, marginBottom: '24px' }}>
               Votre profil, vos connexions et vos messages seront définitivement supprimés. Cette action est irréversible.
             </p>
             <div className="flex gap-3">
@@ -198,8 +198,8 @@ export default function Settings() {
                 onClick={() => setConfirm(false)}
                 style={{
                   flex: 1, padding: '14px', borderRadius: '12px',
-                  background: 'transparent', border: '1px solid rgba(201,168,76,0.15)',
-                  color: 'rgba(255,255,255,0.4)', fontSize: '13px', cursor: 'pointer',
+                  background: 'transparent', border: '1px solid rgba(201,168,76,0.1)',
+                  color: 'rgba(28,24,20,0.9)', fontSize: '13px', cursor: 'pointer',
                 }}
               >
                 Annuler
@@ -230,7 +230,7 @@ export default function Settings() {
 function Section({ title, children }) {
   return (
     <div style={{ marginBottom: '28px' }}>
-      <p style={{ fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.4)', marginBottom: '12px' }}>
+      <p style={{ fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)', marginBottom: '12px' }}>
         {title}
       </p>
       {children}
@@ -247,36 +247,36 @@ function Row({ icon: Icon, label, desc, onClick, loading, danger = false }) {
         padding: '14px 16px', borderRadius: '14px',
         marginBottom: '8px', cursor: 'pointer',
         textAlign: 'left',
-        background: 'rgba(12,12,12,0.8)',
-        border: danger ? '1px solid rgba(239,68,68,0.12)' : '1px solid rgba(201,168,76,0.1)',
+        background: 'rgba(245,240,232,0.8)',
+        border: danger ? '1px solid rgba(239,68,68,0.12)' : '1px solid rgba(201,168,76,1)',
         transition: 'all 0.2s',
       }}
       onMouseEnter={e => {
-        e.currentTarget.style.borderColor = danger ? 'rgba(239,68,68,0.3)' : 'rgba(201,168,76,0.25)'
-        e.currentTarget.style.background = danger ? 'rgba(239,68,68,0.05)' : 'rgba(20,20,20,0.9)'
+        e.currentTarget.style.borderColor = danger ? 'rgba(239,68,68,0.3)' : 'rgba(201,168,76,1)'
+        e.currentTarget.style.background = danger ? 'rgba(239,68,68,0.05)' : 'rgba(237,231,219,0.9)'
       }}
       onMouseLeave={e => {
-        e.currentTarget.style.borderColor = danger ? 'rgba(239,68,68,0.12)' : 'rgba(201,168,76,0.1)'
-        e.currentTarget.style.background = 'rgba(12,12,12,0.8)'
+        e.currentTarget.style.borderColor = danger ? 'rgba(239,68,68,0.12)' : 'rgba(201,168,76,1)'
+        e.currentTarget.style.background = 'rgba(245,240,232,0.8)'
       }}
     >
       <Icon
         size={17}
         strokeWidth={1.5}
-        style={{ color: danger ? 'rgba(239,68,68,0.65)' : 'rgba(201,168,76,0.5)', flexShrink: 0 }}
+        style={{ color: danger ? 'rgba(239,68,68,0.65)' : 'rgba(201,168,76,1)', flexShrink: 0 }}
       />
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: '13px', fontWeight: 500, color: danger ? 'rgba(239,68,68,0.8)' : 'rgba(255,255,255,0.7)' }}>
+        <p style={{ fontSize: '13px', fontWeight: 500, color: danger ? 'rgba(239,68,68,0.8)' : 'rgba(28,24,20,0.9)' }}>
           {label}
         </p>
         {desc && (
-          <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.28)', marginTop: '2px' }}>{desc}</p>
+          <p style={{ fontSize: '11px', color: 'rgba(28,24,20,0.9)', marginTop: '2px' }}>{desc}</p>
         )}
       </div>
       {loading ? (
-        <div style={{ width: 14, height: 14, border: '2px solid rgba(201,168,76,0.2)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite', flexShrink: 0 }} />
+        <div style={{ width: 14, height: 14, border: '2px solid rgba(201,168,76,1)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite', flexShrink: 0 }} />
       ) : (
-        <ChevronRight size={15} strokeWidth={1.5} style={{ color: 'rgba(255,255,255,0.2)', flexShrink: 0 }} />
+        <ChevronRight size={15} strokeWidth={1.5} style={{ color: 'rgba(28,24,20,0.9)', flexShrink: 0 }} />
       )}
     </button>
   )

@@ -74,6 +74,17 @@ export default function Onboarding() {
 
   const finish = async () => {
     setSaving(true)
+    setStepError('')
+
+    // Récupère le user Supabase directement (cas où le store n'est pas encore hydraté)
+    const uid   = user?.id   || (await supabase.auth.getUser()).data.user?.id
+    const email = user?.email || (await supabase.auth.getUser()).data.user?.email
+    if (!uid) {
+      setStepError('Session expirée. Veuillez vous reconnecter.')
+      setSaving(false)
+      return
+    }
+
     let locationSql = null
     if (navigator.geolocation) {
       await new Promise(resolve => {
@@ -96,8 +107,8 @@ export default function Onboarding() {
     // eslint-disable-next-line no-unused-vars
     const { orientation_lui, orientation_elle, ...profileData } = data
     const { error: upsertError } = await supabase.from('profiles').upsert({
-      id: user.id,
-      email_1: user.email,
+      id: uid,
+      email_1: email,
       ...profileData,
       orientation,
       email_1_confirmed: true,
@@ -105,13 +116,19 @@ export default function Onboarding() {
     })
     if (upsertError) {
       console.error('Upsert error:', upsertError)
+      setStepError('Erreur lors de la sauvegarde : ' + upsertError.message)
       setSaving(false)
       return
     }
+    // Notif Telegram admin
+    supabase.functions.invoke('notify-new-user', {
+      body: { record: { couple_name: data.couple_name, status: 'actif' } },
+    }).catch(() => {})
+
     // Force le store immédiatement avec orientation calculée
-    setProfile({ id: user.id, email_1: user.email, ...profileData, orientation, email_1_confirmed: true })
+    setProfile({ id: uid, email_1: email, ...profileData, orientation, email_1_confirmed: true })
     // Refresh en arrière-plan pour synchroniser les données Supabase
-    fetchProfile(user.id)
+    fetchProfile(uid)
     const { data: updatedProfile } = await supabase
       .from('profiles').select('email_2').eq('id', user.id).single()
     if (updatedProfile?.email_2) {
@@ -135,7 +152,7 @@ export default function Onboarding() {
           userSelect: 'none', display: 'block',
         }} />
         <div className="absolute inset-0" style={{
-          background: 'radial-gradient(ellipse at center, rgba(5,5,5,0.2) 0%, rgba(5,5,5,0.65) 55%, rgba(5,5,5,0.96) 100%)',
+          background: 'radial-gradient(ellipse at center, rgba(253,250,246,0.2) 0%, rgba(253,250,246,0.65) 55%, rgba(253,250,246,0.96) 100%)',
         }} />
       </div>
 
@@ -145,8 +162,8 @@ export default function Onboarding() {
 
         {/* header marque */}
         <div className="flex items-center justify-center gap-2 mb-8 animate-fade-in" style={{ animationFillMode: 'both' }}>
-          <span style={{ color: 'rgba(201,168,76,0.4)', fontSize: '14px' }}>∞</span>
-          <span style={{ fontFamily: 'Cormorant, serif', fontSize: '1rem', letterSpacing: '0.2em', color: 'rgba(201,168,76,0.4)', textTransform: 'uppercase' }}>
+          <span style={{ color: 'rgba(201,168,76,1)', fontSize: '14px' }}>∞</span>
+          <span style={{ fontFamily: 'Cormorant, serif', fontSize: '1rem', letterSpacing: '0.2em', color: 'rgba(201,168,76,1)', textTransform: 'uppercase' }}>
             Konnexyon
           </span>
         </div>
@@ -164,17 +181,17 @@ export default function Onboarding() {
                     ? 'linear-gradient(90deg, #A07830, #C9A84C)'
                     : i === step
                     ? 'linear-gradient(90deg, #C9A84C, #E8CC7A)'
-                    : 'rgba(255,255,255,0.06)',
-                  boxShadow: i <= step ? '0 0 8px rgba(201,168,76,0.3)' : 'none',
+                    : 'rgba(28,24,20,0.9)',
+                  boxShadow: i <= step ? '0 0 8px rgba(201,168,76,1)' : 'none',
                 }}
               />
             ))}
           </div>
           <div className="flex justify-between">
-            <span style={{ fontSize: '10px', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.5)' }}>
+            <span style={{ fontSize: '10px', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)' }}>
               {currentStep.icon} {currentStep.label}
             </span>
-            <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.2)' }}>
+            <span style={{ fontSize: '10px', color: 'rgba(28,24,20,0.9)' }}>
               {step + 1} / {STEPS.length}
             </span>
           </div>
@@ -225,13 +242,13 @@ export default function Onboarding() {
               style={{
                 flex: 1, padding: '15px', borderRadius: '14px', cursor: 'pointer',
                 background: 'transparent',
-                border: '1px solid rgba(201,168,76,0.2)',
-                color: 'rgba(201,168,76,0.6)',
+                border: '1px solid rgba(201,168,76,1)',
+                color: 'rgba(201,168,76,1)',
                 fontSize: '13px', letterSpacing: '0.08em',
                 transition: 'all 0.2s',
               }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.4)'; e.currentTarget.style.color = '#C9A84C'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.2)'; e.currentTarget.style.color = 'rgba(201,168,76,0.6)'; }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.color = '#C9A84C'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.color = 'rgba(201,168,76,1)'; }}
             >
               ← Retour
             </button>
@@ -276,10 +293,10 @@ function StepProfil({ data, set, toggleArr }) {
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '2rem', fontWeight: 600, color: '#F2EDE6', marginBottom: '4px' }}>
+        <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '2rem', fontWeight: 600, color: '#1C1814', marginBottom: '4px' }}>
           Votre couple
         </h2>
-        <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)' }}>Comment voulez-vous vous présenter ?</p>
+        <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.9)' }}>Comment voulez-vous vous présenter ?</p>
       </div>
 
       <OField label="Pseudo du couple *">
@@ -300,7 +317,7 @@ function StepProfil({ data, set, toggleArr }) {
 
       {/* Orientation Lui */}
       <div>
-        <p style={{ fontSize: '11px', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.5)', marginBottom: '10px' }}>
+        <p style={{ fontSize: '11px', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)', marginBottom: '10px' }}>
           Lui
         </p>
         <div className="flex gap-2">
@@ -314,7 +331,7 @@ function StepProfil({ data, set, toggleArr }) {
 
       {/* Orientation Elle */}
       <div>
-        <p style={{ fontSize: '11px', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.5)', marginBottom: '10px' }}>
+        <p style={{ fontSize: '11px', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)', marginBottom: '10px' }}>
           Elle
         </p>
         <div className="flex gap-2">
@@ -334,10 +351,10 @@ function StepMulti({ title, subtitle, options, field, data, toggle }) {
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '2rem', fontWeight: 600, color: '#F2EDE6', marginBottom: '4px' }}>
+        <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '2rem', fontWeight: 600, color: '#1C1814', marginBottom: '4px' }}>
           {title}
         </h2>
-        {subtitle && <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)' }}>{subtitle}</p>}
+        {subtitle && <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.9)' }}>{subtitle}</p>}
       </div>
       <div className="flex flex-col gap-2">
         {options.map(o => {
@@ -349,16 +366,16 @@ function StepMulti({ title, subtitle, options, field, data, toggle }) {
               style={{
                 textAlign: 'left', padding: '14px 16px',
                 borderRadius: '14px',
-                border: `1px solid ${active ? 'rgba(201,168,76,0.55)' : 'rgba(201,168,76,0.15)'}`,
-                background: active ? 'rgba(201,168,76,0.08)' : 'rgba(15,15,15,0.6)',
-                color: active ? '#C9A84C' : 'rgba(255,255,255,0.5)',
+                border: `1px solid ${active ? 'rgba(201,168,76,1)' : 'rgba(201,168,76,1)'}`,
+                background: active ? 'rgba(201,168,76,0.1)' : 'rgba(245,240,232,0.6)',
+                color: active ? '#C9A84C' : 'rgba(28,24,20,0.9)',
                 fontSize: '14px', cursor: 'pointer',
                 transition: 'all 0.2s',
                 backdropFilter: 'blur(8px)',
               }}
             >
               <span style={{ display: 'block', fontWeight: active ? 500 : 400 }}>{o.label}</span>
-              {o.desc && <span style={{ display: 'block', fontSize: '11px', color: active ? 'rgba(201,168,76,0.6)' : 'rgba(255,255,255,0.2)', marginTop: '2px' }}>{o.desc}</span>}
+              {o.desc && <span style={{ display: 'block', fontSize: '11px', color: active ? 'rgba(201,168,76,1)' : 'rgba(28,24,20,0.9)', marginTop: '2px' }}>{o.desc}</span>}
             </button>
           )
         })}
@@ -377,10 +394,10 @@ function StepDistance({ data, set }) {
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '2rem', fontWeight: 600, color: '#F2EDE6', marginBottom: '4px' }}>
+        <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '2rem', fontWeight: 600, color: '#1C1814', marginBottom: '4px' }}>
           Distance
         </h2>
-        <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)' }}>Distance maximum pour une rencontre</p>
+        <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.9)' }}>Distance maximum pour une rencontre</p>
       </div>
       <div className="flex flex-col gap-2">
         {options.map(o => (
@@ -389,15 +406,15 @@ function StepDistance({ data, set }) {
             onClick={() => set('max_distance_km', o.value)}
             style={{
               textAlign: 'left', padding: '14px 16px', borderRadius: '14px',
-              border: `1px solid ${data.max_distance_km === o.value ? 'rgba(201,168,76,0.55)' : 'rgba(201,168,76,0.15)'}`,
-              background: data.max_distance_km === o.value ? 'rgba(201,168,76,0.08)' : 'rgba(15,15,15,0.6)',
+              border: `1px solid ${data.max_distance_km === o.value ? 'rgba(201,168,76,1)' : 'rgba(201,168,76,1)'}`,
+              background: data.max_distance_km === o.value ? 'rgba(201,168,76,0.1)' : 'rgba(245,240,232,0.6)',
               cursor: 'pointer', transition: 'all 0.2s', backdropFilter: 'blur(8px)',
             }}
           >
-            <span style={{ display: 'block', fontSize: '14px', color: data.max_distance_km === o.value ? '#C9A84C' : 'rgba(255,255,255,0.6)', fontWeight: data.max_distance_km === o.value ? 500 : 400 }}>
+            <span style={{ display: 'block', fontSize: '14px', color: data.max_distance_km === o.value ? '#C9A84C' : 'rgba(28,24,20,0.9)', fontWeight: data.max_distance_km === o.value ? 500 : 400 }}>
               {o.label}
             </span>
-            <span style={{ display: 'block', fontSize: '11px', color: 'rgba(255,255,255,0.2)', marginTop: '2px' }}>{o.desc}</span>
+            <span style={{ display: 'block', fontSize: '11px', color: 'rgba(28,24,20,0.9)', marginTop: '2px' }}>{o.desc}</span>
           </button>
         ))}
       </div>
@@ -413,10 +430,10 @@ function StepVisibility({ data, set }) {
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '2rem', fontWeight: 600, color: '#F2EDE6', marginBottom: '4px' }}>
+        <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '2rem', fontWeight: 600, color: '#1C1814', marginBottom: '4px' }}>
           Visibilité
         </h2>
-        <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)' }}>Qui peut voir votre profil ?</p>
+        <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.9)' }}>Qui peut voir votre profil ?</p>
       </div>
       <div className="flex flex-col gap-2">
         {options.map(o => (
@@ -425,15 +442,15 @@ function StepVisibility({ data, set }) {
             onClick={() => set('visibility', o.value)}
             style={{
               textAlign: 'left', padding: '16px', borderRadius: '14px',
-              border: `1px solid ${data.visibility === o.value ? 'rgba(201,168,76,0.55)' : 'rgba(201,168,76,0.15)'}`,
-              background: data.visibility === o.value ? 'rgba(201,168,76,0.08)' : 'rgba(15,15,15,0.6)',
+              border: `1px solid ${data.visibility === o.value ? 'rgba(201,168,76,1)' : 'rgba(201,168,76,1)'}`,
+              background: data.visibility === o.value ? 'rgba(201,168,76,0.1)' : 'rgba(245,240,232,0.6)',
               cursor: 'pointer', transition: 'all 0.2s', backdropFilter: 'blur(8px)',
             }}
           >
             <p style={{ fontSize: '14px', fontWeight: data.visibility === o.value ? 500 : 400, color: data.visibility === o.value ? '#C9A84C' : '#F2EDE6', marginBottom: '3px' }}>
               {o.label}
             </p>
-            <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)' }}>{o.desc}</p>
+            <p style={{ fontSize: '12px', color: 'rgba(28,24,20,0.9)' }}>{o.desc}</p>
           </button>
         ))}
       </div>
@@ -443,24 +460,24 @@ function StepVisibility({ data, set }) {
 
 const inputStyle = {
   width: '100%',
-  background: 'rgba(15,15,15,0.85)',
-  border: '1px solid rgba(201,168,76,0.18)',
+  background: 'rgba(245,240,232,0.85)',
+  border: '1px solid rgba(201,168,76,1)',
   borderRadius: '14px',
   padding: '14px 18px',
-  color: '#F2EDE6',
+  color: '#1C1814',
   fontSize: '15px',
   outline: 'none',
   transition: 'border-color 0.2s, box-shadow 0.2s',
   backdropFilter: 'blur(12px)',
   fontFamily: 'Inter, sans-serif',
 }
-const onFocus = e => { e.target.style.borderColor = 'rgba(201,168,76,0.5)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,0.07)'; }
-const onBlur  = e => { e.target.style.borderColor = 'rgba(201,168,76,0.18)'; e.target.style.boxShadow = 'none'; }
+const onFocus = e => { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,1)'; }
+const onBlur  = e => { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = 'none'; }
 
 function OField({ label, children }) {
   return (
     <div>
-      <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.5)', marginBottom: '8px' }}>
+      <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)', marginBottom: '8px' }}>
         {label}
       </label>
       {children}
@@ -474,9 +491,9 @@ function OButton({ active, onClick, children }) {
       onClick={onClick}
       style={{
         textAlign: 'left', padding: '12px 16px', borderRadius: '12px',
-        border: `1px solid ${active ? 'rgba(201,168,76,0.55)' : 'rgba(201,168,76,0.15)'}`,
-        background: active ? 'rgba(201,168,76,0.09)' : 'transparent',
-        color: active ? '#C9A84C' : 'rgba(255,255,255,0.45)',
+        border: `1px solid ${active ? 'rgba(201,168,76,1)' : 'rgba(201,168,76,1)'}`,
+        background: active ? 'rgba(201,168,76,0.1)' : 'transparent',
+        color: active ? '#C9A84C' : 'rgba(28,24,20,0.9)',
         fontSize: '14px', cursor: 'pointer',
         transition: 'all 0.2s',
       }}

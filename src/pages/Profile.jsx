@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
 import { DEMO_PROFILES } from '../lib/demo'
-import { MapPin, Camera, Flag, Ban, Settings } from 'lucide-react'
+import { MapPin, Camera, Flag, Ban, Settings, Trash2 } from 'lucide-react'
 import XLogo from '../components/XLogo'
 import { toast } from '../components/Toast'
 
@@ -52,11 +52,11 @@ const LIMITS_OPTIONS = [
 
 const inputStyle = {
   width: '100%',
-  background: 'rgba(15,15,15,0.85)',
-  border: '1px solid rgba(201,168,76,0.18)',
+  background: 'rgba(245,240,232,0.85)',
+  border: '1px solid rgba(201,168,76,1)',
   borderRadius: '14px',
   padding: '13px 16px',
-  color: '#F2EDE6',
+  color: '#1C1814',
   fontSize: '15px',
   outline: 'none',
   transition: 'border-color 0.2s, box-shadow 0.2s',
@@ -66,13 +66,13 @@ const inputStyle = {
 export default function Profile() {
   const { id }       = useParams()
   const myProfile    = useAuthStore(s => s.profile)
+  const user         = useAuthStore(s => s.user)
   const fetchProfile = useAuthStore(s => s.fetchProfile)
   const navigate     = useNavigate()
 
   const demoMode = useAuthStore(s => s.demoMode)
-  // isOwn = true si pas d'id dans l'URL, OU si l'id correspond au profil connecté
-  // Si myProfile pas encore chargé et qu'un id est présent, on attend (neither own nor other)
-  const isOwn   = !id || (!!myProfile && id === myProfile.id)
+  // isOwn = vrai si pas d'id, ou si l'id correspond au user connecté ou à son profil
+  const isOwn   = !id || id === user?.id || (!!myProfile && id === myProfile.id)
   const uid     = isOwn ? myProfile?.id : id
 
   const [profile,    setProfile]    = useState(isOwn ? myProfile : null)
@@ -162,13 +162,34 @@ export default function Profile() {
     toast('Signalement envoyé')
   }
 
+  const deleteAvatar = async () => {
+    if (!window.confirm('Supprimer ta photo de profil ?')) return
+    try {
+      const url = myProfile.avatar_url || ''
+      const filename = url.split('/').pop()
+      if (filename) await supabase.storage.from('avatars').remove([`${myProfile.id}/${filename}`])
+      await supabase.from('profiles').update({ avatar_url: null }).eq('id', myProfile.id)
+      await fetchProfile(myProfile.id)
+      toast('Photo supprimée')
+    } catch (e) {
+      toast('Erreur lors de la suppression')
+    }
+  }
+
   const uploadAvatar = async (file) => {
-    const ext  = file.name.split('.').pop()
-    const path = `${myProfile.id}/avatar.${ext}`
-    await supabase.storage.from('avatars').upload(path, file, { upsert: true })
-    const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
-    await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', myProfile.id)
-    await fetchProfile(myProfile.id)
+    try {
+      const ext  = file.name.split('.').pop().toLowerCase()
+      const path = `${myProfile.id}/avatar.${ext}`
+      const { error: upErr } = await supabase.storage.from('avatars').upload(path, file, { upsert: true, contentType: file.type })
+      if (upErr) { toast(`Erreur upload : ${upErr.message}`); return }
+      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
+      const { error: dbErr } = await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', myProfile.id)
+      if (dbErr) { toast(`Erreur sauvegarde : ${dbErr.message}`); return }
+      await fetchProfile(myProfile.id)
+      toast('Photo mise à jour ✓')
+    } catch (e) {
+      toast('Erreur inattendue lors de l\'upload')
+    }
   }
 
   const save = async () => {
@@ -204,7 +225,7 @@ export default function Profile() {
 
   if (!profile) return (
     <div className="flex items-center justify-center h-dvh">
-      <div style={{ width: 24, height: 24, border: '2px solid rgba(201,168,76,0.2)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite' }} />
+      <div style={{ width: 24, height: 24, border: '2px solid rgba(201,168,76,1)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite' }} />
     </div>
   )
 
@@ -223,7 +244,7 @@ export default function Profile() {
           <div style={{
             width: '100%', height: '100%',
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            background: 'linear-gradient(145deg, #111 0%, #0a0a0a 100%)',
+            background: 'linear-gradient(145deg, #F0EBE2 0%, #EDE7DB 100%)',
           }}>
             <span style={{
               fontFamily: 'Cormorant, serif', fontSize: '96px', fontWeight: 300,
@@ -239,7 +260,7 @@ export default function Profile() {
         {/* gradient overlay */}
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'linear-gradient(to top, rgba(5,5,5,1) 0%, rgba(5,5,5,0.3) 50%, transparent 100%)',
+          background: 'linear-gradient(to top, rgba(253,250,246,1) 0%, rgba(253,250,246,0.3) 50%, transparent 100%)',
         }} />
 
         {/* upload button (own profile) */}
@@ -259,6 +280,23 @@ export default function Profile() {
             >
               <Camera size={16} strokeWidth={2} color="#050505" />
             </button>
+            {profile?.avatar_url && (
+              <button className="erb-btn"
+                onClick={deleteAvatar}
+                aria-label="Supprimer la photo"
+                style={{
+                  position: 'absolute', bottom: '16px', right: '64px',
+                  width: 40, height: 40, borderRadius: '12px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: 'rgba(239,68,68,0.15)',
+                  border: '1px solid rgba(239,68,68,0.4)',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
+                }}
+              >
+                <Trash2 size={15} strokeWidth={2} color="#f87171" />
+              </button>
+            )}
             <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }}
               onChange={e => {
                 if (!e.target.files[0]) return
@@ -274,11 +312,11 @@ export default function Profile() {
             position: 'absolute', top: '16px', right: '16px',
             display: 'flex', alignItems: 'center', gap: '5px',
             padding: '5px 10px', borderRadius: '99px',
-            background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255,255,255,0.07)',
+            background: 'rgba(245,240,232,0.9)', backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(28,24,20,0.15)',
           }}>
-            <MapPin size={10} strokeWidth={2} style={{ color: 'rgba(201,168,76,0.8)' }} />
-            <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>
+            <MapPin size={10} strokeWidth={2} style={{ color: 'rgba(201,168,76,1)' }} />
+            <span style={{ fontSize: '11px', color: 'rgba(28,24,20,0.9)', fontWeight: 500 }}>
               ~{profile.distance_km} km
             </span>
           </div>
@@ -293,20 +331,20 @@ export default function Profile() {
             fontFamily: 'Cormorant, serif',
             fontSize: '2.4rem',
             fontWeight: 600,
-            color: '#F2EDE6',
+            color: '#1C1814',
             lineHeight: 1.1,
             marginBottom: '6px',
           }}>
             {profile.couple_name}
           </h1>
           {(profile.orientation_lui || profile.orientation_elle) && (
-            <p style={{ fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.55)' }}>
+            <p style={{ fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)' }}>
               Lui · {ORIENTATION_LABELS[profile.orientation_lui] || profile.orientation_lui || '—'}
               {' '}/ Elle · {ORIENTATION_LABELS[profile.orientation_elle] || profile.orientation_elle || '—'}
             </p>
           )}
           {profile.bio && (
-            <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, marginTop: '12px' }}>
+            <p style={{ fontSize: '14px', color: 'rgba(28,24,20,0.9)', lineHeight: 1.7, marginTop: '12px' }}>
               {profile.bio}
             </p>
           )}
@@ -319,14 +357,14 @@ export default function Profile() {
               onClick={() => setEditing(true)}
               style={{
                 flex: 1, padding: '13px', borderRadius: '14px',
-                background: 'rgba(15,15,15,0.85)',
-                border: '1px solid rgba(201,168,76,0.25)',
-                color: 'rgba(201,168,76,0.8)',
+                background: 'rgba(245,240,232,0.85)',
+                border: '1px solid rgba(201,168,76,1)',
+                color: 'rgba(201,168,76,1)',
                 fontSize: '13px', letterSpacing: '0.08em',
                 cursor: 'pointer', transition: 'all 0.2s',
               }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.5)'; e.currentTarget.style.color = '#C9A84C'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.25)'; e.currentTarget.style.color = 'rgba(201,168,76,0.8)'; }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.color = '#C9A84C'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.color = 'rgba(201,168,76,1)'; }}
             >
               Modifier mon profil
             </button>
@@ -336,13 +374,13 @@ export default function Profile() {
               style={{
                 width: 48, height: 48, borderRadius: '14px', flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: 'rgba(15,15,15,0.85)',
-                border: '1px solid rgba(201,168,76,0.15)',
-                color: 'rgba(255,255,255,0.35)',
+                background: 'rgba(245,240,232,0.85)',
+                border: '1px solid rgba(201,168,76,1)',
+                color: 'rgba(28,24,20,0.9)',
                 cursor: 'pointer', transition: 'all 0.2s',
               }}
-              onMouseEnter={e => { e.currentTarget.style.color = 'rgba(201,168,76,0.7)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.35)'; }}
-              onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.35)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.15)'; }}
+              onMouseEnter={e => { e.currentTarget.style.color = 'rgba(201,168,76,1)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'rgba(28,24,20,0.9)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; }}
             >
               <Settings size={17} strokeWidth={1.5} />
             </button>
@@ -378,14 +416,14 @@ export default function Profile() {
                 {matched ? (
                   <div style={{
                     textAlign: 'center', padding: '16px',
-                    background: 'rgba(201,168,76,0.06)',
-                    border: '1px solid rgba(201,168,76,0.2)',
+                    background: 'rgba(201,168,76,0.1)',
+                    border: '1px solid rgba(201,168,76,1)',
                     borderRadius: '16px',
                   }}>
                     <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.3rem', color: '#C9A84C', letterSpacing: '0.05em' }}>
                       ∞ Connexion mutuelle ∞
                     </p>
-                    <p style={{ fontSize: '11px', color: 'rgba(201,168,76,0.45)', marginTop: '4px', letterSpacing: '0.08em' }}>
+                    <p style={{ fontSize: '11px', color: 'rgba(201,168,76,1)', marginTop: '4px', letterSpacing: '0.08em' }}>
                       Vous êtes connectés
                     </p>
                   </div>
@@ -425,12 +463,12 @@ export default function Profile() {
                       flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
                       padding: '12px', borderRadius: '12px',
                       background: 'transparent',
-                      border: '1px solid rgba(201,168,76,0.12)',
-                      color: 'rgba(255,255,255,0.3)',
+                      border: '1px solid rgba(201,168,76,1)',
+                      color: 'rgba(28,24,20,0.9)',
                       fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s',
                     }}
-                    onMouseEnter={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.25)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.3)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.12)'; }}
+                    onMouseEnter={e => { e.currentTarget.style.color = 'rgba(28,24,20,0.9)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.color = 'rgba(28,24,20,0.9)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; }}
                   >
                     <Flag size={13} strokeWidth={1.5} /> Signaler
                   </button>
@@ -467,15 +505,15 @@ export default function Profile() {
             className="animate-fade-in-up"
             onClick={e => e.stopPropagation()}
             style={{
-              background: 'rgba(10,10,10,0.98)',
-              border: '1px solid rgba(201,168,76,0.15)',
+              background: 'rgba(253,250,246,0.98)',
+              border: '1px solid rgba(201,168,76,1)',
               borderRadius: '24px 24px 0 0',
               width: '100%', maxWidth: '480px',
               padding: '28px 24px 40px',
               animationFillMode: 'both',
             }}
           >
-            <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '1.6rem', color: '#F2EDE6', marginBottom: '16px' }}>
+            <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '1.6rem', color: '#1C1814', marginBottom: '16px' }}>
               Signaler ce profil
             </h2>
             <textarea
@@ -488,8 +526,8 @@ export default function Profile() {
                 resize: 'none',
                 marginBottom: '16px',
               }}
-              onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,0.45)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,0.07)'; }}
-              onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,0.18)'; e.target.style.boxShadow = 'none'; }}
+              onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,1)'; }}
+              onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = 'none'; }}
             />
             <div className="flex gap-3">
               <button className="erb-btn"
@@ -497,8 +535,8 @@ export default function Profile() {
                 style={{
                   flex: 1, padding: '14px', borderRadius: '12px',
                   background: 'transparent',
-                  border: '1px solid rgba(201,168,76,0.15)',
-                  color: 'rgba(255,255,255,0.4)',
+                  border: '1px solid rgba(201,168,76,1)',
+                  color: 'rgba(28,24,20,0.9)',
                   fontSize: '13px', cursor: 'pointer',
                 }}
               >
@@ -526,7 +564,7 @@ export default function Profile() {
 function Section({ title, children }) {
   return (
     <div className="animate-fade-in-up delay-200" style={{ animationFillMode: 'both' }}>
-      <p style={{ fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.4)', marginBottom: '10px' }}>
+      <p style={{ fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)', marginBottom: '10px' }}>
         {title}
       </p>
       {children}
@@ -542,9 +580,9 @@ function TagList({ items, map, gold = false }) {
           fontSize: '12px',
           padding: '5px 13px',
           borderRadius: '99px',
-          border: gold ? '1px solid rgba(201,168,76,0.35)' : '1px solid rgba(255,255,255,0.08)',
-          color: gold ? 'rgba(201,168,76,0.85)' : 'rgba(255,255,255,0.45)',
-          background: gold ? 'rgba(201,168,76,0.06)' : 'rgba(255,255,255,0.04)',
+          border: gold ? '1px solid rgba(201,168,76,1)' : '1px solid rgba(28,24,20,0.2)',
+          color: gold ? 'rgba(201,168,76,1)' : 'rgba(28,24,20,0.9)',
+          background: gold ? 'rgba(201,168,76,0.28)' : 'rgba(28,24,20,0.07)',
           letterSpacing: '0.04em',
         }}>
           {map[v] || v}
@@ -559,7 +597,7 @@ function EditForm({ form, setForm, onSave, onCancel, saving }) {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.5)', marginBottom: '8px' }}>
+        <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)', marginBottom: '8px' }}>
           Pseudo du couple
         </label>
         <input
@@ -567,12 +605,12 @@ function EditForm({ form, setForm, onSave, onCancel, saving }) {
           onChange={e => set('couple_name', e.target.value)}
           maxLength={50}
           style={inputStyle}
-          onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,0.5)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,0.07)'; }}
-          onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,0.18)'; e.target.style.boxShadow = 'none'; }}
+          onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,1)'; }}
+          onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = 'none'; }}
         />
       </div>
       <div>
-        <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.5)', marginBottom: '8px' }}>
+        <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)', marginBottom: '8px' }}>
           Bio <span style={{ opacity: 0.5, fontSize: '9px' }}>(max 300 caractères)</span>
         </label>
         <textarea
@@ -581,8 +619,8 @@ function EditForm({ form, setForm, onSave, onCancel, saving }) {
           maxLength={300}
           rows={4}
           style={{ ...inputStyle, resize: 'none' }}
-          onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,0.5)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,0.07)'; }}
-          onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,0.18)'; e.target.style.boxShadow = 'none'; }}
+          onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,1)'; }}
+          onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = 'none'; }}
         />
       </div>
       {/* Orientation */}
@@ -592,7 +630,7 @@ function EditForm({ form, setForm, onSave, onCancel, saving }) {
           { label: 'ELLE', key: 'orientation_elle' },
         ].map(({ label, key }) => (
           <div key={key} style={{ flex: 1 }}>
-            <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.5)', marginBottom: '8px' }}>
+            <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)', marginBottom: '8px' }}>
               {label}
             </label>
             <div style={{ display: 'flex', gap: 8 }}>
@@ -607,9 +645,9 @@ function EditForm({ form, setForm, onSave, onCancel, saving }) {
                   style={{
                     flex: 1, padding: '10px 8px', borderRadius: '10px', cursor: 'pointer',
                     fontSize: '12px', letterSpacing: '0.06em', transition: 'all 0.2s',
-                    border: form[key] === o.value ? '1px solid rgba(201,168,76,0.7)' : '1px solid rgba(201,168,76,0.15)',
-                    background: form[key] === o.value ? 'rgba(201,168,76,0.12)' : 'transparent',
-                    color: form[key] === o.value ? '#C9A84C' : 'rgba(255,255,255,0.3)',
+                    border: form[key] === o.value ? '1px solid rgba(201,168,76,1)' : '1px solid rgba(201,168,76,1)',
+                    background: form[key] === o.value ? 'rgba(201,168,76,0.28)' : 'transparent',
+                    color: form[key] === o.value ? '#C9A84C' : 'rgba(28,24,20,0.8)',
                   }}
                 >
                   {o.label}
@@ -622,7 +660,7 @@ function EditForm({ form, setForm, onSave, onCancel, saving }) {
 
       {/* Désirs */}
       <div>
-        <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.5)', marginBottom: '10px' }}>
+        <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)', marginBottom: '10px' }}>
           Vos désirs
         </label>
         <div className="flex flex-col gap-2">
@@ -633,9 +671,9 @@ function EditForm({ form, setForm, onSave, onCancel, saving }) {
                 onClick={() => set('seeking', active ? form.seeking.filter(x => x !== o.value) : [...(form.seeking || []), o.value])}
                 style={{
                   textAlign: 'left', padding: '12px 14px', borderRadius: '12px', cursor: 'pointer',
-                  border: `1px solid ${active ? 'rgba(201,168,76,0.55)' : 'rgba(201,168,76,0.15)'}`,
-                  background: active ? 'rgba(201,168,76,0.08)' : 'transparent',
-                  color: active ? '#C9A84C' : 'rgba(255,255,255,0.45)',
+                  border: `1px solid ${active ? 'rgba(201,168,76,1)' : 'rgba(201,168,76,1)'}`,
+                  background: active ? 'rgba(201,168,76,0.28)' : 'transparent',
+                  color: active ? '#C9A84C' : 'rgba(28,24,20,0.8)',
                   fontSize: '13px', transition: 'all 0.2s',
                 }}
               >{o.label}</button>
@@ -646,7 +684,7 @@ function EditForm({ form, setForm, onSave, onCancel, saving }) {
 
       {/* Disponibilités */}
       <div>
-        <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.5)', marginBottom: '10px' }}>
+        <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)', marginBottom: '10px' }}>
           Disponibilités
         </label>
         <div className="flex flex-wrap gap-2">
@@ -657,9 +695,9 @@ function EditForm({ form, setForm, onSave, onCancel, saving }) {
                 onClick={() => set('availabilities', active ? form.availabilities.filter(x => x !== o.value) : [...(form.availabilities || []), o.value])}
                 style={{
                   padding: '9px 14px', borderRadius: '99px', cursor: 'pointer',
-                  border: `1px solid ${active ? 'rgba(201,168,76,0.55)' : 'rgba(201,168,76,0.15)'}`,
-                  background: active ? 'rgba(201,168,76,0.08)' : 'transparent',
-                  color: active ? '#C9A84C' : 'rgba(255,255,255,0.45)',
+                  border: `1px solid ${active ? 'rgba(201,168,76,1)' : 'rgba(201,168,76,1)'}`,
+                  background: active ? 'rgba(201,168,76,0.28)' : 'transparent',
+                  color: active ? '#C9A84C' : 'rgba(28,24,20,0.8)',
                   fontSize: '12px', transition: 'all 0.2s',
                 }}
               >{o.label}</button>
@@ -670,7 +708,7 @@ function EditForm({ form, setForm, onSave, onCancel, saving }) {
 
       {/* Limites */}
       <div>
-        <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.5)', marginBottom: '10px' }}>
+        <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)', marginBottom: '10px' }}>
           Non négociable
         </label>
         <div className="flex flex-col gap-2">
@@ -681,9 +719,9 @@ function EditForm({ form, setForm, onSave, onCancel, saving }) {
                 onClick={() => set('limits', active ? form.limits.filter(x => x !== o.value) : [...(form.limits || []), o.value])}
                 style={{
                   textAlign: 'left', padding: '12px 14px', borderRadius: '12px', cursor: 'pointer',
-                  border: `1px solid ${active ? 'rgba(201,168,76,0.35)' : 'rgba(201,168,76,0.12)'}`,
-                  background: active ? 'rgba(201,168,76,0.06)' : 'transparent',
-                  color: active ? 'rgba(201,168,76,0.9)' : 'rgba(255,255,255,0.4)',
+                  border: `1px solid ${active ? 'rgba(201,168,76,1)' : 'rgba(201,168,76,1)'}`,
+                  background: active ? 'rgba(201,168,76,0.28)' : 'transparent',
+                  color: active ? 'rgba(201,168,76,1)' : 'rgba(28,24,20,0.8)',
                   fontSize: '13px', transition: 'all 0.2s',
                 }}
               >{o.label}</button>
@@ -697,8 +735,8 @@ function EditForm({ form, setForm, onSave, onCancel, saving }) {
           onClick={onCancel}
           style={{
             flex: 1, padding: '14px', borderRadius: '12px',
-            background: 'transparent', border: '1px solid rgba(201,168,76,0.15)',
-            color: 'rgba(255,255,255,0.4)', fontSize: '13px', cursor: 'pointer',
+            background: 'transparent', border: '1px solid rgba(201,168,76,0.1)',
+            color: 'rgba(28,24,20,0.9)', fontSize: '13px', cursor: 'pointer',
           }}
         >
           Annuler

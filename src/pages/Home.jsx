@@ -18,14 +18,14 @@ export default function Home() {
   if (user) return null
 
   return (
-    <div className="min-h-dvh flex flex-col relative overflow-x-hidden" style={{ background: '#050505' }}>
+    <div className="min-h-dvh flex flex-col relative overflow-x-hidden" style={{ background: '#FDFAF6' }}>
 
       {/* header */}
       <header style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        background: 'rgba(5,5,5,0.9)',
+        background: 'rgba(253,250,246,0.9)',
         backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(201,168,76,0.1)',
+        borderBottom: '1px solid rgba(201,168,76,1)',
         padding: '14px 24px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
@@ -33,8 +33,8 @@ export default function Home() {
           <div style={{
             width: 32, height: 32, borderRadius: 10,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'radial-gradient(circle, rgba(201,168,76,0.15), rgba(201,168,76,0.04))',
-            border: '1px solid rgba(201,168,76,0.3)',
+            background: 'radial-gradient(circle, rgba(201,168,76,0.1), rgba(201,168,76,0.1))',
+            border: '1px solid rgba(201,168,76,1)',
           }}>
             <span style={{ fontSize: 16, background: 'linear-gradient(135deg,#A07830,#E8CC7A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>∞</span>
           </div>
@@ -48,14 +48,14 @@ export default function Home() {
         <div style={{ display: 'flex', gap: 10 }}>
           <Link to="/blog" style={{
             padding: '8px 18px', borderRadius: 10,
-            border: '1px solid rgba(201,168,76,0.15)',
-            color: 'rgba(201,168,76,0.5)', fontSize: 13,
+            border: '1px solid rgba(201,168,76,1)',
+            color: 'rgba(201,168,76,1)', fontSize: 13,
             textDecoration: 'none', letterSpacing: '0.06em',
           }}>Guide</Link>
           <Link to="/login" style={{
             padding: '8px 18px', borderRadius: 10,
-            border: '1px solid rgba(201,168,76,0.25)',
-            color: 'rgba(201,168,76,0.7)', fontSize: 13,
+            border: '1px solid rgba(201,168,76,1)',
+            color: 'rgba(201,168,76,1)', fontSize: 13,
             textDecoration: 'none', letterSpacing: '0.06em',
           }}>Se connecter</Link>
           <Link to="/register" className="btn-gold" style={{
@@ -85,11 +85,11 @@ export default function Home() {
           <div className="animate-fade-in" style={{
             display: 'inline-flex', alignItems: 'center', gap: 8,
             padding: '6px 16px', borderRadius: 99,
-            background: 'rgba(201,168,76,0.07)', border: '1px solid rgba(201,168,76,0.2)',
+            background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.1)',
             marginBottom: 28, animationFillMode: 'both',
           }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#C9A84C', boxShadow: '0 0 8px #C9A84C' }} />
-            <span style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.7)' }}>
+            <span style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)' }}>
               France · Belgique · Suisse · Québec · 18+
             </span>
           </div>
@@ -103,7 +103,7 @@ export default function Home() {
           </h1>
 
           <p className="animate-fade-in-up" style={{
-            fontSize: 16, color: 'rgba(255,255,255,0.4)', lineHeight: 1.8,
+            fontSize: 16, color: 'rgba(28,24,20,0.9)', lineHeight: 1.8,
             marginBottom: 40, animationDelay: '0.2s', animationFillMode: 'both',
           }}>
             Konnexyon est la plateforme de rencontres exclusive pour couples ouverts.<br />
@@ -117,7 +117,7 @@ export default function Home() {
             }}>
               Créer ma connexion ∞
             </Link>
-            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.08em' }}>
+            <p style={{ fontSize: 11, color: 'rgba(28,24,20,0.7)', letterSpacing: '0.08em' }}>
               Accès gratuit · Sans engagement
             </p>
           </div>
@@ -126,7 +126,7 @@ export default function Home() {
 
       {/* features */}
       <section style={{ padding: '80px 24px', maxWidth: 600, margin: '0 auto', width: '100%' }}>
-        <p className="animate-fade-in" style={{ textAlign: 'center', fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.4)', marginBottom: 48 }}>
+        <p className="animate-fade-in" style={{ textAlign: 'center', fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)', marginBottom: 48 }}>
           Pourquoi Konnexyon
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -144,12 +144,12 @@ export default function Home() {
               <span style={{
                 width: 40, height: 40, borderRadius: 12, flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.15)',
+                background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.1)',
                 fontSize: 18, color: '#C9A84C',
               }}>{f.icon}</span>
               <div>
-                <p style={{ fontSize: 15, fontWeight: 500, color: '#F2EDE6', marginBottom: 6 }}>{f.title}</p>
-                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', lineHeight: 1.6 }}>{f.desc}</p>
+                <p style={{ fontSize: 15, fontWeight: 500, color: '#1C1814', marginBottom: 6 }}>{f.title}</p>
+                <p style={{ fontSize: 13, color: 'rgba(28,24,20,0.7)', lineHeight: 1.6 }}>{f.desc}</p>
               </div>
             </div>
           ))}
@@ -161,14 +161,14 @@ export default function Home() {
         <div style={{
           maxWidth: 480, margin: '0 auto',
           padding: '40px 32px', borderRadius: 24,
-          background: 'linear-gradient(145deg, rgba(201,168,76,0.06), rgba(201,168,76,0.02))',
-          border: '1px solid rgba(201,168,76,0.18)',
+          background: 'linear-gradient(145deg, rgba(201,168,76,0.1), rgba(201,168,76,0.1))',
+          border: '1px solid rgba(201,168,76,1)',
         }}>
           <XLogo size={40} style={{ margin: '0 auto 20px' }} />
-          <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '2rem', fontWeight: 600, color: '#F2EDE6', marginBottom: 12 }}>
+          <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '2rem', fontWeight: 600, color: '#1C1814', marginBottom: 12 }}>
             Prêts à vous connecter ?
           </h2>
-          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)', lineHeight: 1.7, marginBottom: 28 }}>
+          <p style={{ fontSize: 14, color: 'rgba(28,24,20,0.7)', lineHeight: 1.7, marginBottom: 28 }}>
             Rejoignez une communauté exclusive de couples qui partagent vos valeurs.
           </p>
           <Link to="/register" className="btn-gold" style={{
@@ -177,7 +177,7 @@ export default function Home() {
           }}>
             Commencer gratuitement
           </Link>
-          <Link to="/login" style={{ fontSize: 12, color: 'rgba(201,168,76,0.4)', textDecoration: 'none', letterSpacing: '0.06em' }}>
+          <Link to="/login" style={{ fontSize: 12, color: 'rgba(201,168,76,1)', textDecoration: 'none', letterSpacing: '0.06em' }}>
             Déjà membre ? Se connecter
           </Link>
         </div>
@@ -185,18 +185,18 @@ export default function Home() {
 
       {/* footer */}
       <footer style={{
-        borderTop: '1px solid rgba(201,168,76,0.08)',
+        borderTop: '1px solid rgba(201,168,76,1)',
         padding: '24px',
         display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 12,
       }}>
-        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.15)', letterSpacing: '0.08em' }}>
+        <span style={{ fontSize: 11, color: 'rgba(28,24,20,0.7)', letterSpacing: '0.08em' }}>
           © 2026 Konnexyon · Europe francophone · Réservé aux adultes consentants · 18+
         </span>
         <div style={{ display: 'flex', gap: 20 }}>
-          <Link to="/blog" style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', textDecoration: 'none', letterSpacing: '0.06em' }}>Guide & Conseils</Link>
-          <Link to="/cgu" style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', textDecoration: 'none', letterSpacing: '0.06em' }}>CGU</Link>
-          <Link to="/confidentialite" style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', textDecoration: 'none', letterSpacing: '0.06em' }}>Confidentialité</Link>
-          <Link to="/contact" style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', textDecoration: 'none', letterSpacing: '0.06em' }}>Contact</Link>
+          <Link to="/blog" style={{ fontSize: 11, color: 'rgba(28,24,20,0.7)', textDecoration: 'none', letterSpacing: '0.06em' }}>Guide & Conseils</Link>
+          <Link to="/cgu" style={{ fontSize: 11, color: 'rgba(28,24,20,0.7)', textDecoration: 'none', letterSpacing: '0.06em' }}>CGU</Link>
+          <Link to="/confidentialite" style={{ fontSize: 11, color: 'rgba(28,24,20,0.7)', textDecoration: 'none', letterSpacing: '0.06em' }}>Confidentialité</Link>
+          <Link to="/contact" style={{ fontSize: 11, color: 'rgba(28,24,20,0.7)', textDecoration: 'none', letterSpacing: '0.06em' }}>Contact</Link>
         </div>
       </footer>
     </div>

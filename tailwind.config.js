@@ -4,14 +4,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg:       '#050505',
-        surface:  '#0C0C0C',
-        surface2: '#141414',
+        bg:       '#FDFAF6',
+        surface:  '#F5F0E8',
+        surface2: '#EDE7DB',
         gold:     '#C9A84C',
         'gold-light': '#E8CC7A',
         'gold-dark':  '#A07830',
-        text:     '#F2EDE6',
-        muted:    '#6B6560',
+        text:     '#1C1814',
+        muted:    '#8A7F74',
       },
       fontFamily: {
         serif: ['Cormorant', 'serif'],

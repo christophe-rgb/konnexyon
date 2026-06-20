@@ -12,12 +12,12 @@ export default function BlogArticle() {
   const next = ARTICLES[idx + 1]
 
   return (
-    <div className="min-h-dvh" style={{ background: '#050505' }}>
+    <div className="min-h-dvh" style={{ background: '#FDFAF6' }}>
       <header style={{
         position: 'sticky', top: 0, zIndex: 10,
         padding: '14px 24px', borderBottom: '1px solid rgba(201,168,76,0.08)',
         display: 'flex', alignItems: 'center', gap: 12,
-        background: 'rgba(5,5,5,0.95)', backdropFilter: 'blur(20px)',
+        background: 'rgba(253,250,246,0.95)', backdropFilter: 'blur(20px)',
       }}>
         <Link to="/blog" style={{ color: 'rgba(201,168,76,0.5)', textDecoration: 'none', fontSize: 20 }}>←</Link>
         <span style={{ fontFamily: 'Cormorant, serif', fontSize: '1rem', color: 'rgba(201,168,76,0.5)', letterSpacing: '0.08em' }}>
@@ -41,7 +41,7 @@ export default function BlogArticle() {
         {/* titre */}
         <h1 style={{
           fontFamily: 'Cormorant, serif', fontSize: 'clamp(1.8rem, 5vw, 2.8rem)',
-          fontWeight: 700, color: '#F2EDE6', lineHeight: 1.2, marginBottom: 20,
+          fontWeight: 700, color: '#1C1814', lineHeight: 1.2, marginBottom: 20,
         }}>
           {article.title}
         </h1>
@@ -62,7 +62,7 @@ export default function BlogArticle() {
           border: '1px solid rgba(201,168,76,0.18)',
           textAlign: 'center',
         }}>
-          <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.5rem', color: '#F2EDE6', marginBottom: 8 }}>
+          <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.5rem', color: '#1C1814', marginBottom: 8 }}>
             Prêts à rencontrer d'autres couples ?
           </p>
           <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24, lineHeight: 1.6 }}>
@@ -114,7 +114,7 @@ function MarkdownLite({ content }) {
       )
     } else if (line.startsWith('## ')) {
       elements.push(
-        <h2 key={key++} style={{ fontFamily: 'Cormorant, serif', fontSize: '1.6rem', fontWeight: 600, color: '#F2EDE6', marginTop: 40, marginBottom: 16 }}>
+        <h2 key={key++} style={{ fontFamily: 'Cormorant, serif', fontSize: '1.6rem', fontWeight: 600, color: '#1C1814', marginTop: 40, marginBottom: 16 }}>
           {line.slice(3)}
         </h2>
       )

@@ -89,7 +89,7 @@ export default function Admin() {
           <Shield size={18} strokeWidth={1.5} style={{ color: 'rgba(239,68,68,0.8)' }} />
         </div>
         <div>
-          <h1 style={{ fontFamily: 'Cormorant, serif', fontSize: '1.8rem', fontWeight: 600, color: '#F2EDE6' }}>Modération</h1>
+          <h1 style={{ fontFamily: 'Cormorant, serif', fontSize: '1.8rem', fontWeight: 600, color: '#1C1814' }}>Modération</h1>
           <p style={{ fontSize: 11, letterSpacing: '0.12em', color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Panneau d'administration</p>
         </div>
       </div>
@@ -167,7 +167,7 @@ function ProfileReportGroup({ group, onAction, onViewProfile }) {
 
   return (
     <div style={{
-      background: 'rgba(10,10,10,0.8)',
+      background: 'rgba(245,240,232,0.8)',
       border: `1px solid ${isCritical ? 'rgba(239,68,68,0.4)' : isBanned ? 'rgba(239,68,68,0.2)' : 'rgba(201,168,76,0.12)'}`,
       borderRadius: 20,
       overflow: 'hidden',
@@ -188,7 +188,7 @@ function ProfileReportGroup({ group, onAction, onViewProfile }) {
 
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <p style={{ fontSize: 15, fontWeight: 500, color: '#F2EDE6' }}>{profile?.couple_name || 'Profil inconnu'}</p>
+            <p style={{ fontSize: 15, fontWeight: 500, color: '#1C1814' }}>{profile?.couple_name || 'Profil inconnu'}</p>
             {isCritical && <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 99, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#EF4444', letterSpacing: '0.1em' }}>⚠ CRITIQUE</span>}
             {isBanned && <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 99, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: 'rgba(239,68,68,0.7)', letterSpacing: '0.1em' }}>BANNI</span>}
             {isSuspended && !isBanned && <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 99, background: 'rgba(251,146,60,0.1)', border: '1px solid rgba(251,146,60,0.25)', color: 'rgba(251,146,60,0.8)', letterSpacing: '0.1em' }}>SUSPENDU</span>}
@@ -257,7 +257,7 @@ function ReportRow({ report, profileId, onAction }) {
                 placeholder="Note admin (optionnel)…"
                 style={{
                   width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.08)',
-                  borderRadius: 10, padding: '9px 12px', color: '#F2EDE6', fontSize: 12,
+                  borderRadius: 10, padding: '9px 12px', color: '#1C1814', fontSize: 12,
                   outline: 'none', marginBottom: 10, boxSizing: 'border-box',
                 }}
               />

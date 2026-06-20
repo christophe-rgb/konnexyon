@@ -7,19 +7,18 @@ export default function AgeGate({ onConfirm }) {
 
   const confirm = () => {
     if (!checked) return
-    sessionStorage.setItem('age_confirmed', '1')
+    localStorage.setItem('age_confirmed', '1')
     onConfirm()
   }
 
   const refuse = () => {
-    navigate('https://www.google.com', { replace: true })
-    window.location.href = 'https://www.google.com'
+    window.location.replace('https://www.google.com')
   }
 
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 9999,
-      background: '#050505',
+      background: '#FDFAF6',
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
       padding: '32px 24px',
       textAlign: 'center',
@@ -36,8 +35,8 @@ export default function AgeGate({ onConfirm }) {
         <div style={{
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
           width: 88, height: 88, borderRadius: '50%',
-          border: '2px solid rgba(201,168,76,0.5)',
-          background: 'rgba(201,168,76,0.07)',
+          border: '2px solid rgba(201,168,76,1)',
+          background: 'rgba(201,168,76,0.1)',
           marginBottom: 28,
           fontFamily: 'Cormorant, serif',
           fontSize: '2rem', fontWeight: 700,
@@ -54,16 +53,16 @@ export default function AgeGate({ onConfirm }) {
 
         <h1 style={{
           fontFamily: 'Cormorant, serif', fontSize: 'clamp(1.8rem, 6vw, 2.6rem)',
-          fontWeight: 600, color: '#F2EDE6', lineHeight: 1.2, marginBottom: 14,
+          fontWeight: 600, color: '#1C1814', lineHeight: 1.2, marginBottom: 14,
         }}>
           Site réservé aux adultes
         </h1>
 
-        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', lineHeight: 1.8, marginBottom: 32 }}>
+        <p style={{ fontSize: 14, color: 'rgba(28,24,20,0.9)', lineHeight: 1.8, marginBottom: 32 }}>
           Konnexyon est une plateforme de rencontres pour couples adultes consentants.<br />
           L'accès est strictement réservé aux personnes majeures (18 ans ou plus).<br />
           En entrant, vous déclarez être majeur(e) et accepter les{' '}
-          <a href="/cgu" style={{ color: 'rgba(201,168,76,0.6)', textDecoration: 'none' }}>CGU</a>.
+          <a href="/cgu" style={{ color: 'rgba(201,168,76,1)', textDecoration: 'none' }}>CGU</a>.
         </p>
 
         {/* checkbox */}
@@ -71,16 +70,16 @@ export default function AgeGate({ onConfirm }) {
           display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer',
           marginBottom: 28, textAlign: 'left',
           padding: '16px', borderRadius: 14,
-          background: checked ? 'rgba(201,168,76,0.07)' : 'rgba(255,255,255,0.02)',
-          border: `1px solid ${checked ? 'rgba(201,168,76,0.3)' : 'rgba(255,255,255,0.07)'}`,
+          background: checked ? 'rgba(201,168,76,0.28)' : 'rgba(28,24,20,0.07)',
+          border: `1px solid ${checked ? 'rgba(201,168,76,1)' : 'rgba(28,24,20,0.2)'}`,
           transition: 'all 0.25s',
         }}>
           <div
             onClick={() => setChecked(c => !c)}
             style={{
               flexShrink: 0, width: 22, height: 22, borderRadius: 6, marginTop: 1,
-              border: `2px solid ${checked ? '#C9A84C' : 'rgba(255,255,255,0.2)'}`,
-              background: checked ? 'rgba(201,168,76,0.2)' : 'transparent',
+              border: `2px solid ${checked ? '#C9A84C' : 'rgba(28,24,20,0.3)'}`,
+              background: checked ? 'rgba(201,168,76,0.28)' : 'transparent',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               transition: 'all 0.2s',
             }}
@@ -91,8 +90,8 @@ export default function AgeGate({ onConfirm }) {
               </svg>
             )}
           </div>
-          <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.6 }}>
-            Je certifie avoir <strong style={{ color: 'rgba(255,255,255,0.8)' }}>18 ans ou plus</strong> et accepte de consulter ce contenu pour adultes en toute légalité.
+          <span style={{ fontSize: 13, color: 'rgba(28,24,20,0.9)', lineHeight: 1.6 }}>
+            Je certifie avoir <strong style={{ color: 'rgba(28,24,20,0.9)' }}>18 ans ou plus</strong> et accepte de consulter ce contenu pour adultes en toute légalité.
           </span>
         </label>
 
@@ -105,9 +104,9 @@ export default function AgeGate({ onConfirm }) {
             style={{
               padding: '16px', borderRadius: 14, width: '100%',
               fontSize: 14, letterSpacing: '0.12em', cursor: checked ? 'pointer' : 'not-allowed',
-              border: checked ? 'none' : '1px solid rgba(255,255,255,0.07)',
-              background: checked ? undefined : 'rgba(255,255,255,0.03)',
-              color: checked ? undefined : 'rgba(255,255,255,0.2)',
+              border: checked ? 'none' : '1px solid rgba(28,24,20,0.2)',
+              background: checked ? undefined : 'rgba(28,24,20,0.07)',
+              color: checked ? undefined : 'rgba(28,24,20,0.9)',
               transition: 'all 0.25s',
             }}
           >
@@ -117,15 +116,15 @@ export default function AgeGate({ onConfirm }) {
             onClick={refuse}
             style={{
               padding: '13px', borderRadius: 14, width: '100%', cursor: 'pointer',
-              background: 'transparent', border: '1px solid rgba(255,255,255,0.06)',
-              color: 'rgba(255,255,255,0.25)', fontSize: 13, letterSpacing: '0.06em',
+              background: 'transparent', border: '1px solid rgba(28,24,20,0.08)',
+              color: 'rgba(28,24,20,0.9)', fontSize: 13, letterSpacing: '0.06em',
             }}
           >
             J'ai moins de 18 ans — Quitter
           </button>
         </div>
 
-        <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.15)', marginTop: 24, letterSpacing: '0.08em' }}>
+        <p style={{ fontSize: 10, color: 'rgba(28,24,20,0.9)', marginTop: 24, letterSpacing: '0.08em' }}>
           © 2025 Konnexyon · Contenu pour adultes consentants · 18+
         </p>
       </div>

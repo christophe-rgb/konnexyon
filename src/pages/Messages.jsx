@@ -71,29 +71,7 @@ export default function Messages() {
     setLoading(false)
   }
 
-  if (!premium && !demoMode) return (
-    <div className="min-h-dvh flex flex-col items-center justify-center px-8 gap-6 text-center pb-nav">
-      <div style={{
-        width: 72, height: 72, borderRadius: '50%',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: 'radial-gradient(circle, rgba(201,168,76,0.1), transparent)',
-        border: '1px solid rgba(201,168,76,0.2)',
-        fontSize: 28,
-      }}>∞</div>
-      <div>
-        <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '1.8rem', color: '#F2EDE6', marginBottom: 8 }}>
-          Messagerie Premium
-        </h2>
-        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)', lineHeight: 1.7 }}>
-          Les messages sont réservés aux membres Premium.<br/>Passez à l'abonnement pour contacter les couples.
-        </p>
-      </div>
-      <button className="btn-gold" onClick={() => navigate('/abonnement')}
-        style={{ padding: '15px 40px', borderRadius: 14, border: 'none', cursor: 'pointer', fontSize: 13, letterSpacing: '0.12em' }}>
-        Voir les offres Premium
-      </button>
-    </div>
-  )
+  // accès libre temporairement
 
   return (
     <div className="max-w-lg mx-auto pb-nav">
@@ -102,10 +80,10 @@ export default function Messages() {
       <header
         className="sticky top-0 z-10 flex items-center justify-between px-5 py-4 animate-fade-in"
         style={{
-          background: 'rgba(5,5,5,0.95)',
+          background: 'rgba(253,250,246,0.95)',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
-          borderBottom: '1px solid rgba(201,168,76,0.1)',
+          borderBottom: '1px solid rgba(201,168,76,1)',
           animationFillMode: 'both',
         }}
       >
@@ -123,7 +101,7 @@ export default function Messages() {
             Messages
           </h1>
           {!loading && threads.length > 0 && (
-            <p style={{ fontSize: '11px', color: 'rgba(201,168,76,0.4)', letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: '2px' }}>
+            <p style={{ fontSize: '11px', color: 'rgba(201,168,76,1)', letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: '2px' }}>
               {threads.length} conversation{threads.length > 1 ? 's' : ''}
             </p>
           )}
@@ -131,10 +109,10 @@ export default function Messages() {
         <div style={{
           width: 36, height: 36, borderRadius: '12px',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          background: 'radial-gradient(circle, rgba(201,168,76,0.1), rgba(201,168,76,0.03))',
-          border: '1px solid rgba(201,168,76,0.2)',
+          background: 'radial-gradient(circle, rgba(201,168,76,0.1), rgba(201,168,76,0.1))',
+          border: '1px solid rgba(201,168,76,1)',
         }}>
-          <MessageCircle size={16} strokeWidth={1.5} style={{ color: 'rgba(201,168,76,0.7)' }} />
+          <MessageCircle size={16} strokeWidth={1.5} style={{ color: 'rgba(201,168,76,1)' }} />
         </div>
       </header>
 
@@ -143,8 +121,8 @@ export default function Messages() {
           {[1,2,3].map(i => (
             <div key={i} style={{
               height: 72, borderRadius: '16px',
-              background: 'rgba(15,15,15,0.6)',
-              border: '1px solid rgba(201,168,76,0.06)',
+              background: 'rgba(245,240,232,0.6)',
+              border: '1px solid rgba(201,168,76,1)',
               animation: 'pulseGold 1.8s ease-in-out infinite',
               animationDelay: `${i * 200}ms`,
             }} />
@@ -166,23 +144,23 @@ export default function Messages() {
                 padding: '14px 16px',
                 borderRadius: '18px',
                 background: t.unread
-                  ? 'linear-gradient(135deg, rgba(20,16,8,0.95) 0%, rgba(15,12,5,0.95) 100%)'
-                  : 'linear-gradient(135deg, rgba(12,12,12,0.9) 0%, rgba(8,8,8,0.95) 100%)',
+                  ? 'linear-gradient(135deg, rgba(245,240,232,0.95) 0%, rgba(237,231,219,0.95) 100%)'
+                  : 'linear-gradient(135deg, rgba(248,244,238,0.9) 0%, rgba(245,240,232,0.95) 100%)',
                 border: t.unread
-                  ? '1px solid rgba(201,168,76,0.25)'
-                  : '1px solid rgba(201,168,76,0.08)',
+                  ? '1px solid rgba(201,168,76,1)'
+                  : '1px solid rgba(201,168,76,1)',
                 cursor: 'pointer',
                 textAlign: 'left',
                 width: '100%',
                 transition: 'all 0.2s',
-                boxShadow: t.unread ? '0 4px 20px rgba(201,168,76,0.08)' : '0 2px 12px rgba(0,0,0,0.4)',
+                boxShadow: t.unread ? '0 4px 20px rgba(201,168,76,1)' : '0 2px 12px rgba(0,0,0,0.4)',
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.borderColor = 'rgba(201,168,76,0.25)'
+                e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'
                 e.currentTarget.style.transform = 'translateY(-1px)'
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.borderColor = t.unread ? 'rgba(201,168,76,0.25)' : 'rgba(201,168,76,0.08)'
+                e.currentTarget.style.borderColor = t.unread ? 'rgba(201,168,76,1)' : 'rgba(201,168,76,1)'
                 e.currentTarget.style.transform = 'translateY(0)'
               }}
             >
@@ -190,13 +168,13 @@ export default function Messages() {
               <div style={{ position: 'relative', flexShrink: 0 }}>
                 <div style={{
                   width: 48, height: 48, borderRadius: '14px', overflow: 'hidden',
-                  border: '1px solid rgba(201,168,76,0.18)',
-                  background: '#111',
+                  border: '1px solid rgba(201,168,76,1)',
+                  background: '#EDE7DB',
                 }}>
                   {t.profile.avatar_url ? (
                     <img src={t.profile.avatar_url} alt={t.profile.couple_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   ) : (
-                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Cormorant, serif', fontSize: '20px', color: 'rgba(201,168,76,0.35)' }}>
+                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Cormorant, serif', fontSize: '20px', color: 'rgba(201,168,76,1)' }}>
                       {t.profile.couple_name?.[0]}
                     </div>
                   )}
@@ -206,8 +184,8 @@ export default function Messages() {
                     position: 'absolute', top: -3, right: -3,
                     width: 11, height: 11, borderRadius: '50%',
                     background: 'linear-gradient(135deg, #A07830, #E8CC7A)',
-                    border: '2px solid #050505',
-                    boxShadow: '0 0 8px rgba(201,168,76,0.6)',
+                    border: '2px solid #FDFAF6',
+                    boxShadow: '0 0 8px rgba(201,168,76,1)',
                   }} />
                 )}
               </div>
@@ -218,7 +196,7 @@ export default function Messages() {
                   fontFamily: 'Cormorant, serif',
                   fontSize: '1.05rem',
                   fontWeight: t.unread ? 600 : 500,
-                  color: t.unread ? '#F2EDE6' : 'rgba(255,255,255,0.55)',
+                  color: t.unread ? '#1C1814' : 'rgba(28,24,20,0.9)',
                   overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                   marginBottom: '2px',
                 }}>
@@ -227,7 +205,7 @@ export default function Messages() {
                 {t.lastMessage && (
                   <p style={{
                     fontSize: '12px',
-                    color: t.unread ? 'rgba(201,168,76,0.6)' : 'rgba(255,255,255,0.25)',
+                    color: t.unread ? 'rgba(201,168,76,1)' : 'rgba(28,24,20,0.7)',
                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                     fontStyle: t.unread ? 'normal' : 'italic',
                   }}>
@@ -240,7 +218,7 @@ export default function Messages() {
               {t.lastMessage && (
                 <span style={{
                   fontSize: '10px',
-                  color: t.unread ? 'rgba(201,168,76,0.5)' : 'rgba(255,255,255,0.2)',
+                  color: t.unread ? 'rgba(201,168,76,1)' : 'rgba(28,24,20,0.7)',
                   flexShrink: 0,
                   letterSpacing: '0.04em',
                 }}>
@@ -261,20 +239,20 @@ function EmptyState() {
       <div style={{
         width: 72, height: 72, borderRadius: '50%',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: 'radial-gradient(circle, rgba(201,168,76,0.06), transparent)',
-        border: '1px solid rgba(201,168,76,0.1)',
+        background: 'radial-gradient(circle, rgba(201,168,76,0.1), transparent)',
+        border: '1px solid rgba(201,168,76,1)',
       }}>
-        <MessageCircle size={28} strokeWidth={1} style={{ color: 'rgba(201,168,76,0.35)' }} />
+        <MessageCircle size={28} strokeWidth={1} style={{ color: 'rgba(201,168,76,1)' }} />
       </div>
       <div>
-        <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.6rem', color: 'rgba(255,255,255,0.3)', marginBottom: '10px' }}>
+        <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.6rem', color: 'rgba(28,24,20,1)', marginBottom: '10px' }}>
           Aucune conversation
         </p>
-        <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.18)', lineHeight: 1.7 }}>
+        <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.7)', lineHeight: 1.7 }}>
           Le chat se débloque après<br/>une connexion mutuelle.
         </p>
       </div>
-      <div style={{ fontSize: '10px', letterSpacing: '0.18em', color: 'rgba(201,168,76,0.2)', textTransform: 'uppercase' }}>
+      <div style={{ fontSize: '10px', letterSpacing: '0.18em', color: 'rgba(201,168,76,1)', textTransform: 'uppercase' }}>
         ∞ · Connectés par désir · ∞
       </div>
     </div>

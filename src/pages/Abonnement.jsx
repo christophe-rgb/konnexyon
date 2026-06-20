@@ -75,15 +75,15 @@ export default function Abonnement() {
 
       {/* header */}
       <header style={{
-        background: 'rgba(5,5,5,0.96)',
+        background: 'rgba(253,250,246,0.96)',
         backdropFilter: 'blur(24px)',
-        borderBottom: '1px solid rgba(201,168,76,0.1)',
+        borderBottom: '1px solid rgba(201,168,76,1)',
         padding: '16px 20px',
         display: 'flex', alignItems: 'center', gap: 12,
       }}>
         <button className="erb-btn" onClick={() => navigate(-1)} style={{
           background: 'none', border: 'none', cursor: 'pointer',
-          color: 'rgba(201,168,76,0.5)', fontSize: 20, padding: '4px 8px',
+          color: 'rgba(201,168,76,1)', fontSize: 20, padding: '4px 8px',
         }}>←</button>
         <div>
           <h1 style={{ fontFamily: 'Cormorant, serif', fontSize: '1.3rem', fontWeight: 600,
@@ -93,7 +93,7 @@ export default function Abonnement() {
           }}>
             Abonnement Premium
           </h1>
-          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.1em' }}>
+          <p style={{ fontSize: 11, color: 'rgba(28,24,20,0.9)', letterSpacing: '0.1em' }}>
             Connexions illimitées
           </p>
         </div>
@@ -105,14 +105,14 @@ export default function Abonnement() {
         {premium && (
           <div style={{
             padding: '14px 18px', borderRadius: 16,
-            background: 'rgba(201,168,76,0.07)',
-            border: '1px solid rgba(201,168,76,0.3)',
+            background: 'rgba(201,168,76,0.1)',
+            border: '1px solid rgba(201,168,76,1)',
           }}>
             <p style={{ fontSize: 13, color: '#C9A84C', fontWeight: 500 }}>
               ✓ Vous êtes Premium
             </p>
             {profile?.plan_expires_at && (
-              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>
+              <p style={{ fontSize: 12, color: 'rgba(28,24,20,0.9)', marginTop: 4 }}>
                 Expire le {new Date(profile.plan_expires_at).toLocaleDateString('fr-FR')}
               </p>
             )}
@@ -122,24 +122,24 @@ export default function Abonnement() {
         {/* comparaison Free vs Premium */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           {/* Free */}
-          <div style={{ padding: '16px', borderRadius: 16, background: 'rgba(15,15,15,0.8)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <p style={{ fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: 12 }}>Free</p>
+          <div style={{ padding: '16px', borderRadius: 16, background: 'rgba(245,240,232,0.8)', border: '1px solid rgba(28,24,20,0.08)' }}>
+            <p style={{ fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(28,24,20,0.9)', marginBottom: 12 }}>Free</p>
             {FEATURES_FREE.map((f, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
                 <span style={{ fontSize: 13, color: f.ok ? '#4ade80' : 'rgba(248,113,113,0.6)', flexShrink: 0, marginTop: 1 }}>
                   {f.ok ? '✓' : '✗'}
                 </span>
-                <span style={{ fontSize: 12, color: f.ok ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.2)', lineHeight: 1.4 }}>{f.label}</span>
+                <span style={{ fontSize: 12, color: f.ok ? 'rgba(28,24,20,0.9)' : 'rgba(28,24,20,0.5)', lineHeight: 1.4 }}>{f.label}</span>
               </div>
             ))}
           </div>
           {/* Premium */}
-          <div style={{ padding: '16px', borderRadius: 16, background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.25)' }}>
+          <div style={{ padding: '16px', borderRadius: 16, background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.1)' }}>
             <p style={{ fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: 12 }}>Premium</p>
             {FEATURES_PREMIUM.map((f, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
                 <span style={{ fontSize: 13, color: '#C9A84C', flexShrink: 0, marginTop: 1 }}>✓</span>
-                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', lineHeight: 1.4 }}>{f.label}</span>
+                <span style={{ fontSize: 12, color: 'rgba(28,24,20,0.9)', lineHeight: 1.4 }}>{f.label}</span>
               </div>
             ))}
           </div>
@@ -147,7 +147,7 @@ export default function Abonnement() {
 
         {/* sélection durée */}
         <div>
-          <p style={{ fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.5)', marginBottom: 12 }}>
+          <p style={{ fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)', marginBottom: 12 }}>
             Choisissez votre durée
           </p>
           <div className="flex flex-col gap-3">
@@ -159,8 +159,8 @@ export default function Abonnement() {
                 style={{
                   position: 'relative',
                   textAlign: 'left', padding: '16px 18px', borderRadius: 16, cursor: 'pointer',
-                  border: `1px solid ${selected === plan.id ? 'rgba(201,168,76,0.55)' : 'rgba(201,168,76,0.15)'}`,
-                  background: selected === plan.id ? 'rgba(201,168,76,0.08)' : 'rgba(15,15,15,0.6)',
+                  border: `1px solid ${selected === plan.id ? 'rgba(201,168,76,1)' : 'rgba(201,168,76,1)'}`,
+                  background: selected === plan.id ? 'rgba(201,168,76,0.1)' : 'rgba(245,240,232,0.6)',
                   transition: 'all 0.2s',
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 }}
@@ -177,15 +177,15 @@ export default function Abonnement() {
                   <p style={{ fontSize: 15, fontWeight: 500, color: selected === plan.id ? '#C9A84C' : '#F2EDE6', marginBottom: 2 }}>
                     {plan.duration}
                   </p>
-                  <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>
+                  <p style={{ fontSize: 11, color: 'rgba(28,24,20,0.9)' }}>
                     Total : {plan.total}
                   </p>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <p style={{ fontSize: 22, fontWeight: 700, color: selected === plan.id ? '#E8CC7A' : 'rgba(255,255,255,0.5)', fontFamily: 'Cormorant, serif' }}>
+                  <p style={{ fontSize: 22, fontWeight: 700, color: selected === plan.id ? '#E8CC7A' : 'rgba(255,255,255,1)', fontFamily: 'Cormorant, serif' }}>
                     {plan.priceLabel}
                   </p>
-                  <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.06em' }}>/ mois</p>
+                  <p style={{ fontSize: 10, color: 'rgba(28,24,20,0.9)', letterSpacing: '0.06em' }}>/ mois</p>
                 </div>
               </button>
             ))}
@@ -213,7 +213,7 @@ export default function Abonnement() {
           ) : premium ? 'Déjà Premium ∞' : 'Activer Premium ∞'}
         </button>
 
-        <p style={{ textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.15)', lineHeight: 1.6 }}>
+        <p style={{ textAlign: 'center', fontSize: 11, color: 'rgba(28,24,20,0.9)', lineHeight: 1.6 }}>
           Paiement sécurisé · Sans engagement · Résiliation à tout moment
         </p>
       </div>

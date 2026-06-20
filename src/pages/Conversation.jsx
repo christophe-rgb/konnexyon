@@ -127,7 +127,7 @@ export default function Conversation() {
       sender_id: profile.id,
       content,
     })
-    if (error) toast('Erreur d\'envoi', 'error')
+    if (error) toast(`Erreur ${error.code}: ${error.message}`, 'error')
     setText('')
     setSending(false)
   }
@@ -174,10 +174,10 @@ export default function Conversation() {
       <div style={{
         display: 'flex', alignItems: 'center', gap: '12px',
         padding: '12px 16px', flexShrink: 0,
-        background: 'rgba(5,5,5,0.96)',
+        background: 'rgba(253,250,246,0.96)',
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
-        borderBottom: '1px solid rgba(201,168,76,0.1)',
+        borderBottom: '1px solid rgba(201,168,76,1)',
       }}>
         <button className="erb-btn"
           onClick={() => navigate('/messages')}
@@ -185,30 +185,30 @@ export default function Conversation() {
           style={{
             width: 38, height: 38, borderRadius: '12px', flexShrink: 0,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'rgba(20,20,20,0.8)', border: '1px solid rgba(201,168,76,0.12)',
-            color: 'rgba(255,255,255,0.4)', cursor: 'pointer', transition: 'all 0.2s',
+            background: 'rgba(237,231,219,0.8)', border: '1px solid rgba(201,168,76,0.1)',
+            color: 'rgba(28,24,20,1)', cursor: 'pointer', transition: 'all 0.2s',
           }}
-          onMouseEnter={e => { e.currentTarget.style.color = 'rgba(201,168,76,0.8)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.3)'; }}
-          onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.4)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.12)'; }}
+          onMouseEnter={e => { e.currentTarget.style.color = 'rgba(201,168,76,1)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; }}
+          onMouseLeave={e => { e.currentTarget.style.color = 'rgba(28,24,20,1)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; }}
         >
           <ArrowLeft size={18} strokeWidth={1.5} />
         </button>
 
-        <div style={{ width: 38, height: 38, borderRadius: '12px', overflow: 'hidden', flexShrink: 0, border: '1px solid rgba(201,168,76,0.2)', background: '#111' }}>
+        <div style={{ width: 38, height: 38, borderRadius: '12px', overflow: 'hidden', flexShrink: 0, border: '1px solid rgba(201,168,76,0.1)', background: '#EDE7DB' }}>
           {otherProfile?.avatar_url ? (
             <img src={otherProfile.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           ) : (
-            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Cormorant, serif', fontSize: '18px', color: 'rgba(201,168,76,0.35)' }}>
+            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Cormorant, serif', fontSize: '18px', color: 'rgba(201,168,76,1)' }}>
               {otherProfile?.couple_name?.[0]}
             </div>
           )}
         </div>
 
         <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.1rem', fontWeight: 600, color: '#F2EDE6', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.1rem', fontWeight: 600, color: '#1C1814', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {otherProfile?.couple_name}
           </p>
-          <p style={{ fontSize: '10px', color: 'rgba(201,168,76,0.4)', letterSpacing: '0.1em' }}>
+          <p style={{ fontSize: '10px', color: 'rgba(201,168,76,1)', letterSpacing: '0.1em' }}>
             ∞ connectés
           </p>
         </div>
@@ -219,7 +219,7 @@ export default function Conversation() {
           style={{
             width: 38, height: 38, borderRadius: '12px', flexShrink: 0,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'rgba(20,20,20,0.8)', border: '1px solid rgba(239,68,68,0.12)',
+            background: 'rgba(237,231,219,0.8)', border: '1px solid rgba(239,68,68,0.12)',
             color: 'rgba(239,68,68,0.4)', cursor: 'pointer', transition: 'all 0.2s',
           }}
           onMouseEnter={e => { e.currentTarget.style.color = 'rgba(239,68,68,0.8)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.35)'; }}
@@ -233,11 +233,11 @@ export default function Conversation() {
       <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3">
         {loading ? (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 0' }}>
-            <div style={{ width: 22, height: 22, border: '2px solid rgba(201,168,76,0.15)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite' }} />
+            <div style={{ width: 22, height: 22, border: '2px solid rgba(201,168,76,1)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite' }} />
           </div>
         ) : messages.length === 0 ? (
           <div style={{ textAlign: 'center', marginTop: '40px' }}>
-            <p style={{ fontSize: '11px', letterSpacing: '0.15em', color: 'rgba(201,168,76,0.3)', textTransform: 'uppercase' }}>
+            <p style={{ fontSize: '11px', letterSpacing: '0.15em', color: 'rgba(201,168,76,1)', textTransform: 'uppercase' }}>
               ∞ · La connexion commence ici · ∞
             </p>
           </div>
@@ -257,8 +257,8 @@ export default function Conversation() {
       {/* input */}
       <div style={{
         flexShrink: 0,
-        borderTop: '1px solid rgba(201,168,76,0.1)',
-        background: 'rgba(5,5,5,0.96)',
+        borderTop: '1px solid rgba(201,168,76,1)',
+        background: 'rgba(253,250,246,0.96)',
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
         padding: '12px 16px',
@@ -272,15 +272,15 @@ export default function Conversation() {
             style={{
               flexShrink: 0, width: 40, height: 40, borderRadius: '12px',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: 'rgba(20,20,20,0.9)', border: '1px solid rgba(201,168,76,0.12)',
-              color: 'rgba(201,168,76,0.5)', cursor: 'pointer', transition: 'all 0.2s',
+              background: 'rgba(237,231,219,0.9)', border: '1px solid rgba(201,168,76,0.1)',
+              color: 'rgba(201,168,76,1)', cursor: 'pointer', transition: 'all 0.2s',
               opacity: uploading ? 0.5 : 1,
             }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.3)'; e.currentTarget.style.color = 'rgba(201,168,76,0.8)'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.12)'; e.currentTarget.style.color = 'rgba(201,168,76,0.5)'; }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.color = 'rgba(201,168,76,1)'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.color = 'rgba(201,168,76,1)'; }}
           >
             {uploading
-              ? <div style={{ width: 14, height: 14, border: '2px solid rgba(201,168,76,0.2)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite' }} />
+              ? <div style={{ width: 14, height: 14, border: '2px solid rgba(201,168,76,1)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite' }} />
               : <Image size={17} strokeWidth={1.5} />
             }
           </button>
@@ -300,11 +300,11 @@ export default function Conversation() {
             rows={1}
             style={{
               flex: 1,
-              background: 'rgba(15,15,15,0.9)',
-              border: '1px solid rgba(201,168,76,0.15)',
+              background: 'rgba(245,240,232,0.9)',
+              border: '1px solid rgba(201,168,76,1)',
               borderRadius: '14px',
               padding: '10px 16px',
-              color: '#F2EDE6',
+              color: '#1C1814',
               fontSize: '14px',
               outline: 'none',
               resize: 'none',
@@ -312,8 +312,8 @@ export default function Conversation() {
               transition: 'border-color 0.2s',
               fontFamily: 'inherit',
             }}
-            onFocus={e => e.target.style.borderColor = 'rgba(201,168,76,0.4)'}
-            onBlur={e => e.target.style.borderColor = 'rgba(201,168,76,0.15)'}
+            onFocus={e => e.target.style.borderColor = 'rgba(201,168,76,1)'}
+            onBlur={e => e.target.style.borderColor = 'rgba(201,168,76,1)'}
           />
 
           {/* envoyer */}
