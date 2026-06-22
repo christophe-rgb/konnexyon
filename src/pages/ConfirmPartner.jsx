@@ -19,7 +19,11 @@ export default function ConfirmPartner() {
 
     if (error || !data?.success) {
       setStatus('error')
-      setMessage(data?.error || 'Lien invalide ou expiré.')
+      const SAFE_ERRORS = {
+        token_expired: 'Lien expiré.',
+        token_used: 'Lien déjà utilisé.',
+      }
+      setMessage(SAFE_ERRORS[data?.error_code] || 'Lien invalide ou expiré.')
     } else {
       setStatus('success')
     }

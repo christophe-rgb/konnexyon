@@ -36,20 +36,30 @@ export default function Admin() {
   }
 
   const action = async (reportId, reportedId, status, note) => {
-    await supabase.from('reports').update({
-      status, admin_note: note || null,
-      resolved_at: new Date().toISOString(),
-    }).eq('id', reportId)
-
+    // Toutes les mutations admin passent par des RPC SECURITY DEFINER
+    // qui vérifient le rôle 'admin' côté PostgreSQL — jamais via l'API directe.
     if (status === 'suspended') {
-      await supabase.from('profiles').update({ status: 'suspended' }).eq('id', reportedId)
+      const { error } = await supabase.rpc('admin_suspend_profile', {
+        p_report_id:   reportId,
+        p_reported_id: reportedId,
+        p_admin_note:  note || null,
+      })
+      if (error) { console.error('admin_suspend_profile:', error.message); return }
     } else if (status === 'banned') {
-      // suspension + flag banned
-      await supabase.from('profiles').update({ status: 'banned' }).eq('id', reportedId)
-      // marquer tous les reports de ce profil comme résolus
-      await supabase.from('reports')
-        .update({ status: 'banned', resolved_at: new Date().toISOString() })
-        .eq('reported_id', reportedId).eq('status', 'pending')
+      const { error } = await supabase.rpc('admin_ban_profile', {
+        p_report_id:   reportId,
+        p_reported_id: reportedId,
+        p_admin_note:  note || null,
+      })
+      if (error) { console.error('admin_ban_profile:', error.message); return }
+    } else {
+      // 'dismissed' | 'warned'
+      const { error } = await supabase.rpc('admin_resolve_report', {
+        p_report_id:  reportId,
+        p_status:     status,
+        p_admin_note: note || null,
+      })
+      if (error) { console.error('admin_resolve_report:', error.message); return }
     }
     loadReports()
   }
@@ -228,7 +238,13 @@ function ReportRow({ report, profileId, onAction }) {
 
   return (
     <div style={{ background: 'rgba(255,255,255,0.02)', borderRadius: 12, padding: '12px 14px', border: '1px solid rgba(255,255,255,0.04)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }} onClick={() => setOpen(o => !o)}>
+      <div
+        role="button"
+        tabIndex={0}
+        style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}
+        onClick={() => setOpen(o => !o)}
+        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(o => !o) } }}
+      >
         <div style={{ width: 7, height: 7, borderRadius: '50%', background: statusStyle.color, flexShrink: 0 }} />
         <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', flex: 1 }}>
           <span style={{ color: 'rgba(255,255,255,0.6)' }}>{report.reporter?.couple_name || '?'}</span>

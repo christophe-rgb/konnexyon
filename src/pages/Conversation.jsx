@@ -46,6 +46,8 @@ export default function Conversation() {
 
   useEffect(() => {
     if (!matchId || !profile) return
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!UUID_RE.test(matchId)) { navigate('/messages'); return }
     isMountedRef.current = true
     // alias local pour les callbacks async (loadMatch / loadMessages)
     const isMounted = () => isMountedRef.current
@@ -223,12 +225,16 @@ export default function Conversation() {
 
     const { data: { publicUrl } } = supabase.storage.from('chat-photos').getPublicUrl(path)
 
-    await supabase.from('messages').insert({
+    const { error: insertErr } = await supabase.from('messages').insert({
       match_id:         matchId,
       sender_id:        profile.id,
       photo_url:        publicUrl,
       photo_expires_at: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString(),
     })
+    if (insertErr) {
+      await supabase.storage.from('chat-photos').remove([path])
+      toast('Erreur envoi photo', 'error')
+    }
     setUploading(false)
   }
 

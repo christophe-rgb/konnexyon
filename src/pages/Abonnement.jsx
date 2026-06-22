@@ -63,6 +63,8 @@ export default function Abonnement() {
         body: { plan: selected },
       })
       if (error || !data?.url) throw new Error(error?.message || 'Erreur de paiement')
+      const STRIPE_ORIGIN = 'https://checkout.stripe.com'
+      if (!data.url.startsWith(STRIPE_ORIGIN)) throw new Error('URL de paiement invalide')
       window.location.href = data.url
     } catch (e) {
       setError(e.message)
