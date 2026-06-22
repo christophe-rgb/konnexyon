@@ -156,6 +156,9 @@
   .animate-fade-in-up {
     animation: fadeInUp var(--dur-slow) var(--ease-out) both;
   }
+  .animate-fade-in-down {
+    animation: fadeInDown var(--dur-slow) var(--ease-out) both;
+  }
   .animate-fade-in {
     animation: fadeIn var(--dur-slow) ease both;
   }
@@ -293,6 +296,10 @@
 /* ── Keyframes ──────────────────────────────────── */
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-24px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes fadeIn {

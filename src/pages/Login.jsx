@@ -43,7 +43,7 @@ export default function Login() {
           <picture>
             <source srcSet="/logo.webp" type="image/webp" />
             <img
-              src="/logo.png"
+              src="/logo.webp"
               alt=""
               aria-hidden="true"
               style={{

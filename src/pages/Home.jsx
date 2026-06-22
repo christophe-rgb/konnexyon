@@ -73,7 +73,7 @@ export default function Home() {
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <picture>
             <source srcSet="/logo.webp" type="image/webp" />
-            <img src="/logo.png" alt="" aria-hidden style={{
+            <img src="/logo.webp" alt="" aria-hidden style={{
               width: '90vw', maxWidth: 600,
               maxHeight: '92vh', objectFit: 'contain',
               opacity: 0.14, filter: 'brightness(1.4)',
