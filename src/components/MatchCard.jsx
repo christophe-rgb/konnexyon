@@ -9,19 +9,19 @@ export default function MatchCard({ match }) {
       className="flex items-center gap-4 cursor-pointer group transition-all duration-200"
       style={{
         background: 'linear-gradient(135deg, rgba(245,240,232,0.9) 0%, rgba(245,240,232,0.95) 100%)',
-        border: '1px solid rgba(201,168,76,1)',
+        border: '1px solid rgba(201,168,76,0.2)',
         borderRadius: '18px',
         padding: '14px 16px',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
         transition: 'all 0.2s ease',
       }}
-      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.transform = 'translateY(-1px)' }}
-      onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.transform = 'translateY(0)' }}
+      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.45)'; e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 24px rgba(0,0,0,0.10)' }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.2)'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.06)' }}
     >
       {/* avatar */}
       <div className="relative flex-shrink-0"
         onClick={e => { e.stopPropagation(); navigate(`/profile/${match.profile.id}`) }}>
-        <div style={{ width: 52, height: 52, borderRadius: '14px', overflow: 'hidden', border: '1px solid rgba(201,168,76,1)', boxShadow: '0 0 16px rgba(201,168,76,1)' }}>
+        <div style={{ width: 52, height: 52, borderRadius: '14px', overflow: 'hidden', border: '1px solid rgba(201,168,76,0.25)', boxShadow: 'none' }}>
           {match.profile.avatar_url ? (
             <img src={match.profile.avatar_url} alt={match.profile.couple_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           ) : (
@@ -37,7 +37,7 @@ export default function MatchCard({ match }) {
           background: 'linear-gradient(135deg, #A07830, #E8CC7A)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: '10px', color: '#050505', fontWeight: 700,
-          boxShadow: '0 0 8px rgba(201,168,76,1)',
+          boxShadow: 'none',
           border: '1.5px solid #FDFAF6',
         }}>∞</div>
       </div>
@@ -63,7 +63,7 @@ export default function MatchCard({ match }) {
         flexShrink: 0, width: 38, height: 38, borderRadius: '12px',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         background: 'rgba(201,168,76,0.1)',
-        border: '1px solid rgba(201,168,76,1)',
+        border: '1px solid rgba(201,168,76,0.2)',
         color: 'rgba(201,168,76,1)',
         transition: 'all 0.15s',
       }}>

@@ -93,7 +93,7 @@ export default function Messages() {
           background: 'rgba(253,250,246,0.95)',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
-          borderBottom: '1px solid rgba(201,168,76,1)',
+          borderBottom: '1px solid rgba(201,168,76,0.15)',
           animationFillMode: 'both',
         }}
       >
@@ -120,7 +120,7 @@ export default function Messages() {
           width: 36, height: 36, borderRadius: '12px',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           background: 'radial-gradient(circle, rgba(201,168,76,0.1), rgba(201,168,76,0.1))',
-          border: '1px solid rgba(201,168,76,1)',
+          border: '1px solid rgba(201,168,76,0.2)',
         }}>
           <MessageCircle size={16} strokeWidth={1.5} style={{ color: 'rgba(201,168,76,1)' }} />
         </div>
@@ -132,7 +132,7 @@ export default function Messages() {
             <div key={i} style={{
               height: 72, borderRadius: '16px',
               background: 'rgba(245,240,232,0.6)',
-              border: '1px solid rgba(201,168,76,1)',
+              border: '1px solid rgba(201,168,76,0.2)',
               animation: 'pulseGold 1.8s ease-in-out infinite',
               animationDelay: `${i * 200}ms`,
             }} />
@@ -157,20 +157,20 @@ export default function Messages() {
                   ? 'linear-gradient(135deg, rgba(245,240,232,0.95) 0%, rgba(237,231,219,0.95) 100%)'
                   : 'linear-gradient(135deg, rgba(248,244,238,0.9) 0%, rgba(245,240,232,0.95) 100%)',
                 border: t.unread
-                  ? '1px solid rgba(201,168,76,1)'
-                  : '1px solid rgba(201,168,76,1)',
+                  ? '1px solid rgba(201,168,76,0.45)'
+                  : '1px solid rgba(201,168,76,0.12)',
                 cursor: 'pointer',
                 textAlign: 'left',
                 width: '100%',
                 transition: 'all 0.2s',
-                boxShadow: t.unread ? '0 4px 20px rgba(201,168,76,1)' : '0 2px 12px rgba(0,0,0,0.4)',
+                boxShadow: t.unread ? '0 4px 20px rgba(201,168,76,0.18)' : '0 1px 6px rgba(0,0,0,0.05)',
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'
+                e.currentTarget.style.borderColor = 'rgba(201,168,76,0.5)'
                 e.currentTarget.style.transform = 'translateY(-1px)'
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.borderColor = t.unread ? 'rgba(201,168,76,1)' : 'rgba(201,168,76,1)'
+                e.currentTarget.style.borderColor = t.unread ? 'rgba(201,168,76,0.45)' : 'rgba(201,168,76,0.12)'
                 e.currentTarget.style.transform = 'translateY(0)'
               }}
             >
@@ -178,7 +178,7 @@ export default function Messages() {
               <div style={{ position: 'relative', flexShrink: 0 }}>
                 <div style={{
                   width: 48, height: 48, borderRadius: '14px', overflow: 'hidden',
-                  border: '1px solid rgba(201,168,76,1)',
+                  border: '1px solid rgba(201,168,76,0.2)',
                   background: '#EDE7DB',
                 }}>
                   {t.profile.avatar_url ? (
@@ -219,7 +219,7 @@ export default function Messages() {
                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                     fontStyle: t.unread ? 'normal' : 'italic',
                   }}>
-                    {t.lastMessage.content || '📷 Photo'}
+                    {t.lastMessage.content || 'Photo'}
                   </p>
                 )}
               </div>
@@ -250,7 +250,7 @@ function EmptyState() {
         width: 72, height: 72, borderRadius: '50%',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         background: 'radial-gradient(circle, rgba(201,168,76,0.1), transparent)',
-        border: '1px solid rgba(201,168,76,1)',
+        border: '1px solid rgba(201,168,76,0.2)',
       }}>
         <MessageCircle size={28} strokeWidth={1} style={{ color: 'rgba(201,168,76,1)' }} />
       </div>

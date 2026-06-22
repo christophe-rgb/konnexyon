@@ -62,7 +62,7 @@ export default function Matches() {
       return {
         ...m,
         profile: p,
-        lastMessage: msg?.content || (msg?.photo_url ? '📷 Photo' : null),
+        lastMessage: msg?.content || (msg?.photo_url ? 'Photo' : null),
       }
     }))
 
@@ -88,7 +88,7 @@ export default function Matches() {
           background: 'rgba(253,250,246,0.95)',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
-          borderBottom: '1px solid rgba(201,168,76,1)',
+          borderBottom: '1px solid rgba(201,168,76,0.15)',
           animationFillMode: 'both',
         }}
       >
@@ -116,7 +116,7 @@ export default function Matches() {
             width: 36, height: 36, borderRadius: '12px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             background: 'radial-gradient(circle, rgba(201,168,76,0.1), rgba(201,168,76,0.1))',
-            border: '1px solid rgba(201,168,76,1)',
+            border: '1px solid rgba(201,168,76,0.2)',
           }}>
             <Zap size={16} strokeWidth={1.5} style={{ color: 'rgba(201,168,76,1)' }} />
           </div>
@@ -169,7 +169,7 @@ function EmptyState() {
         width: 80, height: 80, borderRadius: '50%',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         background: 'radial-gradient(circle, rgba(201,168,76,0.1), transparent)',
-        border: '1px solid rgba(201,168,76,1)',
+        border: '1px solid rgba(201,168,76,0.2)',
         animation: 'pulseGold 3s ease-in-out infinite',
       }}>
         {/* X connexion SVG */}

@@ -100,8 +100,8 @@ export default function SwipeStack({ profiles, onLike, onPass }) {
             transition: isFlying ? 'transform 0.38s cubic-bezier(0.4,0,1,1)' : activeRef.current ? 'none' : 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94)',
             userSelect: 'none',
             touchAction: 'none',
-            border: '1px solid rgba(201,168,76,1)',
-            boxShadow: '0 24px 64px rgba(0,0,0,0.75), 0 0 0 1px rgba(201,168,76,1)',
+            border: '1px solid rgba(201,168,76,0.25)',
+            boxShadow: '0 16px 48px rgba(0,0,0,0.18), 0 0 0 1px rgba(201,168,76,0.15)',
             background: '#F0EBE2',
           }}
         >
@@ -215,17 +215,17 @@ function ActionBtn({ onClick, children, aria, gold }) {
         width: gold ? 72 : 60,
         height: gold ? 72 : 60,
         borderRadius: '50%',
-        border: gold ? '1px solid rgba(201,168,76,1)' : '1px solid rgba(248,113,113,0.3)',
+        border: gold ? '1px solid rgba(201,168,76,0.4)' : '1px solid rgba(248,113,113,0.3)',
         background: gold
           ? 'radial-gradient(circle at 40% 35%, rgba(232,204,122,0.18), rgba(160,120,48,0.06))'
           : 'rgba(248,113,113,0.06)',
-        boxShadow: gold ? '0 0 30px rgba(201,168,76,1)' : '0 0 20px rgba(248,113,113,0.1)',
+        boxShadow: gold ? '0 0 20px rgba(201,168,76,0.3)' : '0 0 20px rgba(248,113,113,0.1)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         cursor: 'pointer',
         transition: 'transform 0.15s, box-shadow 0.15s',
       }}
-      onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.1)'; e.currentTarget.style.boxShadow = gold ? '0 0 40px rgba(201,168,76,1)' : '0 0 30px rgba(248,113,113,0.25)' }}
-      onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)';   e.currentTarget.style.boxShadow = gold ? '0 0 30px rgba(201,168,76,1)' : '0 0 20px rgba(248,113,113,0.1)' }}
+      onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.1)'; e.currentTarget.style.boxShadow = gold ? '0 0 28px rgba(201,168,76,0.4)' : '0 0 30px rgba(248,113,113,0.25)' }}
+      onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)';   e.currentTarget.style.boxShadow = gold ? '0 0 20px rgba(201,168,76,0.3)' : '0 0 20px rgba(248,113,113,0.1)' }}
     >
       {children}
     </button>

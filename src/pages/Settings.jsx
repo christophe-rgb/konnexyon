@@ -40,7 +40,7 @@ export default function Settings() {
           background: 'rgba(253,250,246,0.95)',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
-          borderBottom: '1px solid rgba(201,168,76,1)',
+          borderBottom: '1px solid rgba(201,168,76,0.15)',
         }}
       >
         <h1 style={{
@@ -59,7 +59,7 @@ export default function Settings() {
           width: 36, height: 36, borderRadius: '12px',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           background: 'radial-gradient(circle, rgba(201,168,76,0.1), rgba(201,168,76,0.1))',
-          border: '1px solid rgba(201,168,76,1)',
+          border: '1px solid rgba(201,168,76,0.2)',
         }}>
           <SettingsIcon size={16} strokeWidth={1.5} style={{ color: 'rgba(201,168,76,1)' }} />
         </div>
@@ -85,11 +85,11 @@ export default function Settings() {
                   marginBottom: '8px', cursor: 'pointer',
                   textAlign: 'left',
                   background: isActive ? 'rgba(201,168,76,0.28)' : 'rgba(245,240,232,0.8)',
-                  border: isActive ? '1px solid rgba(201,168,76,1)' : '1px solid rgba(201,168,76,1)',
+                  border: isActive ? '1px solid rgba(201,168,76,0.5)' : '1px solid rgba(201,168,76,0.12)',
                   transition: 'all 0.2s',
                 }}
-                onMouseEnter={e => !isActive && (e.currentTarget.style.borderColor = 'rgba(201,168,76,1)')}
-                onMouseLeave={e => !isActive && (e.currentTarget.style.borderColor = 'rgba(201,168,76,1)')}
+                onMouseEnter={e => !isActive && (e.currentTarget.style.borderColor = 'rgba(201,168,76,0.35)')}
+                onMouseLeave={e => !isActive && (e.currentTarget.style.borderColor = 'rgba(201,168,76,0.12)')}
               >
                 <div>
                   <p style={{ fontSize: '13px', fontWeight: 500, color: isActive ? '#C9A84C' : 'rgba(28,24,20,0.9)', marginBottom: '2px' }}>
@@ -139,7 +139,7 @@ export default function Settings() {
               width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               padding: '16px', borderRadius: '14px', cursor: 'pointer', textAlign: 'left',
               background: premium ? 'rgba(201,168,76,0.28)' : 'rgba(245,240,232,0.8)',
-              border: premium ? '1px solid rgba(201,168,76,1)' : '1px solid rgba(201,168,76,1)',
+              border: premium ? '1px solid rgba(201,168,76,0.5)' : '1px solid rgba(201,168,76,0.15)',
               transition: 'all 0.2s',
             }}
           >
@@ -248,15 +248,15 @@ function Row({ icon: Icon, label, desc, onClick, loading, danger = false }) {
         marginBottom: '8px', cursor: 'pointer',
         textAlign: 'left',
         background: 'rgba(245,240,232,0.8)',
-        border: danger ? '1px solid rgba(239,68,68,0.12)' : '1px solid rgba(201,168,76,1)',
+        border: danger ? '1px solid rgba(239,68,68,0.12)' : '1px solid rgba(201,168,76,0.15)',
         transition: 'all 0.2s',
       }}
       onMouseEnter={e => {
-        e.currentTarget.style.borderColor = danger ? 'rgba(239,68,68,0.3)' : 'rgba(201,168,76,1)'
+        e.currentTarget.style.borderColor = danger ? 'rgba(239,68,68,0.3)' : 'rgba(201,168,76,0.35)'
         e.currentTarget.style.background = danger ? 'rgba(239,68,68,0.05)' : 'rgba(237,231,219,0.9)'
       }}
       onMouseLeave={e => {
-        e.currentTarget.style.borderColor = danger ? 'rgba(239,68,68,0.12)' : 'rgba(201,168,76,1)'
+        e.currentTarget.style.borderColor = danger ? 'rgba(239,68,68,0.12)' : 'rgba(201,168,76,0.15)'
         e.currentTarget.style.background = 'rgba(245,240,232,0.8)'
       }}
     >
