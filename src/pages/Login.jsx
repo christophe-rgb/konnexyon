@@ -71,14 +71,14 @@ export default function Login() {
           >
             <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{
               background: 'radial-gradient(circle at 40% 35%, rgba(232,204,122,0.18), rgba(160,120,48,0.06))',
-              border: '1px solid rgba(201,168,76,1)',
-              boxShadow: '0 0 50px rgba(201,168,76,1), inset 0 1px 0 rgba(232,204,122,0.25)',
+              border: '1px solid rgba(201,168,76,0.35)',
+              boxShadow: '0 0 24px rgba(201,168,76,0.2), inset 0 1px 0 rgba(232,204,122,0.25)',
             }}>
               <XLogo size={52} />
             </div>
             {/* halo pulsant */}
             <div className="absolute inset-0 rounded-full animate-pulse-gold" style={{
-              border: '1px solid rgba(201,168,76,1)',
+              border: '1px solid rgba(201,168,76,0.2)',
               transform: 'scale(1.3)',
             }} />
           </div>
@@ -236,15 +236,15 @@ export default function Login() {
           style={{
             width: '100%', padding: '15px', borderRadius: '14px', cursor: 'pointer',
             background: 'rgba(201,168,76,0.1)',
-            border: '1px solid rgba(201,168,76,1)',
-            color: 'rgba(201,168,76,1)',
+            border: '1px solid rgba(201,168,76,0.3)',
+            color: 'rgba(201,168,76,0.85)',
             fontSize: '12px', letterSpacing: '0.12em',
             transition: 'all 0.25s',
             textTransform: 'uppercase',
             animationFillMode: 'both',
           }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.color = '#C9A84C'; e.currentTarget.style.background = 'rgba(201,168,76,0.15)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.color = 'rgba(201,168,76,1)'; e.currentTarget.style.background = 'rgba(201,168,76,0.06)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.55)'; e.currentTarget.style.color = '#C9A84C'; e.currentTarget.style.background = 'rgba(201,168,76,0.15)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.3)'; e.currentTarget.style.color = 'rgba(201,168,76,0.85)'; e.currentTarget.style.background = 'rgba(201,168,76,0.1)'; e.currentTarget.style.transform = 'translateY(0)'; }}
         >
           ∞ &nbsp; Explorer les connexions
         </button>

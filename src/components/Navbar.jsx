@@ -92,7 +92,7 @@ export default function Navbar() {
                   transition: 'all 0.25s cubic-bezier(0.34,1.56,0.64,1)',
                   ...(isActive ? {
                     background: 'linear-gradient(135deg, #A07830 0%, #C9A84C 40%, #E8CC7A 70%, #C9A84C 100%)',
-                    boxShadow: '0 2px 20px rgba(201,168,76,1)',
+                    boxShadow: '0 2px 12px rgba(201,168,76,0.2)',
                     color: '#050505',
                     transform: 'scale(1.06)',
                   } : {

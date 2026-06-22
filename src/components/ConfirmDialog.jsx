@@ -52,7 +52,7 @@ export function ConfirmDialogHost() {
         style={{
           width: '100%', maxWidth: 380,
           background: 'linear-gradient(180deg, #FDFAF6 0%, #F5F0E8 100%)',
-          border: '1px solid rgba(201,168,76,1)',
+          border: '1px solid rgba(201,168,76,0.25)',
           borderRadius: 22, padding: '26px 22px',
           animation: 'slideUp 0.25s cubic-bezier(0.25,0.46,0.45,0.94)',
         }}

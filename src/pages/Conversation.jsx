@@ -189,7 +189,7 @@ export default function Conversation() {
         background: 'rgba(253,250,246,0.96)',
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
-        borderBottom: '1px solid rgba(201,168,76,1)',
+        borderBottom: '1px solid rgba(201,168,76,0.25)',
       }}>
         <button className="erb-btn"
           onClick={() => navigate('/messages')}
@@ -200,8 +200,8 @@ export default function Conversation() {
             background: 'rgba(237,231,219,0.8)', border: '1px solid rgba(201,168,76,0.1)',
             color: 'rgba(28,24,20,1)', cursor: 'pointer', transition: 'all 0.2s',
           }}
-          onMouseEnter={e => { e.currentTarget.style.color = 'rgba(201,168,76,1)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; }}
-          onMouseLeave={e => { e.currentTarget.style.color = 'rgba(28,24,20,1)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; }}
+          onMouseEnter={e => { e.currentTarget.style.color = '#C9A84C'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.4)'; }}
+          onMouseLeave={e => { e.currentTarget.style.color = 'rgba(28,24,20,0.9)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.1)'; }}
         >
           <ArrowLeft size={18} strokeWidth={1.5} />
         </button>
@@ -245,7 +245,7 @@ export default function Conversation() {
       <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3">
         {loading ? (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 0' }}>
-            <div style={{ width: 22, height: 22, border: '2px solid rgba(201,168,76,1)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite' }} />
+            <div style={{ width: 22, height: 22, border: '2px solid rgba(201,168,76,0.4)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite' }} />
           </div>
         ) : messages.length === 0 ? (
           <div style={{ textAlign: 'center', marginTop: '40px' }}>
@@ -269,7 +269,7 @@ export default function Conversation() {
       {/* input */}
       <div style={{
         flexShrink: 0,
-        borderTop: '1px solid rgba(201,168,76,1)',
+        borderTop: '1px solid rgba(201,168,76,0.25)',
         background: 'rgba(253,250,246,0.96)',
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
@@ -288,11 +288,11 @@ export default function Conversation() {
               color: 'rgba(201,168,76,1)', cursor: 'pointer', transition: 'all 0.2s',
               opacity: uploading ? 0.5 : 1,
             }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.color = 'rgba(201,168,76,1)'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.color = 'rgba(201,168,76,1)'; }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.45)'; e.currentTarget.style.background = 'rgba(201,168,76,0.08)'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.1)'; e.currentTarget.style.background = 'rgba(237,231,219,0.9)'; }}
           >
             {uploading
-              ? <div style={{ width: 14, height: 14, border: '2px solid rgba(201,168,76,1)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite' }} />
+              ? <div style={{ width: 14, height: 14, border: '2px solid rgba(201,168,76,0.4)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite' }} />
               : <Image size={17} strokeWidth={1.5} />
             }
           </button>
@@ -313,7 +313,7 @@ export default function Conversation() {
             style={{
               flex: 1,
               background: 'rgba(245,240,232,0.9)',
-              border: '1px solid rgba(201,168,76,1)',
+              border: '1px solid rgba(201,168,76,0.25)',
               borderRadius: '14px',
               padding: '10px 16px',
               color: '#1C1814',
@@ -324,8 +324,8 @@ export default function Conversation() {
               transition: 'border-color 0.2s',
               fontFamily: 'inherit',
             }}
-            onFocus={e => e.target.style.borderColor = 'rgba(201,168,76,1)'}
-            onBlur={e => e.target.style.borderColor = 'rgba(201,168,76,1)'}
+            onFocus={e => e.target.style.borderColor = 'rgba(201,168,76,0.5)'}
+            onBlur={e => e.target.style.borderColor = 'rgba(201,168,76,0.5)'}
           />
 
           {/* envoyer */}

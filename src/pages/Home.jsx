@@ -34,7 +34,7 @@ export default function Home() {
             width: 32, height: 32, borderRadius: 10,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             background: 'radial-gradient(circle, rgba(201,168,76,0.1), rgba(201,168,76,0.1))',
-            border: '1px solid rgba(201,168,76,1)',
+            border: '1px solid rgba(201,168,76,0.25)',
           }}>
             <span style={{ fontSize: 16, background: 'linear-gradient(135deg,#A07830,#E8CC7A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>∞</span>
           </div>

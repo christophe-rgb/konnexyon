@@ -77,7 +77,7 @@ export default function Abonnement() {
       <header style={{
         background: 'rgba(253,250,246,0.96)',
         backdropFilter: 'blur(24px)',
-        borderBottom: '1px solid rgba(201,168,76,1)',
+        borderBottom: '1px solid rgba(201,168,76,0.25)',
         padding: '16px 20px',
         display: 'flex', alignItems: 'center', gap: 12,
       }}>
@@ -106,7 +106,7 @@ export default function Abonnement() {
           <div style={{
             padding: '14px 18px', borderRadius: 16,
             background: 'rgba(201,168,76,0.1)',
-            border: '1px solid rgba(201,168,76,1)',
+            border: '1px solid rgba(201,168,76,0.25)',
           }}>
             <p style={{ fontSize: 13, color: '#C9A84C', fontWeight: 500 }}>
               ✓ Vous êtes Premium
@@ -159,7 +159,7 @@ export default function Abonnement() {
                 style={{
                   position: 'relative',
                   textAlign: 'left', padding: '16px 18px', borderRadius: 16, cursor: 'pointer',
-                  border: `1px solid ${selected === plan.id ? 'rgba(201,168,76,1)' : 'rgba(201,168,76,1)'}`,
+                  border: `1px solid ${selected === plan.id ? 'rgba(201,168,76,0.5)' : 'rgba(201,168,76,0.15)'}`,
                   background: selected === plan.id ? 'rgba(201,168,76,0.1)' : 'rgba(245,240,232,0.6)',
                   transition: 'all 0.2s',
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',

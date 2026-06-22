@@ -18,7 +18,7 @@ export default function PanierSheet({ profiles, onLike, onRemove, onClose }) {
       <div style={{
         position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 2001,
         background: 'linear-gradient(180deg, #FDFAF6 0%, #F5F0E8 100%)',
-        borderTop: '1px solid rgba(201,168,76,1)',
+        borderTop: '1px solid rgba(201,168,76,0.25)',
         borderRadius: '24px 24px 0 0',
         maxHeight: '80dvh',
         display: 'flex', flexDirection: 'column',
@@ -52,7 +52,7 @@ export default function PanierSheet({ profiles, onLike, onRemove, onClose }) {
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               transition: 'all 0.15s',
             }}
-            onMouseEnter={e => { e.currentTarget.style.color = 'rgba(28,24,20,0.9)'; e.currentTarget.style.borderColor = 'rgba(28,24,20,0.15)'; }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#1C1814'; e.currentTarget.style.borderColor = 'rgba(28,24,20,0.35)'; }}
             onMouseLeave={e => { e.currentTarget.style.color = 'rgba(28,24,20,0.9)'; e.currentTarget.style.borderColor = 'rgba(28,24,20,0.15)'; }}
           >×</button>
         </div>
@@ -89,7 +89,7 @@ function PanierCard({ profile, onLike, onRemove, index }) {
       style={{
         display: 'flex', alignItems: 'center', gap: 14,
         background: 'linear-gradient(135deg, rgba(245,240,232,0.98), rgba(237,231,219,0.98))',
-        border: '1px solid rgba(201,168,76,1)',
+        border: '1px solid rgba(201,168,76,0.25)',
         borderRadius: 16, padding: '12px 14px',
         animation: `fadeInUp 0.3s ease ${index * 0.05}s both`,
       }}
@@ -98,7 +98,7 @@ function PanierCard({ profile, onLike, onRemove, index }) {
       <div style={{
         width: 56, height: 56, borderRadius: 14, flexShrink: 0,
         overflow: 'hidden',
-        border: '1px solid rgba(201,168,76,1)',
+        border: '1px solid rgba(201,168,76,0.25)',
         background: '#EDE7DB',
       }}>
         {profile.avatar_url ? (
@@ -152,14 +152,14 @@ function PanierCard({ profile, onLike, onRemove, index }) {
             style={{
               width: 36, height: 36, borderRadius: '50%',
               background: 'radial-gradient(circle at 40% 35%, rgba(232,204,122,0.18), rgba(160,120,48,0.06))',
-              border: '1px solid rgba(201,168,76,1)',
+              border: '1px solid rgba(201,168,76,0.25)',
               cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               transition: 'all 0.15s',
-              boxShadow: '0 0 16px rgba(201,168,76,1)',
+              boxShadow: '0 0 12px rgba(201,168,76,0.2)',
             }}
-            onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 0 24px rgba(201,168,76,1)'; e.currentTarget.style.transform = 'scale(1.1)'; }}
-            onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 0 16px rgba(201,168,76,1)'; e.currentTarget.style.transform = 'scale(1)'; }}
+            onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 0 18px rgba(201,168,76,0.35)'; e.currentTarget.style.transform = 'scale(1.1)'; }}
+            onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 0 12px rgba(201,168,76,0.2)'; e.currentTarget.style.transform = 'scale(1)'; }}
           >
             <XLogo size={20} />
           </button>

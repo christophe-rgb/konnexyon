@@ -195,7 +195,7 @@ export default function Messages() {
                     width: 11, height: 11, borderRadius: '50%',
                     background: 'linear-gradient(135deg, #A07830, #E8CC7A)',
                     border: '2px solid #FDFAF6',
-                    boxShadow: '0 0 8px rgba(201,168,76,1)',
+                    boxShadow: '0 0 6px rgba(201,168,76,0.45)',
                   }} />
                 )}
               </div>

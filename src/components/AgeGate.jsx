@@ -36,7 +36,7 @@ export default function AgeGate({ onConfirm }) {
         <div style={{
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
           width: 88, height: 88, borderRadius: '50%',
-          border: '2px solid rgba(201,168,76,1)',
+          border: '2px solid rgba(201,168,76,0.4)',
           background: 'rgba(201,168,76,0.1)',
           marginBottom: 28,
           fontFamily: 'Cormorant, serif',
@@ -72,7 +72,7 @@ export default function AgeGate({ onConfirm }) {
           marginBottom: 28, textAlign: 'left',
           padding: '16px', borderRadius: 14,
           background: checked ? 'rgba(201,168,76,0.28)' : 'rgba(28,24,20,0.07)',
-          border: `1px solid ${checked ? 'rgba(201,168,76,1)' : 'rgba(28,24,20,0.2)'}`,
+          border: `1px solid ${checked ? 'rgba(201,168,76,0.5)' : 'rgba(28,24,20,0.2)'}`,
           transition: 'all 0.25s',
         }}>
           <div

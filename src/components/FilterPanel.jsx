@@ -22,7 +22,7 @@ export default function FilterPanel({ filters, onChange, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60">
-      <div className="bg-surface border border-[rgba(201,168,76,1)] rounded-t-3xl sm:rounded-2xl w-full max-w-md p-6 pb-8">
+      <div className="bg-surface border border-[rgba(201,168,76,0.2)] rounded-t-3xl sm:rounded-2xl w-full max-w-md p-6 pb-8">
         {/* header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="font-serif text-2xl">Filtres</h2>
@@ -43,7 +43,7 @@ export default function FilterPanel({ filters, onChange, onClose }) {
                   'erb-btn px-3 py-1.5 rounded-full text-sm border transition-colors duration-150 cursor-pointer',
                   filters.orientation === o.value
                     ? 'bg-gold text-bg border-gold'
-                    : 'border-[rgba(201,168,76,1)] text-muted hover:text-text'
+                    : 'border-[rgba(201,168,76,0.2)] text-muted hover:text-text'
                 )}
               >
                 {o.label}
@@ -69,7 +69,7 @@ export default function FilterPanel({ filters, onChange, onClose }) {
                     'erb-btn px-3 py-1.5 rounded-full text-sm border transition-colors duration-150 cursor-pointer',
                     active
                       ? 'bg-gold text-bg border-gold'
-                      : 'border-[rgba(201,168,76,1)] text-muted hover:text-text'
+                      : 'border-[rgba(201,168,76,0.2)] text-muted hover:text-text'
                   )}
                 >
                   {s.label}
@@ -91,7 +91,7 @@ export default function FilterPanel({ filters, onChange, onClose }) {
                   'erb-btn flex-1 py-1.5 rounded-full text-sm border transition-colors duration-150 cursor-pointer',
                   filters.distance === d
                     ? 'bg-gold text-bg border-gold'
-                    : 'border-[rgba(201,168,76,1)] text-muted hover:text-text'
+                    : 'border-[rgba(201,168,76,0.2)] text-muted hover:text-text'
                 )}
               >
                 {d === 0 ? 'Peu importe' : `${d} km`}

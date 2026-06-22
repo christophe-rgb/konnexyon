@@ -101,7 +101,7 @@ export default function Settings() {
                   <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'linear-gradient(135deg, #A07830, #E8CC7A)', flexShrink: 0 }} />
                 )}
                 {saving === 'visibility' && isActive && (
-                  <div style={{ width: 14, height: 14, border: '2px solid rgba(201,168,76,1)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite', flexShrink: 0 }} />
+                  <div style={{ width: 14, height: 14, border: '2px solid rgba(201,168,76,0.3)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite', flexShrink: 0 }} />
                 )}
               </button>
             )
@@ -274,7 +274,7 @@ function Row({ icon: Icon, label, desc, onClick, loading, danger = false }) {
         )}
       </div>
       {loading ? (
-        <div style={{ width: 14, height: 14, border: '2px solid rgba(201,168,76,1)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite', flexShrink: 0 }} />
+        <div style={{ width: 14, height: 14, border: '2px solid rgba(201,168,76,0.3)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite', flexShrink: 0 }} />
       ) : (
         <ChevronRight size={15} strokeWidth={1.5} style={{ color: 'rgba(28,24,20,0.9)', flexShrink: 0 }} />
       )}

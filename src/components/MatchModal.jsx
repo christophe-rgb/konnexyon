@@ -29,12 +29,12 @@ export default function MatchModal({ match, onClose }) {
         className="animate-fade-in-up"
         style={{
           background: 'linear-gradient(145deg, rgba(253,250,246,0.99) 0%, rgba(245,240,232,0.99) 100%)',
-          border: '1px solid rgba(201,168,76,1)',
+          border: '1px solid rgba(201,168,76,0.25)',
           borderRadius: '28px',
           padding: '40px 32px',
           width: '100%', maxWidth: '380px',
           textAlign: 'center',
-          boxShadow: '0 0 80px rgba(201,168,76,1), 0 40px 80px rgba(0,0,0,0.9)',
+          boxShadow: '0 0 24px rgba(201,168,76,0.2), 0 40px 80px rgba(0,0,0,0.2)',
           animationFillMode: 'both',
           position: 'relative',
         }}
@@ -48,9 +48,9 @@ export default function MatchModal({ match, onClose }) {
             width: 56, height: 56, borderRadius: '50%', flexShrink: 0,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             background: 'rgba(245,240,232,0.6)',
-            boxShadow: '0 0 30px rgba(201,168,76,1)',
+            boxShadow: '0 0 20px rgba(201,168,76,0.3)',
             animation: 'pulseGold 2s ease-in-out infinite',
-            border: '1px solid rgba(201,168,76,1)',
+            border: '1px solid rgba(201,168,76,0.25)',
           }}>
             <XLogo size={48} />
           </div>
@@ -102,13 +102,13 @@ export default function MatchModal({ match, onClose }) {
             style={{
               width: '100%', padding: '14px', borderRadius: '14px',
               background: 'transparent',
-              border: '1px solid rgba(201,168,76,1)',
+              border: '1px solid rgba(201,168,76,0.25)',
               color: 'rgba(28,24,20,0.9)',
               fontSize: '12px', letterSpacing: '0.06em',
               cursor: 'pointer', transition: 'all 0.2s',
             }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.color = 'rgba(28,24,20,0.9)'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.color = 'rgba(28,24,20,0.9)'; }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.5)'; e.currentTarget.style.color = '#1C1814'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.25)'; e.currentTarget.style.color = 'rgba(28,24,20,0.9)'; }}
           >
             Continuer à explorer
           </button>
@@ -123,8 +123,8 @@ function Avatar({ profile }) {
     <div style={{
       width: 64, height: 64, borderRadius: '20px', flexShrink: 0,
       overflow: 'hidden',
-      border: '1px solid rgba(201,168,76,1)',
-      boxShadow: '0 0 20px rgba(201,168,76,1)',
+      border: '1px solid rgba(201,168,76,0.25)',
+      boxShadow: '0 0 16px rgba(201,168,76,0.25)',
     }}>
       {profile?.avatar_url ? (
         <img src={profile.avatar_url} alt={profile.couple_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />

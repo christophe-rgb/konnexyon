@@ -119,7 +119,7 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
       {isLiked && (
         <div className="absolute inset-0 rounded-[20px] pointer-events-none" style={{
           background: 'linear-gradient(135deg, rgba(201,168,76,0.1) 0%, transparent 60%)',
-          border: '1px solid rgba(201,168,76,1)',
+          border: '1px solid rgba(201,168,76,0.25)',
         }} />
       )}
 
@@ -127,7 +127,7 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
       {isLiked && (
         <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1.5 rounded-full" style={{
           background: 'linear-gradient(135deg, #A07830, #E8CC7A)',
-          boxShadow: '0 0 16px rgba(201,168,76,1)',
+          boxShadow: '0 0 12px rgba(201,168,76,0.2)',
         }}>
           <XLogo size={13} style={{ opacity: 1 }} />
           <span style={{ fontSize: '10px', color: '#050505', fontWeight: 700, letterSpacing: '0.08em' }}>
@@ -215,7 +215,7 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
                 letterSpacing: '0.06em',
                 color: 'rgba(201,168,76,1)',
                 background: 'rgba(201,168,76,0.1)',
-                border: '1px solid rgba(201,168,76,1)',
+                border: '1px solid rgba(201,168,76,0.25)',
                 borderRadius: '99px',
                 padding: '3px 10px',
               }}>

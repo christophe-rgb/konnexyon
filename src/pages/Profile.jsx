@@ -55,7 +55,7 @@ const LIMITS_OPTIONS = [
 const inputStyle = {
   width: '100%',
   background: 'rgba(245,240,232,0.85)',
-  border: '1px solid rgba(201,168,76,1)',
+  border: '1px solid rgba(201,168,76,0.25)',
   borderRadius: '14px',
   padding: '13px 16px',
   color: '#1C1814',
@@ -247,7 +247,7 @@ export default function Profile() {
 
   if (!profile) return (
     <div className="flex items-center justify-center h-dvh" role="status" aria-label="Chargement…">
-      <div style={{ width: 24, height: 24, border: '2px solid rgba(201,168,76,1)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite' }} />
+      <div style={{ width: 24, height: 24, border: '2px solid rgba(201,168,76,0.4)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite' }} />
     </div>
   )
 
@@ -390,13 +390,13 @@ export default function Profile() {
               style={{
                 flex: 1, padding: '13px', borderRadius: '14px',
                 background: 'rgba(245,240,232,0.85)',
-                border: '1px solid rgba(201,168,76,1)',
+                border: '1px solid rgba(201,168,76,0.25)',
                 color: 'rgba(201,168,76,1)',
                 fontSize: '13px', letterSpacing: '0.08em',
                 cursor: 'pointer', transition: 'all 0.2s',
               }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.color = '#C9A84C'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.color = 'rgba(201,168,76,1)'; }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.5)'; e.currentTarget.style.background = 'rgba(201,168,76,0.08)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.25)'; e.currentTarget.style.background = 'transparent'; }}
             >
               Modifier mon profil
             </button>
@@ -407,12 +407,12 @@ export default function Profile() {
                 width: 48, height: 48, borderRadius: '14px', flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 background: 'rgba(245,240,232,0.85)',
-                border: '1px solid rgba(201,168,76,1)',
+                border: '1px solid rgba(201,168,76,0.25)',
                 color: 'rgba(28,24,20,0.9)',
                 cursor: 'pointer', transition: 'all 0.2s',
               }}
-              onMouseEnter={e => { e.currentTarget.style.color = 'rgba(201,168,76,1)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; }}
-              onMouseLeave={e => { e.currentTarget.style.color = 'rgba(28,24,20,0.9)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; }}
+              onMouseEnter={e => { e.currentTarget.style.color = '#C9A84C'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.45)'; }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'rgba(28,24,20,0.9)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.25)'; }}
             >
               <Settings size={17} strokeWidth={1.5} />
             </button>
@@ -449,7 +449,7 @@ export default function Profile() {
                   <div style={{
                     textAlign: 'center', padding: '16px',
                     background: 'rgba(201,168,76,0.1)',
-                    border: '1px solid rgba(201,168,76,1)',
+                    border: '1px solid rgba(201,168,76,0.25)',
                     borderRadius: '16px',
                   }}>
                     <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.3rem', color: '#C9A84C', letterSpacing: '0.05em' }}>
@@ -495,12 +495,12 @@ export default function Profile() {
                       flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
                       padding: '12px', borderRadius: '12px',
                       background: 'transparent',
-                      border: '1px solid rgba(201,168,76,1)',
+                      border: '1px solid rgba(201,168,76,0.25)',
                       color: 'rgba(28,24,20,0.9)',
                       fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s',
                     }}
-                    onMouseEnter={e => { e.currentTarget.style.color = 'rgba(28,24,20,0.9)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.color = 'rgba(28,24,20,0.9)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; }}
+                    onMouseEnter={e => { e.currentTarget.style.color = '#1C1814'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.45)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.color = 'rgba(28,24,20,0.9)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.25)'; }}
                   >
                     <Flag size={13} strokeWidth={1.5} /> Signaler
                   </button>
@@ -538,7 +538,7 @@ export default function Profile() {
             onClick={e => e.stopPropagation()}
             style={{
               background: 'rgba(253,250,246,0.98)',
-              border: '1px solid rgba(201,168,76,1)',
+              border: '1px solid rgba(201,168,76,0.25)',
               borderRadius: '24px 24px 0 0',
               width: '100%', maxWidth: '480px',
               padding: '28px 24px 40px',
@@ -558,8 +558,8 @@ export default function Profile() {
                 resize: 'none',
                 marginBottom: '16px',
               }}
-              onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,1)'; }}
-              onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = 'none'; }}
+              onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,0.6)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,0.12)'; }}
+              onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,0.25)'; e.target.style.boxShadow = 'none'; }}
             />
             <div className="flex gap-3">
               <button className="erb-btn"
@@ -567,7 +567,7 @@ export default function Profile() {
                 style={{
                   flex: 1, padding: '14px', borderRadius: '12px',
                   background: 'transparent',
-                  border: '1px solid rgba(201,168,76,1)',
+                  border: '1px solid rgba(201,168,76,0.25)',
                   color: 'rgba(28,24,20,0.9)',
                   fontSize: '13px', cursor: 'pointer',
                 }}
@@ -612,7 +612,7 @@ function TagList({ items, map, gold = false }) {
           fontSize: '12px',
           padding: '5px 13px',
           borderRadius: '99px',
-          border: gold ? '1px solid rgba(201,168,76,1)' : '1px solid rgba(28,24,20,0.2)',
+          border: gold ? '1px solid rgba(201,168,76,0.25)' : '1px solid rgba(28,24,20,0.2)',
           color: gold ? 'rgba(201,168,76,1)' : 'rgba(28,24,20,0.9)',
           background: gold ? 'rgba(201,168,76,0.28)' : 'rgba(28,24,20,0.07)',
           letterSpacing: '0.04em',
@@ -637,8 +637,8 @@ function EditForm({ form, setForm, onSave, onCancel, saving }) {
           onChange={e => set('couple_name', e.target.value)}
           maxLength={50}
           style={inputStyle}
-          onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,1)'; }}
-          onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = 'none'; }}
+          onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,0.6)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,0.12)'; }}
+          onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,0.25)'; e.target.style.boxShadow = 'none'; }}
         />
       </div>
       <div>
@@ -651,8 +651,8 @@ function EditForm({ form, setForm, onSave, onCancel, saving }) {
           maxLength={300}
           rows={4}
           style={{ ...inputStyle, resize: 'none' }}
-          onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,1)'; }}
-          onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = 'none'; }}
+          onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,0.6)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,0.12)'; }}
+          onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,0.25)'; e.target.style.boxShadow = 'none'; }}
         />
       </div>
       {/* Orientation */}
@@ -677,7 +677,7 @@ function EditForm({ form, setForm, onSave, onCancel, saving }) {
                   style={{
                     flex: 1, padding: '10px 8px', borderRadius: '10px', cursor: 'pointer',
                     fontSize: '12px', letterSpacing: '0.06em', transition: 'all 0.2s',
-                    border: form[key] === o.value ? '1px solid rgba(201,168,76,1)' : '1px solid rgba(201,168,76,1)',
+                    border: form[key] === o.value ? '1px solid rgba(201,168,76,0.25)' : '1px solid rgba(201,168,76,0.25)',
                     background: form[key] === o.value ? 'rgba(201,168,76,0.28)' : 'transparent',
                     color: form[key] === o.value ? '#C9A84C' : 'rgba(28,24,20,0.8)',
                   }}
@@ -703,7 +703,7 @@ function EditForm({ form, setForm, onSave, onCancel, saving }) {
                 onClick={() => set('seeking', active ? form.seeking.filter(x => x !== o.value) : [...(form.seeking || []), o.value])}
                 style={{
                   textAlign: 'left', padding: '12px 14px', borderRadius: '12px', cursor: 'pointer',
-                  border: `1px solid ${active ? 'rgba(201,168,76,1)' : 'rgba(201,168,76,1)'}`,
+                  border: `1px solid ${active ? 'rgba(201,168,76,0.5)' : 'rgba(201,168,76,0.15)'}`,
                   background: active ? 'rgba(201,168,76,0.28)' : 'transparent',
                   color: active ? '#C9A84C' : 'rgba(28,24,20,0.8)',
                   fontSize: '13px', transition: 'all 0.2s',
@@ -727,7 +727,7 @@ function EditForm({ form, setForm, onSave, onCancel, saving }) {
                 onClick={() => set('availabilities', active ? form.availabilities.filter(x => x !== o.value) : [...(form.availabilities || []), o.value])}
                 style={{
                   padding: '9px 14px', borderRadius: '99px', cursor: 'pointer',
-                  border: `1px solid ${active ? 'rgba(201,168,76,1)' : 'rgba(201,168,76,1)'}`,
+                  border: `1px solid ${active ? 'rgba(201,168,76,0.5)' : 'rgba(201,168,76,0.15)'}`,
                   background: active ? 'rgba(201,168,76,0.28)' : 'transparent',
                   color: active ? '#C9A84C' : 'rgba(28,24,20,0.8)',
                   fontSize: '12px', transition: 'all 0.2s',
@@ -751,7 +751,7 @@ function EditForm({ form, setForm, onSave, onCancel, saving }) {
                 onClick={() => set('limits', active ? form.limits.filter(x => x !== o.value) : [...(form.limits || []), o.value])}
                 style={{
                   textAlign: 'left', padding: '12px 14px', borderRadius: '12px', cursor: 'pointer',
-                  border: `1px solid ${active ? 'rgba(201,168,76,1)' : 'rgba(201,168,76,1)'}`,
+                  border: `1px solid ${active ? 'rgba(201,168,76,0.5)' : 'rgba(201,168,76,0.15)'}`,
                   background: active ? 'rgba(201,168,76,0.28)' : 'transparent',
                   color: active ? 'rgba(201,168,76,1)' : 'rgba(28,24,20,0.8)',
                   fontSize: '13px', transition: 'all 0.2s',

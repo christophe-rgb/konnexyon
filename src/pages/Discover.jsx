@@ -194,8 +194,8 @@ export default function Discover() {
               border: '1px solid rgba(201,168,76,0.25)',
               color: 'rgba(201,168,76,1)',
             }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.5)'; e.currentTarget.style.color = '#C9A84C'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.5)'; e.currentTarget.style.color = 'rgba(201,168,76,1)'; }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.5)'; e.currentTarget.style.color = '#C9A84C'; e.currentTarget.style.background = 'rgba(201,168,76,0.08)'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.25)'; e.currentTarget.style.color = 'rgba(201,168,76,0.8)'; e.currentTarget.style.background = 'rgba(237,231,219,0.9)'; }}
           >
             <SlidersHorizontal size={14} strokeWidth={1.5} />
             Filtres

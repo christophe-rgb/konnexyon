@@ -34,7 +34,7 @@ export function ToastContainer() {
             'animate-[slideDown_0.2s_ease-out]',
             t.type === 'error'
               ? 'bg-surface border-red-900/40 text-red-300'
-              : 'bg-surface border-[rgba(201,168,76,1)] text-text'
+              : 'bg-surface border-[rgba(201,168,76,0.25)] text-text'
           )}
         >
           {t.type === 'error'

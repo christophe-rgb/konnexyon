@@ -18,7 +18,7 @@ export default function UpgradeModal({ onClose, message }) {
         style={{
           width: '100%', maxWidth: 480,
           background: 'linear-gradient(180deg, #FDFAF6 0%, #F5F0E8 100%)',
-          border: '1px solid rgba(201,168,76,1)',
+          border: '1px solid rgba(201,168,76,0.2)',
           borderTopLeftRadius: 28, borderTopRightRadius: 28,
           padding: '28px 24px 36px',
           animation: 'slideUp 0.3s cubic-bezier(0.25,0.46,0.45,0.94)',
@@ -32,7 +32,7 @@ export default function UpgradeModal({ onClose, message }) {
           width: 56, height: 56, borderRadius: '50%', margin: '0 auto 18px',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           background: 'radial-gradient(circle, rgba(201,168,76,0.1), rgba(201,168,76,0.1))',
-          border: '1px solid rgba(201,168,76,1)',
+          border: '1px solid rgba(201,168,76,0.2)',
         }}>
           <span style={{ fontSize: 24 }}>∞</span>
         </div>

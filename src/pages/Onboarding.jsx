@@ -200,7 +200,7 @@ export default function Onboarding() {
                     : i === step
                     ? 'linear-gradient(90deg, #C9A84C, #E8CC7A)'
                     : 'rgba(28,24,20,0.9)',
-                  boxShadow: i <= step ? '0 0 8px rgba(201,168,76,1)' : 'none',
+                  boxShadow: i <= step ? '0 0 6px rgba(201,168,76,0.2)' : 'none',
                 }}
               />
             ))}
@@ -272,13 +272,13 @@ export default function Onboarding() {
               style={{
                 flex: 1, padding: '15px', borderRadius: '14px', cursor: 'pointer',
                 background: 'transparent',
-                border: '1px solid rgba(201,168,76,1)',
+                border: '1px solid rgba(201,168,76,0.25)',
                 color: 'rgba(201,168,76,1)',
                 fontSize: '13px', letterSpacing: '0.08em',
                 transition: 'all 0.2s',
               }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.color = '#C9A84C'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.color = 'rgba(201,168,76,1)'; }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.5)'; e.currentTarget.style.background = 'rgba(201,168,76,0.06)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.25)'; e.currentTarget.style.background = 'transparent'; }}
             >
               ← Retour
             </button>
@@ -396,7 +396,7 @@ function StepMulti({ title, subtitle, options, field, data, toggle }) {
               style={{
                 textAlign: 'left', padding: '14px 16px',
                 borderRadius: '14px',
-                border: `1px solid ${active ? 'rgba(201,168,76,1)' : 'rgba(201,168,76,1)'}`,
+                border: `1px solid ${active ? 'rgba(201,168,76,0.5)' : 'rgba(201,168,76,0.15)'}`,
                 background: active ? 'rgba(201,168,76,0.1)' : 'rgba(245,240,232,0.6)',
                 color: active ? '#C9A84C' : 'rgba(28,24,20,0.9)',
                 fontSize: '14px', cursor: 'pointer',
@@ -436,7 +436,7 @@ function StepDistance({ data, set }) {
             onClick={() => set('max_distance_km', o.value)}
             style={{
               textAlign: 'left', padding: '14px 16px', borderRadius: '14px',
-              border: `1px solid ${data.max_distance_km === o.value ? 'rgba(201,168,76,1)' : 'rgba(201,168,76,1)'}`,
+              border: `1px solid ${data.max_distance_km === o.value ? 'rgba(201,168,76,0.5)' : 'rgba(201,168,76,0.15)'}`,
               background: data.max_distance_km === o.value ? 'rgba(201,168,76,0.1)' : 'rgba(245,240,232,0.6)',
               cursor: 'pointer', transition: 'all 0.2s', backdropFilter: 'blur(8px)',
             }}
@@ -472,7 +472,7 @@ function StepVisibility({ data, set }) {
             onClick={() => set('visibility', o.value)}
             style={{
               textAlign: 'left', padding: '16px', borderRadius: '14px',
-              border: `1px solid ${data.visibility === o.value ? 'rgba(201,168,76,1)' : 'rgba(201,168,76,1)'}`,
+              border: `1px solid ${data.visibility === o.value ? 'rgba(201,168,76,0.5)' : 'rgba(201,168,76,0.15)'}`,
               background: data.visibility === o.value ? 'rgba(201,168,76,0.1)' : 'rgba(245,240,232,0.6)',
               cursor: 'pointer', transition: 'all 0.2s', backdropFilter: 'blur(8px)',
             }}
@@ -491,7 +491,7 @@ function StepVisibility({ data, set }) {
 const inputStyle = {
   width: '100%',
   background: 'rgba(245,240,232,0.85)',
-  border: '1px solid rgba(201,168,76,1)',
+  border: '1px solid rgba(201,168,76,0.25)',
   borderRadius: '14px',
   padding: '14px 18px',
   color: '#1C1814',
@@ -501,8 +501,8 @@ const inputStyle = {
   backdropFilter: 'blur(12px)',
   fontFamily: 'Inter, sans-serif',
 }
-const onFocus = e => { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,1)'; }
-const onBlur  = e => { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = 'none'; }
+const onFocus = e => { e.target.style.borderColor = 'rgba(201,168,76,0.6)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,0.12)'; }
+const onBlur  = e => { e.target.style.borderColor = 'rgba(201,168,76,0.25)'; e.target.style.boxShadow = 'none'; }
 
 function OField({ label, children }) {
   return (
@@ -552,7 +552,7 @@ function StepPhoto({ photoPreview, onFile, fileRef }) {
           onClick={() => fileRef.current?.click()}
           style={{
             padding: '12px', borderRadius: '14px', cursor: 'pointer',
-            background: 'transparent', border: '1px solid rgba(201,168,76,1)',
+            background: 'transparent', border: '1px solid rgba(201,168,76,0.25)',
             color: 'rgba(201,168,76,1)', fontSize: '13px',
           }}
         >
@@ -577,7 +577,7 @@ function OButton({ active, onClick, children }) {
       onClick={onClick}
       style={{
         textAlign: 'left', padding: '12px 16px', borderRadius: '12px',
-        border: `1px solid ${active ? 'rgba(201,168,76,1)' : 'rgba(201,168,76,1)'}`,
+        border: `1px solid ${active ? 'rgba(201,168,76,0.5)' : 'rgba(201,168,76,0.15)'}`,
         background: active ? 'rgba(201,168,76,0.1)' : 'transparent',
         color: active ? '#C9A84C' : 'rgba(28,24,20,0.9)',
         fontSize: '14px', cursor: 'pointer',
