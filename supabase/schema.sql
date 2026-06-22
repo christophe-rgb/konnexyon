@@ -373,7 +373,32 @@ create policy "profiles_insert" on public.profiles
   for insert with check (id = auth.uid());
 
 create policy "profiles_update" on public.profiles
-  for update using (id = auth.uid());
+  for update using (id = auth.uid()) with check (id = auth.uid());
+
+-- Verrou des colonnes monétisées / statut : seul service_role peut les changer.
+-- (une policy RLS ne peut pas comparer NEW vs OLD → trigger BEFORE UPDATE)
+create or replace function public.lock_sensitive_profile_columns()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if auth.role() = 'service_role' then
+    return new;
+  end if;
+  new.plan            := old.plan;
+  new.plan_expires_at := old.plan_expires_at;
+  new.status          := old.status;
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_lock_sensitive_profile_columns on public.profiles;
+create trigger trg_lock_sensitive_profile_columns
+  before update on public.profiles
+  for each row
+  execute function public.lock_sensitive_profile_columns();
 
 -- ── LIKES ─────────────────────────────────────────────────────
 

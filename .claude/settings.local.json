@@ -82,7 +82,10 @@
       "mcp__visualize__read_me",
       "mcp__visualize__show_widget",
       "Bash(ls /Users/parrachristophe/Desktop/tueur-abonnements/.claude/ 2>/dev/null || mkdir -p /Users/parrachristophe/Desktop/tueur-abonnements/.claude)",
-      "Bash(mkdir -p ~/Desktop/konnexyon-kill/.claude)"
+      "Bash(mkdir -p ~/Desktop/konnexyon-kill/.claude)",
+      "Bash(sed -i '' 's/topMargin=22\\\\*mm TOUJOURS/topMargin=26*mm TOUJOURS/g; s/topMargin=22\\\\*mm,    # ← TOUJOURS/topMargin=26*mm,    # ← TOUJOURS/g' ~/.claude/agents/admin-konnexyon.md)",
+      "Bash(sed -i '' 's/topMargin=22\\\\*mm TOUJOURS\\\\|topMargin=26\\\\*mm TOUJOURS/topMargin=32*mm TOUJOURS/g' ~/.claude/agents/admin-konnexyon.md)",
+      "Bash(sed -i '' 's/topMargin=26\\\\*mm,    # ← TOUJOURS/topMargin=32*mm,    # ← TOUJOURS/g' ~/.claude/agents/admin-konnexyon.md)"
     ]
   }
 }

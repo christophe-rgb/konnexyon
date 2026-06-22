@@ -71,7 +71,17 @@ export default function Messages() {
     setLoading(false)
   }
 
-  // accès libre temporairement
+  // Paywall : la messagerie est réservée aux abonnés Premium (sauf mode démo)
+  if (!demoMode && !premium) {
+    return (
+      <div className="max-w-lg mx-auto pb-nav">
+        <UpgradeModal
+          message="La messagerie est réservée aux membres Premium. Passez Premium pour échanger avec vos connexions."
+          onClose={() => navigate('/discover')}
+        />
+      </div>
+    )
+  }
 
   return (
     <div className="max-w-lg mx-auto pb-nav">

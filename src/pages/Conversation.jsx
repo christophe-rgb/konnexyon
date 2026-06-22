@@ -6,6 +6,7 @@ import { DEMO_MATCHES, DEMO_MESSAGES } from '../lib/demo'
 import ChatBubble from '../components/ChatBubble'
 import EmojiPicker from '../components/EmojiPicker'
 import { toast } from '../components/Toast'
+import { validateImageFile } from '../lib/upload'
 import { ArrowLeft, Send, Image, Trash2 } from 'lucide-react'
 
 export default function Conversation() {
@@ -133,6 +134,8 @@ export default function Conversation() {
   }
 
   const sendPhoto = async (file) => {
+    const check = validateImageFile(file)
+    if (!check.ok) { toast(check.error, 'error'); return }
     setUploading(true)
     const ext  = file.name.split('.').pop()
     const path = `${matchId}/${Date.now()}.${ext}`

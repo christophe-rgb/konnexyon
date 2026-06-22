@@ -2,6 +2,20 @@ import { useEffect, useRef } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
+// Échappe le texte injecté dans le HTML des marqueurs (anti-XSS)
+function escapeHtml(str) {
+  return String(str ?? '').replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[c]))
+}
+
+// Encode une URL pour un attribut HTML : on bloque tout schéma non http(s)
+function safeUrl(url) {
+  const s = String(url ?? '').trim()
+  if (!/^https?:\/\//i.test(s)) return ''
+  return escapeHtml(s)
+}
+
 export default function MapView({ profiles, onSelect, myProfile }) {
   const containerRef = useRef(null)
   const mapRef       = useRef(null)
@@ -58,9 +72,10 @@ export default function MapView({ profiles, onSelect, myProfile }) {
     const valid = profiles.filter(p => p.lng != null && p.lat != null)
 
     valid.forEach(p => {
-      const initial = p.couple_name?.[0] || '?'
-      const inner = p.avatar_url
-        ? `<img src="${p.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
+      const initial = escapeHtml(p.couple_name?.[0] || '?')
+      const safeAvatar = safeUrl(p.avatar_url)
+      const inner = safeAvatar
+        ? `<img src="${safeAvatar}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
         : `<span style="font-family:Cormorant,serif;font-weight:700;font-size:13px;color:#0D0D0D;">${initial}</span>`
       const icon = L.divIcon({
         className: '',

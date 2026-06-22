@@ -2,6 +2,8 @@ import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
+import { validateImageFile } from '../lib/upload'
+import { toast } from '../components/Toast'
 
 const STEPS = [
   { key: 'profil',         label: 'Votre couple',      icon: '∞' },
@@ -146,10 +148,10 @@ export default function Onboarding() {
     // Refresh en arrière-plan pour synchroniser les données Supabase
     fetchProfile(uid)
     const { data: updatedProfile } = await supabase
-      .from('profiles').select('email_2').eq('id', user.id).single()
+      .from('profiles').select('email_2').eq('id', uid).single()
     if (updatedProfile?.email_2) {
       supabase.functions.invoke('send-partner-confirmation', {
-        body: { profile_id: user.id, email_2: updatedProfile.email_2, app_url: window.location.origin },
+        body: { profile_id: uid, email_2: updatedProfile.email_2, app_url: window.location.origin },
       }).catch(() => {})
     }
     navigate('/discover?view=map')
@@ -220,6 +222,8 @@ export default function Onboarding() {
             <StepPhoto
               photoPreview={photoPreview}
               onFile={file => {
+                const check = validateImageFile(file)
+                if (!check.ok) { toast(check.error, 'error'); return }
                 setPhotoFile(file)
                 setPhotoPreview(URL.createObjectURL(file))
               }}
