@@ -68,7 +68,45 @@ export default function Messages() {
     }
 
     load()
-    return () => { isMounted = false }
+
+    // Realtime : écoute les nouveaux messages sur tous les threads de ce profil.
+    // RLS garantit que Supabase ne pousse que les messages auxquels l'utilisateur
+    // a accès — pas besoin de filtre côté channel.
+    const channel = supabase
+      .channel(`messages-list-${profile.id}`)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'messages' },
+        async (payload) => {
+          if (!isMounted) return
+          const { match_id, content, photo_url, created_at, sender_id } = payload.new
+
+          setThreads(prev => {
+            const idx = prev.findIndex(t => t.matchId === match_id)
+            if (idx === -1) {
+              // Thread inconnu (nouvelle connexion ayant généré un 1er message) :
+              // on recharge toute la liste depuis la DB.
+              load()
+              return prev
+            }
+            const updated = [...prev]
+            updated[idx] = {
+              ...updated[idx],
+              lastMessage: { content, photo_url, created_at, sender_id, read_at: null },
+              unread: sender_id !== profile.id,
+            }
+            // Remettre en tête de liste
+            const [thread] = updated.splice(idx, 1)
+            return [thread, ...updated]
+          })
+        }
+      )
+      .subscribe()
+
+    return () => {
+      isMounted = false
+      supabase.removeChannel(channel)
+    }
   }, [profile])
 
   // Paywall : la messagerie est réservée aux abonnés Premium (sauf mode démo)
