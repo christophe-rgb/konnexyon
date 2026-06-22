@@ -74,10 +74,10 @@ export default function Navbar() {
           background: 'rgba(253,250,246,0.94)',
           backdropFilter: 'blur(28px)',
           WebkitBackdropFilter: 'blur(28px)',
-          border: '1px solid rgba(201,168,76,1)',
+          border: '1px solid rgba(201,168,76,0.2)',
           borderRadius: '999px',
           padding: '6px',
-          boxShadow: '0 8px 40px rgba(0,0,0,0.85), 0 0 0 1px rgba(201,168,76,1), inset 0 1px 0 rgba(201,168,76,1)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 0 0 1px rgba(201,168,76,0.1), inset 0 1px 0 rgba(201,168,76,0.15)',
         }}
       >
         {tabs.map(({ to, icon: Icon, label, match }) => {

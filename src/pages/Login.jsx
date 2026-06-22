@@ -47,8 +47,8 @@ export default function Login() {
             style={{
               width: '130vw',
               maxWidth: '860px',
-              opacity: 0.55,
-              filter: 'brightness(0.85) saturate(0.9)',
+              opacity: 0.12,
+              filter: 'brightness(1.1) saturate(0.7)',
               userSelect: 'none',
               display: 'block',
             }}
@@ -129,7 +129,7 @@ export default function Login() {
               className="input-gold"
               style={{
                 background: 'rgba(245,240,232,0.85)',
-                border: '1px solid rgba(201,168,76,1)',
+                border: '1px solid rgba(201,168,76,0.25)',
                 borderRadius: '14px',
                 padding: '15px 18px',
                 color: '#1C1814',
@@ -138,8 +138,8 @@ export default function Login() {
                 transition: 'border-color 0.2s, box-shadow 0.2s',
                 backdropFilter: 'blur(12px)',
               }}
-              onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,1)'; }}
-              onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = 'none'; }}
+              onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,0.7)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,0.12)'; }}
+              onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,0.25)'; e.target.style.boxShadow = 'none'; }}
             />
           </div>
 
@@ -160,10 +160,11 @@ export default function Login() {
                 id="password" type={showPwd ? 'text' : 'password'} required autoComplete="off"
                 value={password} onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
+                autoComplete="current-password"
                 style={{
                   width: '100%',
                   background: 'rgba(245,240,232,0.85)',
-                  border: '1px solid rgba(201,168,76,1)',
+                  border: '1px solid rgba(201,168,76,0.25)',
                   borderRadius: '14px',
                   padding: '15px 48px 15px 18px',
                   color: '#1C1814',
@@ -172,8 +173,8 @@ export default function Login() {
                   transition: 'border-color 0.2s, box-shadow 0.2s',
                   backdropFilter: 'blur(12px)',
                 }}
-                onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,1)'; }}
-                onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = 'none'; }}
+                onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,0.7)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,0.12)'; }}
+                onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,0.25)'; e.target.style.boxShadow = 'none'; }}
               />
               <button className="erb-btn"
                 type="button"

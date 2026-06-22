@@ -23,9 +23,9 @@ export default function Home() {
       {/* header */}
       <header style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        background: 'rgba(253,250,246,0.9)',
+        background: 'rgba(253,250,246,0.92)',
         backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(201,168,76,1)',
+        borderBottom: '1px solid rgba(201,168,76,0.2)',
         padding: '14px 24px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
@@ -45,22 +45,23 @@ export default function Home() {
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
           }}>Konnexyon</span>
         </div>
-        <div style={{ display: 'flex', gap: 10 }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <Link to="/blog" style={{
-            padding: '8px 18px', borderRadius: 10,
-            border: '1px solid rgba(201,168,76,1)',
-            color: 'rgba(201,168,76,1)', fontSize: 13,
-            textDecoration: 'none', letterSpacing: '0.06em',
-          }}>Guide</Link>
+            padding: '7px 14px', borderRadius: 10,
+            border: '1px solid rgba(201,168,76,0.3)',
+            color: 'rgba(201,168,76,0.85)', fontSize: 12,
+            textDecoration: 'none', letterSpacing: '0.04em',
+            display: 'none',
+          }} className="sm:block">Guide</Link>
           <Link to="/login" style={{
-            padding: '8px 18px', borderRadius: 10,
-            border: '1px solid rgba(201,168,76,1)',
-            color: 'rgba(201,168,76,1)', fontSize: 13,
-            textDecoration: 'none', letterSpacing: '0.06em',
+            padding: '7px 14px', borderRadius: 10,
+            border: '1px solid rgba(201,168,76,0.3)',
+            color: 'rgba(201,168,76,0.85)', fontSize: 12,
+            textDecoration: 'none', letterSpacing: '0.04em',
           }}>Se connecter</Link>
           <Link to="/register" className="btn-gold" style={{
-            padding: '8px 18px', borderRadius: 10,
-            fontSize: 13, letterSpacing: '0.06em', textDecoration: 'none',
+            padding: '7px 14px', borderRadius: 10,
+            fontSize: 12, letterSpacing: '0.06em', textDecoration: 'none',
           }}>Créer un compte</Link>
         </div>
       </header>
@@ -110,7 +111,7 @@ export default function Home() {
             Rencontrez, échangez et connectez en toute discrétion.
           </p>
 
-          <div className="animate-fade-in-up" style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', animationDelay: '0.3s', animationFillMode: 'both', marginTop: 120 }}>
+          <div className="animate-fade-in-up" style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', animationDelay: '0.3s', animationFillMode: 'both', marginTop: 24 }}>
             <Link to="/register" className="btn-gold" style={{
               padding: '17px 48px', borderRadius: 14, fontSize: 14,
               letterSpacing: '0.14em', textDecoration: 'none', display: 'inline-block',
@@ -161,8 +162,8 @@ export default function Home() {
         <div style={{
           maxWidth: 480, margin: '0 auto',
           padding: '40px 32px', borderRadius: 24,
-          background: 'linear-gradient(145deg, rgba(201,168,76,0.1), rgba(201,168,76,0.1))',
-          border: '1px solid rgba(201,168,76,1)',
+          background: 'linear-gradient(145deg, rgba(201,168,76,0.06), rgba(201,168,76,0.04))',
+          border: '1px solid rgba(201,168,76,0.25)',
         }}>
           <XLogo size={40} style={{ margin: '0 auto 20px' }} />
           <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '2rem', fontWeight: 600, color: '#1C1814', marginBottom: 12 }}>
@@ -185,7 +186,7 @@ export default function Home() {
 
       {/* footer */}
       <footer style={{
-        borderTop: '1px solid rgba(201,168,76,1)',
+        borderTop: '1px solid rgba(201,168,76,0.15)',
         padding: '24px',
         display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 12,
       }}>

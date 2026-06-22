@@ -54,8 +54,8 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
         aspectRatio: '3/4',
         borderRadius: '20px',
         boxShadow: hovered
-          ? '0 20px 60px rgba(0,0,0,0.85), 0 0 0 1px rgba(201,168,76,1)'
-          : '0 8px 32px rgba(0,0,0,0.7), 0 0 0 1px rgba(201,168,76,1)',
+          ? '0 20px 60px rgba(0,0,0,0.35), 0 0 0 1px rgba(201,168,76,0.4)'
+          : '0 4px 20px rgba(0,0,0,0.15), 0 0 0 1px rgba(201,168,76,0.15)',
         transition: 'box-shadow 0.35s, transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94)',
         transform: hovered ? 'translateY(-4px) scale(1.01)' : 'translateY(0) scale(1)',
         animationDelay: `${index * 80}ms`,
@@ -111,7 +111,7 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
 
       {/* ── bordure or au hover ── */}
       <div className="absolute inset-0 rounded-[20px] pointer-events-none" style={{
-        border: `1px solid ${hovered ? 'rgba(201,168,76,1)' : 'rgba(201,168,76,1)'}`,
+        border: `1px solid ${hovered ? 'rgba(201,168,76,0.5)' : 'rgba(201,168,76,0.15)'}`,
         transition: 'border-color 0.35s',
       }} />
 

@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, lazy, Suspense } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { SlidersHorizontal, Compass, Zap } from 'lucide-react'
+import { SlidersHorizontal, Compass, Zap, Layers2, LayoutGrid, Map } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
 import { isPremium } from '../lib/plan'
@@ -108,7 +108,7 @@ export default function Discover() {
           background: 'rgba(253,250,246,0.96)',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
-          borderBottom: '1px solid rgba(201,168,76,1)',
+          borderBottom: '1px solid rgba(201,168,76,0.15)',
           animationFillMode: 'both',
         }}
       >
@@ -118,8 +118,8 @@ export default function Discover() {
             width: 30, height: 30, borderRadius: '9px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             background: 'radial-gradient(circle, rgba(201,168,76,0.1), rgba(201,168,76,0.1))',
-            border: '1px solid rgba(201,168,76,1)',
-            boxShadow: '0 0 16px rgba(201,168,76,1)',
+            border: '1px solid rgba(201,168,76,0.3)',
+            boxShadow: '0 0 12px rgba(201,168,76,0.25)',
           }}>
             <span style={{
               fontSize: '15px',
@@ -149,21 +149,21 @@ export default function Discover() {
           onClick={() => navigate('/profile')}
           className="erb-btn flex items-center gap-2"
           style={{
-            background: 'rgba(201,168,76,0.1)',
-            border: '1px solid rgba(201,168,76,1)',
+            background: 'rgba(201,168,76,0.06)',
+            border: '1px solid rgba(201,168,76,0.25)',
             borderRadius: '999px',
             padding: '5px 12px 5px 6px',
             cursor: 'pointer',
             transition: 'all 0.2s',
           }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.background = 'rgba(201,168,76,0.15)'; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.background = 'rgba(201,168,76,0.06)'; }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.5)'; e.currentTarget.style.background = 'rgba(201,168,76,0.15)'; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.5)'; e.currentTarget.style.background = 'rgba(201,168,76,0.06)'; }}
         >
           {/* mini avatar */}
           <div style={{
             width: 26, height: 26, borderRadius: '50%', flexShrink: 0,
             overflow: 'hidden',
-            border: '1px solid rgba(201,168,76,1)',
+            border: '1px solid rgba(201,168,76,0.25)',
             background: '#F0EBE2',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
@@ -191,39 +191,37 @@ export default function Discover() {
             className="erb-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 cursor-pointer"
             style={{
               background: 'rgba(237,231,219,0.9)',
-              border: '1px solid rgba(201,168,76,1)',
+              border: '1px solid rgba(201,168,76,0.25)',
               color: 'rgba(201,168,76,1)',
             }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.color = '#C9A84C'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,1)'; e.currentTarget.style.color = 'rgba(201,168,76,1)'; }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.5)'; e.currentTarget.style.color = '#C9A84C'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.5)'; e.currentTarget.style.color = 'rgba(201,168,76,1)'; }}
           >
             <SlidersHorizontal size={14} strokeWidth={1.5} />
             Filtres
           </button>
 
           {/* toggle swipe/grille/carte */}
-          <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid rgba(201,168,76,0.1)', background: 'rgba(237,231,219,0.9)' }}>
+          <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid rgba(201,168,76,0.15)', background: 'rgba(237,231,219,0.9)' }}>
             {[
-              { id: 'swipe', label: '⟺', aria: 'Mode swipe' },
-              { id: 'list',  label: '⊞', aria: 'Vue grille' },
-              { id: 'map',   label: '◎', aria: 'Vue carte'  },
-            ].map(({ id, label, aria }) => (
+              { id: 'swipe', Icon: Layers2,    aria: 'Mode swipe' },
+              { id: 'list',  Icon: LayoutGrid, aria: 'Vue grille' },
+              { id: 'map',   Icon: Map,        aria: 'Vue carte'  },
+            ].map(({ id, Icon, aria }) => (
               <button
                 key={id}
                 onClick={() => setView(id)}
                 aria-pressed={view === id}
                 aria-label={aria}
-                className="erb-btn px-3 py-1.5 text-sm transition-all duration-200 cursor-pointer"
+                className="erb-btn px-3 py-2 transition-all duration-200 cursor-pointer"
                 style={{
                   background: view === id
                     ? 'linear-gradient(135deg, #A07830, #C9A84C, #E8CC7A)'
                     : 'transparent',
-                  color: view === id ? '#050505' : 'rgba(201,168,76,1)',
-                  fontWeight: view === id ? 700 : 400,
-                  fontSize: '13px',
+                  color: view === id ? '#050505' : 'rgba(28,24,20,0.6)',
                 }}
               >
-                {label}
+                <Icon size={15} strokeWidth={view === id ? 2 : 1.5} />
               </button>
             ))}
           </div>
@@ -316,7 +314,7 @@ function EmptyState() {
         width: 72, height: 72, borderRadius: '50%',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         background: 'radial-gradient(circle, rgba(201,168,76,0.1), transparent)',
-        border: '1px solid rgba(201,168,76,1)',
+        border: '1px solid rgba(201,168,76,0.25)',
       }}>
         <Compass size={28} strokeWidth={1} style={{ color: 'rgba(201,168,76,1)' }} />
       </div>

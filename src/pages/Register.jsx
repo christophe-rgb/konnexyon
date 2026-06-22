@@ -131,7 +131,7 @@ export default function Register() {
                 <span style={{ display: 'inline-block', width: 14, height: 14, border: '2px solid rgba(0,0,0,0.25)', borderTopColor: '#050505', borderRadius: '50%', animation: 'rotateX 0.7s linear infinite' }} />
                 Création de la connexion…
               </span>
-            ) : 'Me connecter'}
+            ) : 'Créer ma connexion'}
           </button>
         </form>
 
@@ -161,7 +161,7 @@ function Field({ label, id, type, value, onChange, placeholder, autoComplete, de
         style={{
           width: '100%',
           background: 'rgba(245,240,232,0.85)',
-          border: '1px solid rgba(201,168,76,1)',
+          border: '1px solid rgba(201,168,76,0.25)',
           borderRadius: '14px',
           padding: '14px 18px',
           color: '#1C1814',
@@ -170,8 +170,8 @@ function Field({ label, id, type, value, onChange, placeholder, autoComplete, de
           transition: 'border-color 0.2s, box-shadow 0.2s',
           backdropFilter: 'blur(12px)',
         }}
-        onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,1)'; }}
-        onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,1)'; e.target.style.boxShadow = 'none'; }}
+        onFocus={e => { e.target.style.borderColor = 'rgba(201,168,76,0.7)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,0.12)'; }}
+        onBlur={e =>  { e.target.style.borderColor = 'rgba(201,168,76,0.25)'; e.target.style.boxShadow = 'none'; }}
       />
     </div>
   )
