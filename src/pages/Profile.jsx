@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
@@ -88,6 +88,15 @@ export default function Profile() {
   const [reportReason, setReportReason] = useState('')
   const fileRef = useRef(null)
 
+  const checkMatch = useCallback(async () => {
+    if (!myProfile?.id || !uid) return
+    const a = myProfile.id < uid ? myProfile.id : uid
+    const b = myProfile.id < uid ? uid : myProfile.id
+    const { data } = await supabase.from('matches')
+      .select('id').eq('couple_a', a).eq('couple_b', b).single()
+    setMatched(!!data)
+  }, [myProfile?.id, uid])
+
   useEffect(() => {
     if (!uid) return
     if (isOwn) {
@@ -116,13 +125,6 @@ export default function Profile() {
           .select('id').eq('from_id', myProfile.id).eq('to_id', uid).single()
         if (isMounted) setLiked(!!data)
       }
-      const checkMatch = async () => {
-        const a = myProfile.id < uid ? myProfile.id : uid
-        const b = myProfile.id < uid ? uid : myProfile.id
-        const { data } = await supabase.from('matches')
-          .select('id').eq('couple_a', a).eq('couple_b', b).single()
-        if (isMounted) setMatched(!!data)
-      }
 
       loadOtherProfile()
       checkLike()
@@ -130,7 +132,7 @@ export default function Profile() {
 
       return () => { isMounted = false }
     }
-  }, [uid, myProfile])
+  }, [uid, myProfile, checkMatch])
 
   const handleConnect = async () => {
     if (liking) return

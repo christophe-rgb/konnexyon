@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import XLogo from './XLogo'
 import { Compass, Unlink } from 'lucide-react'
 
@@ -8,9 +8,11 @@ export default function SwipeStack({ profiles, onLike, onPass }) {
   const [index,  setIndex]  = useState(0)
   const [drag,   setDrag]   = useState({ x: 0, y: 0 })
   const [flying, setFlying] = useState(null) // 'left' | 'right' | null
-  const activeRef  = useRef(false)
-  const startRef   = useRef({ x: 0, y: 0 })
-  const indexRef   = useRef(0)
+  const activeRef   = useRef(false)
+  const startRef    = useRef({ x: 0, y: 0 })
+  const indexRef    = useRef(0)
+  const profilesRef = useRef(profiles)
+  useEffect(() => { profilesRef.current = profiles }, [profiles])
 
   const current  = profiles[index]
   const next     = profiles[index + 1]
@@ -42,8 +44,8 @@ export default function SwipeStack({ profiles, onLike, onPass }) {
     const capturedIndex = indexRef.current
     setFlying(dir)
     setTimeout(() => {
-      if (dir === 'right') onLike(profiles[capturedIndex]?.id)
-      else                 onPass?.(profiles[capturedIndex]?.id)
+      if (dir === 'right') onLike(profilesRef.current[capturedIndex]?.id)
+      else                 onPass?.(profilesRef.current[capturedIndex]?.id)
       indexRef.current = capturedIndex + 1
       setIndex(capturedIndex + 1)
       setFlying(null)

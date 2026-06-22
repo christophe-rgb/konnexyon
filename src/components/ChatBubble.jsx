@@ -12,12 +12,16 @@ export default function ChatBubble({ message, isMine, onDelete }) {
       onClick={() => isMine && onDelete && setShowActions(s => !s)}
     >
       {message.photo_url && (
-        <img
-          src={message.photo_url}
-          alt="photo"
-          className="rounded-xl max-w-full object-cover cursor-pointer"
-          style={{ maxHeight: 260 }}
-        />
+        <div style={{ aspectRatio: '4/3', maxHeight: 260, overflow: 'hidden' }} className="rounded-xl w-full">
+          <img
+            src={message.photo_url}
+            alt="photo"
+            width="100%"
+            height="auto"
+            loading="lazy"
+            className="rounded-xl max-w-full w-full h-full object-cover cursor-pointer"
+          />
+        </div>
       )}
       {message.content && (
         <div className={clsx(

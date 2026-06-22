@@ -32,45 +32,38 @@ export default function Messages() {
     let isMounted = true
 
     const load = async () => {
-      const { data: matchData } = await supabase
-        .from('matches')
-        .select('id, couple_a, couple_b, created_at')
-        .or(`couple_a.eq.${profile.id},couple_b.eq.${profile.id}`)
+      const { data, error } = await supabase
+        .rpc('get_message_threads', { p_profile_id: profile.id })
 
       if (!isMounted) return
-      if (!matchData) { setLoading(false); return }
+      if (error || !data) { setLoading(false); return }
 
-      const threads = await Promise.all(matchData.map(async m => {
-        const otherId = m.couple_a === profile.id ? m.couple_b : m.couple_a
-
-        const { data: p } = await supabase
-          .from('profiles')
-          .select('id, couple_name, avatar_url')
-          .eq('id', otherId)
-          .single()
-
-        const { data: msg } = await supabase
-          .from('messages')
-          .select('content, photo_url, created_at, sender_id, read_at')
-          .eq('match_id', m.id)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .single()
-
-        const unread = msg && !msg.read_at && msg.sender_id !== profile.id
-
-        return { matchId: m.id, profile: p, lastMessage: msg, unread }
-      }))
+      const threads = data
+        .map(row => ({
+          matchId: row.match_id,
+          profile: {
+            id:          row.other_id,
+            couple_name: row.couple_name,
+            avatar_url:  row.avatar_url,
+          },
+          lastMessage: row.created_at ? {
+            content:    row.content,
+            photo_url:  row.photo_url,
+            created_at: row.created_at,
+            sender_id:  row.sender_id,
+            read_at:    row.read_at,
+          } : null,
+          unread: row.created_at && !row.read_at && row.sender_id !== profile.id,
+        }))
+        .sort((a, b) => {
+          const ta = a.lastMessage?.created_at || ''
+          const tb = b.lastMessage?.created_at || ''
+          return tb.localeCompare(ta)
+        })
+        .filter(t => t.profile.couple_name)
 
       if (!isMounted) return
-
-      threads.sort((a, b) => {
-        const ta = a.lastMessage?.created_at || ''
-        const tb = b.lastMessage?.created_at || ''
-        return tb.localeCompare(ta)
-      })
-
-      setThreads(threads.filter(t => t.profile))
+      setThreads(threads)
       setLoading(false)
     }
 
@@ -188,11 +181,11 @@ export default function Messages() {
                   border: '1px solid rgba(201,168,76,0.2)',
                   background: '#EDE7DB',
                 }}>
-                  {t.profile.avatar_url ? (
-                    <img src={t.profile.avatar_url} alt={t.profile.couple_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  {t.profile?.avatar_url ? (
+                    <img src={t.profile.avatar_url} alt={t.profile?.couple_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   ) : (
                     <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Cormorant, serif', fontSize: '20px', color: 'rgba(201,168,76,1)' }}>
-                      {t.profile.couple_name?.[0]}
+                      {t.profile?.couple_name?.[0]}
                     </div>
                   )}
                 </div>
@@ -217,7 +210,7 @@ export default function Messages() {
                   overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                   marginBottom: '2px',
                 }}>
-                  {t.profile.couple_name}
+                  {t.profile?.couple_name}
                 </p>
                 {t.lastMessage && (
                   <p style={{

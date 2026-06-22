@@ -4,6 +4,7 @@ import { useAuthStore } from './store/auth'
 import { supabase } from './lib/supabase'
 import { safeGet, safeSet, safeRemove } from './lib/storage'
 
+import ErrorBoundary from './components/ErrorBoundary'
 import Navbar       from './components/Navbar'
 import { ToastContainer } from './components/Toast'
 import { ConfirmDialogHost } from './components/ConfirmDialog'
@@ -181,6 +182,7 @@ export default function App() {
       )}
 
       <div className={showNav ? 'pb-20' : ''} style={{ position: 'relative', zIndex: 1 }}>
+        <ErrorBoundary>
         <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/"                  element={<Home />} />
@@ -231,6 +233,7 @@ export default function App() {
             } />
           </Routes>
         </Suspense>
+        </ErrorBoundary>
       </div>
     </div>
   )
