@@ -1,7 +1,8 @@
 // Validation d'un fichier image avant upload (avatars, photos de chat)
 // Retourne { ok: true } ou { ok: false, error: 'message' }
 
-export const MAX_IMAGE_BYTES = 5 * 1024 * 1024 // 5 Mo
+export const MAX_IMAGE_BYTES = 5 * 1024 * 1024        // 5 Mo — avatars
+export const MAX_CHAT_PHOTO_BYTES = 10 * 1024 * 1024  // 10 Mo — chat-photos
 
 export function validateImageFile(file) {
   if (!file) return { ok: false, error: 'Aucun fichier sélectionné.' }

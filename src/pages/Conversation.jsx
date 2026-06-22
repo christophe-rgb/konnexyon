@@ -223,13 +223,23 @@ export default function Conversation() {
     const { error: upErr } = await supabase.storage.from('chat-photos').upload(path, file)
     if (upErr) { toast('Erreur upload photo', 'error'); setUploading(false); return }
 
-    const { data: { publicUrl } } = supabase.storage.from('chat-photos').getPublicUrl(path)
+    // Bucket privé : URL signée 7 jours (cohérent avec photo_expires_at)
+    const TTL_SECONDS = 7 * 24 * 3600
+    const { data: signedData, error: signErr } = await supabase.storage
+      .from('chat-photos')
+      .createSignedUrl(path, TTL_SECONDS)
+    if (signErr || !signedData?.signedUrl) {
+      await supabase.storage.from('chat-photos').remove([path])
+      toast('Erreur génération URL photo', 'error')
+      setUploading(false)
+      return
+    }
 
     const { error: insertErr } = await supabase.from('messages').insert({
       match_id:         matchId,
       sender_id:        profile.id,
-      photo_url:        publicUrl,
-      photo_expires_at: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString(),
+      photo_url:        signedData.signedUrl,
+      photo_expires_at: new Date(Date.now() + TTL_SECONDS * 1000).toISOString(),
     })
     if (insertErr) {
       await supabase.storage.from('chat-photos').remove([path])

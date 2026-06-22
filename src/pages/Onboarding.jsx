@@ -164,11 +164,14 @@ export default function Onboarding() {
 
       {/* fond logo filigrane */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-center">
-        <img src="/logo.png" alt="" aria-hidden style={{
-          width: '130vw', maxWidth: 860,
-          opacity: 0.28, filter: 'brightness(0.85) saturate(0.9)',
-          userSelect: 'none', display: 'block',
-        }} />
+        <picture>
+          <source srcSet="/logo.webp" type="image/webp" />
+          <img src="/logo.png" alt="" aria-hidden style={{
+            width: '130vw', maxWidth: 860,
+            opacity: 0.28, filter: 'brightness(0.85) saturate(0.9)',
+            userSelect: 'none', display: 'block',
+          }} />
+        </picture>
         <div className="absolute inset-0" style={{
           background: 'radial-gradient(ellipse at center, rgba(253,250,246,0.2) 0%, rgba(253,250,246,0.65) 55%, rgba(253,250,246,0.96) 100%)',
         }} />

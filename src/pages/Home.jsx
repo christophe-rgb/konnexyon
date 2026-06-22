@@ -71,13 +71,16 @@ export default function Home() {
 
         {/* fond logo — centré, contenu dans le hero, fondu bas discret */}
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <img src="/logo.png" alt="" aria-hidden style={{
-            width: '90vw', maxWidth: 600,
-            maxHeight: '92vh', objectFit: 'contain',
-            opacity: 0.14, filter: 'brightness(1.4)',
-            maskImage: 'linear-gradient(to bottom, black 0%, black 78%, transparent 95%)',
-            WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 78%, transparent 95%)',
-          }} />
+          <picture>
+            <source srcSet="/logo.webp" type="image/webp" />
+            <img src="/logo.png" alt="" aria-hidden style={{
+              width: '90vw', maxWidth: 600,
+              maxHeight: '92vh', objectFit: 'contain',
+              opacity: 0.14, filter: 'brightness(1.4)',
+              maskImage: 'linear-gradient(to bottom, black 0%, black 78%, transparent 95%)',
+              WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 78%, transparent 95%)',
+            }} />
+          </picture>
         </div>
 
         <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', maxWidth: 520 }}>

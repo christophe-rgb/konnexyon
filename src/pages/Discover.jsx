@@ -7,7 +7,7 @@ import { isPremium } from '../lib/plan'
 import UpgradeModal from '../components/UpgradeModal'
 import { DEMO_PROFILES } from '../lib/demo'
 import ProfileCard from '../components/ProfileCard'
-import SwipeStack from '../components/SwipeStack'
+const SwipeStack = lazy(() => import('../components/SwipeStack'))
 import PanierSheet from '../components/PanierSheet'
 import { ProfileCardSkeleton } from '../components/Skeleton'
 import FilterPanel from '../components/FilterPanel'
@@ -90,6 +90,11 @@ export default function Discover() {
   useEffect(() => { load() }, [load])
 
   const like = async (toId) => {
+    // guard anti-auto-swipe : ne jamais liker son propre profil
+    if (!demoMode && profile?.id && toId === profile.id) {
+      console.warn('[like] auto-swipe bloqué (toId === profile.id)')
+      return
+    }
     setLikedIds(prev => new Set([...prev, toId]))
     setSelected(null)
     if (!premium && !demoMode) { setShowUpgrade(true); return; }
@@ -257,19 +262,21 @@ export default function Discover() {
       ) : profiles.length === 0 ? (
         <EmptyState />
       ) : view === 'swipe' ? (
-        <SwipeStack
-          profiles={profiles}
-          onLike={like}
-          onPass={id => {
-            setProfiles(ps => {
-              const p = ps.find(x => x.id === id)
-              if (!p) return ps
-              setPassed(prev => prev.find(x => x.id === id) ? prev : [...prev, p])
-              return [...ps.filter(x => x.id !== id), p]
-            })
-            toast('Reproposé plus tard')
-          }}
-        />
+        <Suspense fallback={<ProfileCardSkeleton />}>
+          <SwipeStack
+            profiles={profiles}
+            onLike={like}
+            onPass={id => {
+              setProfiles(ps => {
+                const p = ps.find(x => x.id === id)
+                if (!p) return ps
+                setPassed(prev => prev.find(x => x.id === id) ? prev : [...prev, p])
+                return [...ps.filter(x => x.id !== id), p]
+              })
+              toast('Reproposé plus tard')
+            }}
+          />
+        </Suspense>
       ) : (
         <div className="flex-1 overflow-y-auto p-4">
           {/* compteur */}
