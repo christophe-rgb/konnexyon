@@ -9,8 +9,9 @@ export default function Settings() {
   const { profile, fetchProfile, signOut } = useAuthStore()
   const navigate = useNavigate()
   const premium = isPremium(profile)
-  const [saving,  setSaving]  = useState('')
-  const [confirm, setConfirm] = useState(false)
+  const [saving,      setSaving]      = useState('')
+  const [confirm,     setConfirm]     = useState(false)
+  const [confirmText, setConfirmText] = useState('')
 
   const update = async (patch, label) => {
     setSaving(label)
@@ -173,7 +174,7 @@ export default function Settings() {
         <div
           className="fixed inset-0 z-50 flex items-end sm:items-center justify-center animate-fade-in"
           style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)', animationFillMode: 'both' }}
-          onClick={() => setConfirm(false)}
+          onClick={() => { setConfirm(false); setConfirmText('') }}
         >
           <div
             className="animate-fade-in-up"
@@ -190,12 +191,37 @@ export default function Settings() {
             <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '1.7rem', color: 'rgba(239,68,68,0.85)', marginBottom: '12px' }}>
               Supprimer le compte
             </h2>
-            <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.9)', lineHeight: 1.7, marginBottom: '24px' }}>
+            <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.9)', lineHeight: 1.7, marginBottom: '20px' }}>
               Votre profil, vos connexions et vos messages seront définitivement supprimés. Cette action est irréversible.
             </p>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ fontSize: '11px', letterSpacing: '0.08em', color: 'rgba(28,24,20,0.6)', display: 'block', marginBottom: '8px' }}>
+                Tapez <strong style={{ color: 'rgba(239,68,68,0.8)' }}>SUPPRIMER</strong> pour confirmer
+              </label>
+              <input
+                type="text"
+                value={confirmText}
+                onChange={e => setConfirmText(e.target.value)}
+                placeholder="SUPPRIMER"
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  borderRadius: '10px',
+                  background: 'rgba(245,240,232,0.85)',
+                  border: confirmText === 'SUPPRIMER'
+                    ? '1px solid rgba(239,68,68,0.5)'
+                    : '1px solid rgba(201,168,76,0.25)',
+                  fontSize: '14px',
+                  color: 'rgba(28,24,20,0.9)',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                  transition: 'border-color 0.2s',
+                }}
+              />
+            </div>
             <div className="flex gap-3">
               <button className="erb-btn"
-                onClick={() => setConfirm(false)}
+                onClick={() => { setConfirm(false); setConfirmText('') }}
                 style={{
                   flex: 1, padding: '14px', borderRadius: '12px',
                   background: 'transparent', border: '1px solid rgba(201,168,76,0.1)',
@@ -206,16 +232,18 @@ export default function Settings() {
               </button>
               <button className="erb-btn"
                 onClick={deleteAccount}
+                disabled={confirmText !== 'SUPPRIMER'}
                 style={{
                   flex: 1, padding: '14px', borderRadius: '12px',
-                  background: 'rgba(239,68,68,0.12)',
-                  border: '1px solid rgba(239,68,68,0.3)',
-                  color: 'rgba(239,68,68,0.9)',
+                  background: confirmText === 'SUPPRIMER' ? 'rgba(239,68,68,0.12)' : 'rgba(200,200,200,0.15)',
+                  border: confirmText === 'SUPPRIMER' ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(200,200,200,0.2)',
+                  color: confirmText === 'SUPPRIMER' ? 'rgba(239,68,68,0.9)' : 'rgba(28,24,20,0.3)',
                   fontSize: '13px', fontWeight: 600,
-                  cursor: 'pointer', transition: 'all 0.2s',
+                  cursor: confirmText === 'SUPPRIMER' ? 'pointer' : 'not-allowed',
+                  transition: 'all 0.2s',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.2)'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.12)'; }}
+                onMouseEnter={e => { if (confirmText === 'SUPPRIMER') e.currentTarget.style.background = 'rgba(239,68,68,0.2)'; }}
+                onMouseLeave={e => { if (confirmText === 'SUPPRIMER') e.currentTarget.style.background = 'rgba(239,68,68,0.12)'; }}
               >
                 Supprimer
               </button>

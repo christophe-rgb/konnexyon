@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 // API impérative (comme le toast) pour éviter window.confirm (bloquant,
 // non stylable, parfois bloqué par les navigateurs / mode kiosque).
@@ -14,11 +14,16 @@ export function confirm(options) {
 
 export function ConfirmDialogHost() {
   const [state, setState] = useState(null)
+  const firstBtnRef = useRef(null)
 
   useEffect(() => {
     listener = (opts) => setState(opts)
     return () => { listener = null }
   }, [])
+
+  useEffect(() => {
+    if (state) firstBtnRef.current?.focus()
+  }, [state])
 
   if (!state) return null
 
@@ -39,7 +44,7 @@ export function ConfirmDialogHost() {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={title}
+      aria-labelledby="confirm-dialog-title"
       onClick={() => close(false)}
       style={{
         position: 'fixed', inset: 0, zIndex: 9000,
@@ -57,7 +62,7 @@ export function ConfirmDialogHost() {
           animation: 'slideUp 0.25s cubic-bezier(0.25,0.46,0.45,0.94)',
         }}
       >
-        <h2 style={{
+        <h2 id="confirm-dialog-title" style={{
           fontFamily: 'Cormorant, serif', fontSize: '1.45rem', fontWeight: 600,
           color: '#1C1814', marginBottom: 10, textAlign: 'center',
         }}>
@@ -70,6 +75,7 @@ export function ConfirmDialogHost() {
         )}
         <div style={{ display: 'flex', gap: 10 }}>
           <button
+            ref={firstBtnRef}
             onClick={() => close(false)}
             className="erb-btn"
             style={{

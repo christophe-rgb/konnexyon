@@ -42,14 +42,16 @@ export default function Matches() {
 
     if (!data) { setLoading(false); return }
 
+    // Batch fetch all profiles in one query instead of N individual selects
+    const otherIds = data.map(m => m.couple_a === profile.id ? m.couple_b : m.couple_a)
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, couple_name, avatar_url, bio')
+      .in('id', otherIds)
+    const profileMap = Object.fromEntries((profiles || []).map(p => [p.id, p]))
+
     const enriched = await Promise.all(data.map(async m => {
       const otherId = m.couple_a === profile.id ? m.couple_b : m.couple_a
-
-      const { data: p } = await supabase
-        .from('profiles')
-        .select('id, couple_name, avatar_url, bio')
-        .eq('id', otherId)
-        .single()
 
       const { data: msg } = await supabase
         .from('messages')
@@ -61,7 +63,7 @@ export default function Matches() {
 
       return {
         ...m,
-        profile: p,
+        profile: profileMap[otherId] || null,
         lastMessage: msg?.content || (msg?.photo_url ? 'Photo' : null),
       }
     }))

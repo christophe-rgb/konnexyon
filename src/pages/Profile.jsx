@@ -7,7 +7,7 @@ import { MapPin, Camera, Flag, Ban, Settings, Trash2 } from 'lucide-react'
 import XLogo from '../components/XLogo'
 import { toast } from '../components/Toast'
 import { confirm } from '../components/ConfirmDialog'
-import { validateImageFile } from '../lib/upload'
+import { validateImageFile, validateImageMagicBytes } from '../lib/upload'
 
 const LIMITS_LABELS = {
   pas_photo:             'Aucune photo partagée sans accord mutuel préalable',
@@ -198,6 +198,8 @@ export default function Profile() {
   const uploadAvatar = async (file) => {
     const check = validateImageFile(file)
     if (!check.ok) { toast(check.error, 'error'); return }
+    const magic = await validateImageMagicBytes(file)
+    if (!magic.ok) { toast(magic.error, 'error'); return }
     try {
       const ext  = file.name.split('.').pop().toLowerCase()
       const path = `${myProfile.id}/avatar.${ext}`
