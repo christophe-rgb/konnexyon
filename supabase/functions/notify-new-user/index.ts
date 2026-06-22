@@ -5,6 +5,18 @@ const CHAT_ID = Deno.env.get('TELEGRAM_CHAT_ID')!
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!
 const ADMIN_EMAIL = 'konnexyon@gmail.com'
 
+// Échappe le HTML injecté dans les emails (anti-XSS / injection de contenu)
+function escapeHtml(str: unknown): string {
+  return String(str ?? '').replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[c] as string))
+}
+
+// Échappe les caractères spéciaux du Markdown Telegram
+function escapeMarkdown(str: unknown): string {
+  return String(str ?? '').replace(/[_*[\]()~`>#+\-=|{}.!\\]/g, (c) => '\\' + c)
+}
+
 serve(async (req) => {
   try {
     const payload = await req.json()
@@ -22,12 +34,12 @@ serve(async (req) => {
       const msg = [
         `🎉 *Nouvel inscrit sur Konnexyon !*`,
         ``,
-        `👫 *${coupleName}*`,
-        `📧 ${email}`,
-        `📍 ${city}`,
-        `💎 Plan : ${plan}`,
-        `✅ Statut : ${status}`,
-        `🕐 ${now}`,
+        `👫 *${escapeMarkdown(coupleName)}*`,
+        `📧 ${escapeMarkdown(email)}`,
+        `📍 ${escapeMarkdown(city)}`,
+        `💎 Plan : ${escapeMarkdown(plan)}`,
+        `✅ Statut : ${escapeMarkdown(status)}`,
+        `🕐 ${escapeMarkdown(now)}`,
       ].join('\n')
 
       await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
@@ -59,19 +71,19 @@ serve(async (req) => {
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr>
                 <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;color:#666;font-size:13px;width:40%;">Couple</td>
-                <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;color:#0D1117;font-size:13px;font-weight:bold;">${coupleName}</td>
+                <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;color:#0D1117;font-size:13px;font-weight:bold;">${escapeHtml(coupleName)}</td>
               </tr>
               <tr>
                 <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;color:#666;font-size:13px;">Email</td>
-                <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;color:#0D1117;font-size:13px;">${email}</td>
+                <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;color:#0D1117;font-size:13px;">${escapeHtml(email)}</td>
               </tr>
               <tr>
                 <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;color:#666;font-size:13px;">Ville</td>
-                <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;color:#0D1117;font-size:13px;">${city}</td>
+                <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;color:#0D1117;font-size:13px;">${escapeHtml(city)}</td>
               </tr>
               <tr>
                 <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;color:#666;font-size:13px;">Plan</td>
-                <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;color:#C9A84C;font-size:13px;font-weight:bold;">${plan.toUpperCase()}</td>
+                <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;color:#C9A84C;font-size:13px;font-weight:bold;">${escapeHtml(plan).toUpperCase()}</td>
               </tr>
               <tr>
                 <td style="padding:8px 0;color:#666;font-size:13px;">Date</td>
@@ -100,7 +112,7 @@ serve(async (req) => {
         body: JSON.stringify({
           from: 'Konnexyon <noreply@konnexyon.com>',
           to: [ADMIN_EMAIL],
-          subject: `🎉 Nouvel inscrit : ${coupleName}`,
+          subject: `🎉 Nouvel inscrit : ${String(coupleName).replace(/[\r\n]/g, ' ')}`,
           html,
         }),
       })

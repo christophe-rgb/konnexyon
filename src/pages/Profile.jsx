@@ -6,6 +6,7 @@ import { DEMO_PROFILES } from '../lib/demo'
 import { MapPin, Camera, Flag, Ban, Settings, Trash2 } from 'lucide-react'
 import XLogo from '../components/XLogo'
 import { toast } from '../components/Toast'
+import { confirm } from '../components/ConfirmDialog'
 import { validateImageFile } from '../lib/upload'
 
 const LIMITS_LABELS = {
@@ -133,10 +134,13 @@ export default function Profile() {
     if (liking) return
     setLiking(true)
     if (liked) {
-      await supabase.from('likes').delete().eq('from_id', myProfile.id).eq('to_id', uid)
+      const { error } = await supabase.from('likes').delete().eq('from_id', myProfile.id).eq('to_id', uid)
+      if (error) { toast('Erreur : impossible de retirer la connexion', 'error'); setLiking(false); return }
       setLiked(false)
     } else {
-      await supabase.from('likes').insert({ from_id: myProfile.id, to_id: uid })
+      const { error } = await supabase.from('likes').insert({ from_id: myProfile.id, to_id: uid })
+      // 23505 = doublon (déjà liké) → pas une vraie erreur
+      if (error && error.code !== '23505') { toast(`Erreur : ${error.message}`, 'error'); setLiking(false); return }
       setLiked(true)
       toast('Demande de connexion envoyée ✓')
       checkMatch()
@@ -145,26 +149,40 @@ export default function Profile() {
   }
 
   const block = async () => {
-    if (!confirm('Bloquer ce couple ? Le match et les contacts seront supprimés.')) return
-    await supabase.from('blocks').insert({ blocker_id: myProfile.id, blocked_id: uid })
+    const ok = await confirm({
+      title: 'Bloquer ce couple',
+      message: 'Le match et les contacts seront supprimés. Continuer ?',
+      confirmLabel: 'Bloquer',
+      danger: true,
+    })
+    if (!ok) return
+    const { error } = await supabase.from('blocks').insert({ blocker_id: myProfile.id, blocked_id: uid })
+    if (error && error.code !== '23505') { toast(`Erreur : ${error.message}`, 'error'); return }
     toast('Couple bloqué')
     navigate('/discover')
   }
 
   const report = async () => {
     if (!reportReason.trim()) return
-    await supabase.from('reports').insert({
+    const { error } = await supabase.from('reports').insert({
       reporter_id: myProfile.id,
       reported_id: uid,
       reason: reportReason,
     })
+    if (error) { toast(`Erreur : ${error.message}`, 'error'); return }
     setShowReport(false)
     setReportReason('')
     toast('Signalement envoyé')
   }
 
   const deleteAvatar = async () => {
-    if (!window.confirm('Supprimer ta photo de profil ?')) return
+    const ok = await confirm({
+      title: 'Supprimer la photo',
+      message: 'Supprimer votre photo de profil ?',
+      confirmLabel: 'Supprimer',
+      danger: true,
+    })
+    if (!ok) return
     try {
       const url = myProfile.avatar_url || ''
       const filename = url.split('/').pop()
@@ -228,7 +246,7 @@ export default function Profile() {
   }
 
   if (!profile) return (
-    <div className="flex items-center justify-center h-dvh">
+    <div className="flex items-center justify-center h-dvh" role="status" aria-label="Chargement…">
       <div style={{ width: 24, height: 24, border: '2px solid rgba(201,168,76,1)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite' }} />
     </div>
   )
@@ -305,10 +323,17 @@ export default function Profile() {
               </button>
             )}
             <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }}
-              onChange={e => {
-                if (!e.target.files[0]) return
-                if (!window.confirm('📸 Photo de profil\n\nLes photos dénudées ou explicites sont interdites sur Konnexyon.\n\nVeuillez choisir une photo de visage ou en tenue.\n\nContinuer ?')) return
-                uploadAvatar(e.target.files[0])
+              onChange={async e => {
+                const file = e.target.files[0]
+                e.target.value = ''
+                if (!file) return
+                const ok = await confirm({
+                  title: '📸 Photo de profil',
+                  message: 'Les photos dénudées ou explicites sont interdites sur Konnexyon.\nChoisissez une photo de visage ou en tenue.\n\nContinuer ?',
+                  confirmLabel: 'Continuer',
+                })
+                if (!ok) return
+                uploadAvatar(file)
               }} />
           </>
         )}

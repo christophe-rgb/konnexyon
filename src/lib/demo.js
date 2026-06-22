@@ -1,5 +1,4 @@
 // Données fictives pour le mode démo
-export const DEMO_MODE = true
 
 export const DEMO_USER = {
   id: 'demo-user-1',

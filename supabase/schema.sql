@@ -124,7 +124,7 @@ create table public.messages (
   photo_url   text,                    -- supprimé après 7j
   photo_expires_at timestamptz,        -- = created_at + 7 days
   read_at     timestamptz,
-  deleted_for uuid[],                  -- ids qui ont supprimé le message (pour eux)
+  deleted_for uuid[] default '{}',     -- ids qui ont supprimé le message (pour eux)
   created_at  timestamptz not null default now()
 );
 

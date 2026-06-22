@@ -2,9 +2,11 @@ import { useEffect, useState, lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from './store/auth'
 import { supabase } from './lib/supabase'
+import { safeGet, safeRemove } from './lib/storage'
 
 import Navbar       from './components/Navbar'
 import { ToastContainer } from './components/Toast'
+import { ConfirmDialogHost } from './components/ConfirmDialog'
 import MatchModal   from './components/MatchModal'
 import AgeGate      from './components/AgeGate'
 import CookieBanner from './components/CookieBanner'
@@ -33,7 +35,7 @@ const BlogCountryList    = lazy(() => import('./pages/BlogCountry').then(m => ({
 const BlogCountryArticle = lazy(() => import('./pages/BlogCountry').then(m => ({ default: m.BlogCountryArticle })))
 
 const PageLoader = () => (
-  <div className="flex h-dvh items-center justify-center">
+  <div className="flex h-dvh items-center justify-center" role="status" aria-label="Chargement…">
     <div className="w-8 h-8 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
   </div>
 )
@@ -41,7 +43,7 @@ const PageLoader = () => (
 function RequireAuth({ children }) {
   const { user, loading } = useAuthStore()
   if (loading) return (
-    <div className="flex h-dvh items-center justify-center">
+    <div className="flex h-dvh items-center justify-center" role="status" aria-label="Chargement…">
       <div className="w-8 h-8 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
     </div>
   )
@@ -62,7 +64,7 @@ export default function App() {
   const user    = useAuthStore(s => s.user)
   const [newMatch, setNewMatch] = useState(null)
   const [ageConfirmed, setAgeConfirmed] = useState(
-    () => localStorage.getItem('age_confirmed') === '1'
+    () => safeGet('age_confirmed') === '1'
   )
 
   useEffect(() => { init() }, [init])
@@ -95,7 +97,7 @@ export default function App() {
   if (!ageConfirmed) return <AgeGate onConfirm={() => setAgeConfirmed(true)} />
 
   const panicExit = async () => {
-    localStorage.removeItem('age_confirmed')
+    safeRemove('age_confirmed')
     await supabase.auth.signOut()
     window.location.replace('https://www.google.fr')
   }
@@ -142,6 +144,7 @@ export default function App() {
       </button>
 
       <ToastContainer />
+      <ConfirmDialogHost />
       <CookieBanner />
 
       {showNav && <Navbar />}

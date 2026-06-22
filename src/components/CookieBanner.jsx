@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
+import { safeGet, safeSet } from '../lib/storage'
 
 const COOKIE_KEY = 'konnexyon_cookies'
 
 export function useCookieConsent() {
-  const [consent, setConsent] = useState(() => localStorage.getItem(COOKIE_KEY))
-  const accept = () => { localStorage.setItem(COOKIE_KEY, 'accepted'); setConsent('accepted') }
-  const refuse = () => { localStorage.setItem(COOKIE_KEY, 'refused');  setConsent('refused')  }
+  const [consent, setConsent] = useState(() => safeGet(COOKIE_KEY))
+  const accept = () => { safeSet(COOKIE_KEY, 'accepted'); setConsent('accepted') }
+  const refuse = () => { safeSet(COOKIE_KEY, 'refused');  setConsent('refused')  }
   return { consent, accept, refuse }
 }
 

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
 import { AlertTriangle, CheckCircle, XCircle, ExternalLink, ShieldOff, Shield, Filter, Trash2 } from 'lucide-react'
+import { confirm } from '../components/ConfirmDialog'
 
 export default function Admin() {
   const user     = useAuthStore(s => s.user)
@@ -274,7 +275,7 @@ function ReportRow({ report, profileId, onAction }) {
                   style={{ flex: 1, minWidth: 70, padding: '8px', borderRadius: 10, cursor: 'pointer', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.25)', color: 'rgba(239,68,68,0.8)', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
                   <ShieldOff size={13} strokeWidth={1.5} /> Suspendre
                 </button>
-                <button onClick={() => { if (confirm(`Bannir définitivement ce profil ? Cette action est irréversible.`)) onAction(report.id, profileId, 'banned', note) }}
+                <button onClick={async () => { if (await confirm({ title: 'Bannir le profil', message: 'Bannir définitivement ce profil ? Cette action est irréversible.', confirmLabel: 'Bannir', danger: true })) onAction(report.id, profileId, 'banned', note) }}
                   style={{ flex: 1, minWidth: 70, padding: '8px', borderRadius: 10, cursor: 'pointer', background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.4)', color: '#EF4444', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
                   <Trash2 size={13} strokeWidth={1.5} /> Bannir
                 </button>

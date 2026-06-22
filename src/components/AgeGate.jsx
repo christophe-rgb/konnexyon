@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { safeSet } from '../lib/storage'
 
 export default function AgeGate({ onConfirm }) {
   const [checked, setChecked] = useState(false)
@@ -7,7 +8,7 @@ export default function AgeGate({ onConfirm }) {
 
   const confirm = () => {
     if (!checked) return
-    localStorage.setItem('age_confirmed', '1')
+    safeSet('age_confirmed', '1')
     onConfirm()
   }
 

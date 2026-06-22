@@ -6,6 +6,7 @@ import { DEMO_MATCHES, DEMO_MESSAGES } from '../lib/demo'
 import ChatBubble from '../components/ChatBubble'
 import EmojiPicker from '../components/EmojiPicker'
 import { toast } from '../components/Toast'
+import { confirm } from '../components/ConfirmDialog'
 import { validateImageFile } from '../lib/upload'
 import { ArrowLeft, Send, Image, Trash2 } from 'lucide-react'
 
@@ -82,7 +83,7 @@ export default function Conversation() {
       .from('messages')
       .select('*')
       .eq('match_id', matchId)
-      .not('deleted_for', 'cs', `{${profile.id}}`)
+      .or(`deleted_for.is.null,deleted_for.not.cs.{${profile.id}}`)
       .order('created_at', { ascending: true })
 
     setMessages(data || [])
@@ -160,8 +161,16 @@ export default function Conversation() {
   }
 
   const unmatch = async () => {
-    if (!confirm('Annuler ce match ? La conversation sera supprimée.')) return
-    await supabase.from('matches').delete().eq('id', matchId)
+    const ok = await confirm({
+      title: 'Annuler la connexion',
+      message: 'La conversation sera définitivement supprimée. Continuer ?',
+      confirmLabel: 'Annuler le match',
+      cancelLabel: 'Garder',
+      danger: true,
+    })
+    if (!ok) return
+    const { error } = await supabase.from('matches').delete().eq('id', matchId)
+    if (error) { toast(`Erreur : ${error.message}`, 'error'); return }
     navigate('/matches')
     toast('Match annulé')
   }
