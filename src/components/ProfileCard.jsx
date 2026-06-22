@@ -26,6 +26,7 @@ function XConnectIcon({ size = 14, color = 'currentColor' }) {
 
 export default function ProfileCard({ profile, onLike, onPass, showActions = true, index = 0, isLiked = false }) {
   const navigate = useNavigate()
+  const coupleName = profile.couple_name ?? 'Couple'
   const [hovered, setHovered] = useState(false)
   const [liking,  setLiking]  = useState(false)
 
@@ -41,7 +42,7 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
     <div
       className="profile-card animate-fade-in-up"
       role="article"
-      aria-label={`Profil de ${profile.couple_name}`}
+      aria-label={`Profil de ${coupleName}`}
       onClick={() => navigate(`/profile/${profile.id}`)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -65,7 +66,7 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
       {profile.avatar_url ? (
         <img
           src={profile.avatar_url}
-          alt={`Photo de ${profile.couple_name}`}
+          alt={`Photo de ${coupleName}`}
           className="absolute inset-0 w-full h-full object-cover object-center"
           style={{
             transition: 'transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94)',
@@ -89,10 +90,10 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
             opacity: 0.5,
             lineHeight: 1,
           }}>
-            {profile.couple_name?.[0] ?? '∞'}
+            {coupleName[0]}
           </span>
           <span style={{ fontSize: '10px', letterSpacing: '0.2em', color: 'rgba(201,168,76,1)', marginTop: '8px', textTransform: 'uppercase' }}>
-            {profile.couple_name}
+            {coupleName}
           </span>
         </div>
       )}
@@ -173,7 +174,7 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
           marginBottom: '5px',
           textShadow: '0 2px 12px rgba(0,0,0,0.6)',
         }}>
-          {profile.couple_name}
+          {coupleName}
         </h3>
 
         {/* orientation */}
@@ -230,7 +231,7 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
             {onPass && (
               <button className="erb-btn"
                 onClick={e => { e.stopPropagation(); onPass(profile.id); }}
-                aria-label={`Passer ${profile.couple_name}`}
+                aria-label={`Passer ${coupleName}`}
                 style={{
                   flex: 1,
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
@@ -258,7 +259,7 @@ export default function ProfileCard({ profile, onLike, onPass, showActions = tru
               <button
                 onClick={isLiked ? undefined : handleLike}
                 disabled={liking || isLiked}
-                aria-label={isLiked ? 'Connexion envoyée' : `Se connecter avec ${profile.couple_name}`}
+                aria-label={isLiked ? 'Connexion envoyée' : `Se connecter avec ${coupleName}`}
                 className="btn-gold"
                 style={{
                   flex: onPass ? 1.4 : 1,

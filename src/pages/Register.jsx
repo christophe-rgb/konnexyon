@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
 export default function Register() {
-  const [form,    setForm]    = useState({ email: '', email2: '', password: '', confirm: '' })
+  const [form,    setForm]    = useState({ email: '', email_2: '', password: '', confirm: '' })
   const [adult,   setAdult]   = useState(false)
   const [error,   setError]   = useState('')
   const [loading, setLoading] = useState(false)
@@ -24,7 +24,7 @@ export default function Register() {
     await supabase.from('profiles').insert({
       id:      data.user.id,
       email_1: form.email,
-      email_2: form.email2 || null,
+      email_2: form.email_2 || null,
       couple_name: 'Nouveau couple',
       email_1_confirmed: false,
     })
@@ -72,8 +72,8 @@ export default function Register() {
             delay="100ms"
           />
           <Field
-            label="Email partenaire 2 (optionnel)" id="email2" type="email"
-            value={form.email2} onChange={v => set('email2', v)} placeholder="partenaire@email.com"
+            label="Email partenaire 2 (optionnel)" id="email_2" type="email"
+            value={form.email_2} onChange={v => set('email_2', v)} placeholder="partenaire@email.com"
             delay="150ms"
           />
           <Field
