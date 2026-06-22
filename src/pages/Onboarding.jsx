@@ -5,7 +5,11 @@ import { useAuthStore } from '../store/auth'
 import { validateImageFile } from '../lib/upload'
 import { toast } from '../components/Toast'
 
+// Version du texte de consentement — incrémenter si le texte change
+const CONSENT_VERSION = 'v1.0'
+
 const STEPS = [
+  { key: 'consentement',   label: 'Consentement',      icon: '◉' },
   { key: 'profil',         label: 'Votre couple',      icon: '∞' },
   { key: 'photo',          label: 'Votre photo',        icon: '◈' },
   { key: 'cherche',        label: 'Vos désirs',         icon: '◈' },
@@ -49,6 +53,9 @@ export default function Onboarding() {
   const [photoFile, setPhotoFile] = useState(null)
   const [photoPreview, setPhotoPreview] = useState(null)
   const fileRef = useRef(null)
+  // Consentement RGPD Art. 9 — données sensibles (orientation, pratiques)
+  const [consentChecked, setConsentChecked] = useState(false)
+  const [consentTimestamp, setConsentTimestamp] = useState(null)
   const [data,   setData]   = useState({
     couple_name:    '',
     bio:            '',
@@ -71,7 +78,17 @@ export default function Onboarding() {
 
   const next = () => {
     setStepError('')
-    if (step === 0 && data.couple_name.trim().length < 2) {
+    // Étape 0 = consentement RGPD Art. 9 — blocage si non coché
+    if (step === 0 && !consentChecked) {
+      setStepError('Vous devez accepter explicitement le traitement de vos données sensibles pour continuer.')
+      return
+    }
+    // Étape 0 → enregistre le timestamp de consentement
+    if (step === 0 && consentChecked && !consentTimestamp) {
+      setConsentTimestamp(new Date().toISOString())
+    }
+    // Étape 1 = profil
+    if (step === 1 && data.couple_name.trim().length < 2) {
       setStepError('Le pseudo du couple doit comporter au moins 2 caractères.')
       return
     }
@@ -123,6 +140,9 @@ export default function Onboarding() {
       ...profileData,
       orientation,
       email_1_confirmed: true,
+      // Consentement RGPD Art. 9 — timestamp et version du texte accepté
+      consent_given_at:  consentTimestamp || new Date().toISOString(),
+      consent_version:   CONSENT_VERSION,
       ...(locationSql ? { location: locationSql, location_updated_at: new Date().toISOString() } : {}),
     })
     if (upsertError) {
@@ -225,8 +245,14 @@ export default function Onboarding() {
 
         {/* contenu step */}
         <div className={direction === 'back' ? 'animate-fade-in-down mt-6' : 'animate-fade-in-up mt-6'} style={{ animationFillMode: 'both', animationDuration: '350ms' }} key={step}>
-          {step === 0 && <StepProfil data={data} set={set} toggleArr={toggleArr} />}
-          {step === 1 && (
+          {step === 0 && (
+            <StepConsentement
+              checked={consentChecked}
+              onChange={v => { setConsentChecked(v); setStepError('') }}
+            />
+          )}
+          {step === 1 && <StepProfil data={data} set={set} toggleArr={toggleArr} />}
+          {step === 2 && (
             <StepPhoto
               photoPreview={photoPreview}
               onFile={file => {
@@ -238,26 +264,26 @@ export default function Onboarding() {
               fileRef={fileRef}
             />
           )}
-          {step === 2 && (
+          {step === 3 && (
             <StepMulti
               title="Vos désirs" subtitle="Sélectionnez tout ce qui vous correspond"
               options={SEEKING_OPTIONS} field="seeking" data={data} toggle={toggleArr}
             />
           )}
-          {step === 3 && (
+          {step === 4 && (
             <StepMulti
               title="Vos disponibilités" subtitle="Quand êtes-vous disponibles ?"
               options={AVAIL_OPTIONS} field="availabilities" data={data} toggle={toggleArr}
             />
           )}
-          {step === 4 && (
+          {step === 5 && (
             <StepMulti
               title="Vos limites" subtitle="Ces points seront visibles sur votre profil"
               options={LIMITS_OPTIONS} field="limits" data={data} toggle={toggleArr}
             />
           )}
-          {step === 5 && <StepDistance data={data} set={set} />}
-          {step === 6 && <StepVisibility data={data} set={set} />}
+          {step === 6 && <StepDistance data={data} set={set} />}
+          {step === 7 && <StepVisibility data={data} set={set} />}
         </div>
 
         {/* erreur step */}
@@ -323,6 +349,102 @@ export default function Onboarding() {
           )}
         </div>
       </div>
+    </div>
+  )
+}
+
+// ─── Consentement RGPD Art. 9 ────────────────────────────────────────────────
+// Données sensibles : orientation sexuelle, pratiques/désirs sexuels
+// Base légale : consentement explicite libre, spécifique, éclairé, univoque
+// Texte versionné via CONSENT_VERSION — à mettre à jour si le texte change
+// ─────────────────────────────────────────────────────────────────────────────
+function StepConsentement({ checked, onChange }) {
+  return (
+    <div className="flex flex-col gap-5">
+      <div>
+        <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '2rem', fontWeight: 600, color: '#1C1814', marginBottom: '4px' }}>
+          Vos données privées
+        </h2>
+        <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.7)' }}>
+          Avant de continuer, nous avons besoin de votre accord explicite.
+        </p>
+      </div>
+
+      <div style={{
+        background: 'rgba(245,240,232,0.8)',
+        border: '1px solid rgba(201,168,76,0.2)',
+        borderRadius: '16px',
+        padding: '20px',
+        fontSize: '13px',
+        color: 'rgba(28,24,20,0.85)',
+        lineHeight: '1.7',
+      }}>
+        <p style={{ fontWeight: 600, marginBottom: '10px', color: '#1C1814' }}>
+          Traitement de données à caractère sensible (Art. 9 RGPD)
+        </p>
+        <p style={{ marginBottom: '10px' }}>
+          Pour fonctionner, Konnexyon collecte et traite des informations relatives à votre
+          <strong> orientation sexuelle</strong> et à vos <strong>pratiques intimes</strong>.
+          Ces données sont qualifiées de <strong>sensibles</strong> par le Règlement Général sur la Protection des Données (RGPD).
+        </p>
+        <p style={{ marginBottom: '10px' }}>
+          Ces informations sont utilisées <strong>uniquement</strong> pour vous mettre en relation avec
+          des couples compatibles et ne sont jamais revendues à des tiers.
+        </p>
+        <p>
+          Vous pouvez <strong>retirer ce consentement à tout moment</strong> depuis
+          Paramètres → Confidentialité, ce qui entraînera la suppression de ces données de votre profil.
+        </p>
+      </div>
+
+      {/* Case à cocher — non pré-cochée, action positive requise */}
+      <label
+        htmlFor="consent-checkbox"
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: '14px',
+          cursor: 'pointer',
+          padding: '16px',
+          borderRadius: '14px',
+          border: `1px solid ${checked ? 'rgba(201,168,76,0.5)' : 'rgba(201,168,76,0.2)'}`,
+          background: checked ? 'rgba(201,168,76,0.08)' : 'rgba(245,240,232,0.5)',
+          transition: 'all 0.2s',
+        }}
+      >
+        <input
+          id="consent-checkbox"
+          type="checkbox"
+          checked={checked}
+          onChange={e => onChange(e.target.checked)}
+          style={{
+            marginTop: '2px',
+            width: '18px',
+            height: '18px',
+            accentColor: '#C9A84C',
+            flexShrink: 0,
+            cursor: 'pointer',
+          }}
+        />
+        <span style={{ fontSize: '13px', color: '#1C1814', lineHeight: '1.6' }}>
+          J'accepte explicitement que Konnexyon traite mes données relatives à mon orientation sexuelle
+          et mes pratiques intimes, conformément à la{' '}
+          <a
+            href="/confidentialite"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: '#C9A84C', textDecoration: 'underline' }}
+            onClick={e => e.stopPropagation()}
+          >
+            politique de confidentialité
+          </a>
+          .
+        </span>
+      </label>
+
+      <p style={{ fontSize: '11px', color: 'rgba(28,24,20,0.45)', textAlign: 'center' }}>
+        Consentement {CONSENT_VERSION} — requis par le RGPD Art. 9. Non pré-coché, librement révocable.
+      </p>
     </div>
   )
 }

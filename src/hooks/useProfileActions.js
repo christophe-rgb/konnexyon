@@ -126,11 +126,12 @@ export function useProfileActions(uid) {
         'bi-hetero':     'hetero_bi',
         'bi-bi':         'bi_all',
       }
-      const { orientation_lui, orientation_elle, ...profileData } = form
+      const { orientation_lui, orientation_elle } = form
       const orientation = orientationMap[`${orientation_lui}-${orientation_elle}`] || 'hetero_hetero'
+      const { couple_name, bio, seeking, limits, availabilities } = form
       const { error } = await supabase
         .from('profiles')
-        .update({ ...profileData, orientation })
+        .update({ couple_name, bio, seeking, limits, availabilities, orientation })
         .eq('id', myProfile.id)
       if (error) {
         toast('Erreur lors de la sauvegarde — ' + (error.message || 'réessayez'))

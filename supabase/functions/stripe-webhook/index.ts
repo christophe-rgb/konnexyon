@@ -33,9 +33,14 @@ serve(async (req) => {
     const expires = new Date()
     expires.setMonth(expires.getMonth() + months)
 
+    // Récupérer l'ID de la subscription créée
+    const subscriptionId = session.subscription as string | null
+
     await supabase.from('profiles').update({
       plan: 'premium',
       plan_expires_at: expires.toISOString(),
+      stripe_subscription_id: subscriptionId ?? null,
+      stripe_customer_id: session.customer as string ?? null,
     }).eq('id', userId)
   }
 
@@ -48,6 +53,8 @@ serve(async (req) => {
       await supabase.from('profiles').update({
         plan: 'free',
         plan_expires_at: null,
+        stripe_subscription_id: null,
+        stripe_customer_id: null,
       }).eq('id', userId)
     } else {
       // Fallback : chercher via l'email du customer Stripe
@@ -59,6 +66,8 @@ serve(async (req) => {
           await supabase.from('profiles').update({
             plan: 'free',
             plan_expires_at: null,
+            stripe_subscription_id: null,
+            stripe_customer_id: null,
           }).eq('id', authUser.user.id)
         }
       }

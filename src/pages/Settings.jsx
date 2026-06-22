@@ -2,17 +2,58 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
-import { LogOut, Eye, EyeOff, MapPin, MapPinOff, Trash2, ChevronRight, Settings as SettingsIcon, Crown } from 'lucide-react'
+import { LogOut, Eye, EyeOff, MapPin, MapPinOff, Trash2, ChevronRight, Settings as SettingsIcon, Crown, XCircle, ShieldOff } from 'lucide-react'
 import { isPremium } from '../lib/plan'
 
 export default function Settings() {
   const { profile, fetchProfile, signOut } = useAuthStore()
   const navigate = useNavigate()
   const premium = isPremium(profile)
-  const [saving,      setSaving]      = useState('')
-  const [confirm,     setConfirm]     = useState(false)
-  const [confirmText, setConfirmText] = useState('')
-  const [deleting,    setDeleting]    = useState(false)
+  const [saving,              setSaving]              = useState('')
+  const [confirm,             setConfirm]             = useState(false)
+  const [confirmText,         setConfirmText]         = useState('')
+  const [deleting,            setDeleting]            = useState(false)
+  const [cancelConfirm,       setCancelConfirm]       = useState(false)
+  const [cancelling,          setCancelling]          = useState(false)
+  const [cancelError,         setCancelError]         = useState('')
+  const [cancelDone,          setCancelDone]          = useState(false)
+  const [consentConfirm,      setConsentConfirm]      = useState(false)
+  const [revokingConsent,     setRevokingConsent]     = useState(false)
+  const [consentRevokeDone,   setConsentRevokeDone]   = useState(false)
+  const [consentRevokeError,  setConsentRevokeError]  = useState('')
+
+  const revokeConsent = async () => {
+    setRevokingConsent(true)
+    setConsentRevokeError('')
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ consent_given_at: null, orientation: null, seeking: null })
+        .eq('id', profile.id)
+      if (error) throw new Error(error.message)
+      await fetchProfile(profile.id)
+      setConsentRevokeDone(true)
+    } catch (e) {
+      setConsentRevokeError(e.message)
+    } finally {
+      setRevokingConsent(false)
+    }
+  }
+
+  const cancelSubscription = async () => {
+    setCancelling(true)
+    setCancelError('')
+    try {
+      const { data, error } = await supabase.functions.invoke('stripe-cancel', {})
+      if (error || !data?.success) throw new Error(error?.message || data?.error || 'Erreur lors de la résiliation')
+      await fetchProfile(profile.id)
+      setCancelDone(true)
+    } catch (e) {
+      setCancelError(e.message)
+    } finally {
+      setCancelling(false)
+    }
+  }
 
   const update = async (patch, label) => {
     setSaving(label)
@@ -161,6 +202,54 @@ export default function Settings() {
             </div>
             <ChevronRight size={16} strokeWidth={1.5} style={{ color: 'rgba(201,168,76,1)' }} />
           </button>
+
+          {/* Bouton résiliation — obligatoire loi Chatel / art. L.215-1 Code conso */}
+          {premium && (
+            <button
+              className="erb-btn"
+              onClick={() => { setCancelConfirm(true); setCancelError(''); setCancelDone(false) }}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', gap: 12,
+                padding: '14px 16px', borderRadius: '14px',
+                marginTop: '8px', cursor: 'pointer', textAlign: 'left',
+                background: 'rgba(245,240,232,0.8)',
+                border: '1px solid rgba(239,68,68,0.15)',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = 'rgba(239,68,68,0.35)'
+                e.currentTarget.style.background = 'rgba(239,68,68,0.05)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = 'rgba(239,68,68,0.15)'
+                e.currentTarget.style.background = 'rgba(245,240,232,0.8)'
+              }}
+            >
+              <XCircle size={17} strokeWidth={1.5} style={{ color: 'rgba(239,68,68,0.65)', flexShrink: 0 }} />
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: 13, fontWeight: 500, color: 'rgba(239,68,68,0.8)' }}>
+                  Résilier mon abonnement
+                </p>
+                <p style={{ fontSize: 11, color: 'rgba(28,24,20,0.6)', marginTop: 2 }}>
+                  Accès maintenu jusqu'à la fin de la période
+                </p>
+              </div>
+              <ChevronRight size={15} strokeWidth={1.5} style={{ color: 'rgba(239,68,68,0.4)' }} />
+            </button>
+          )}
+        </Section>
+
+        {/* confidentialité RGPD */}
+        <Section title="Confidentialité">
+          <Row
+            icon={ShieldOff}
+            label="Révoquer mon consentement (Art. 9 RGPD)"
+            desc={profile.consent_given_at
+              ? `Consentement donné le ${new Date(profile.consent_given_at).toLocaleDateString('fr-FR')} — cliquez pour le retirer`
+              : 'Consentement non enregistré'}
+            onClick={() => { setConsentConfirm(true); setConsentRevokeError(''); setConsentRevokeDone(false) }}
+            danger
+          />
         </Section>
 
         {/* compte */}
@@ -170,6 +259,198 @@ export default function Settings() {
         </Section>
 
       </div>
+
+      {/* modal révocation consentement Art. 9 RGPD */}
+      {consentConfirm && (
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center animate-fade-in"
+          style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)', animationFillMode: 'both' }}
+          onClick={() => { if (!revokingConsent) { setConsentConfirm(false); setConsentRevokeError('') } }}
+        >
+          <div
+            className="animate-fade-in-up"
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: 'rgba(253,250,246,0.98)',
+              border: '1px solid rgba(239,68,68,0.2)',
+              borderRadius: '24px 24px 0 0',
+              width: '100%', maxWidth: '480px',
+              padding: '28px 24px 40px',
+              animationFillMode: 'both',
+            }}
+          >
+            {consentRevokeDone ? (
+              <>
+                <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '1.7rem', color: '#C9A84C', marginBottom: '12px' }}>
+                  Consentement retiré
+                </h2>
+                <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.9)', lineHeight: 1.7, marginBottom: '24px' }}>
+                  Votre consentement a été révoqué. Vos données de préférences (orientation, recherche) ont été effacées de notre base conformément à l'Art. 9 du RGPD.
+                </p>
+                <button
+                  className="btn-gold"
+                  onClick={() => setConsentConfirm(false)}
+                  style={{ width: '100%', padding: '14px', borderRadius: '12px', border: 'none', cursor: 'pointer', fontSize: '13px' }}
+                >
+                  Fermer
+                </button>
+              </>
+            ) : (
+              <>
+                <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '1.7rem', color: 'rgba(239,68,68,0.85)', marginBottom: '12px' }}>
+                  Révoquer le consentement
+                </h2>
+                <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.9)', lineHeight: 1.7, marginBottom: '20px' }}>
+                  En retirant votre consentement Art. 9 RGPD, vos données sensibles (orientation, type de relation recherché) seront effacées immédiatement. Votre profil restera visible mais ces informations ne seront plus disponibles.
+                </p>
+                {consentRevokeError && (
+                  <p style={{
+                    fontSize: 12, color: 'rgba(248,113,113,0.9)',
+                    background: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.15)',
+                    borderRadius: 10, padding: '10px 14px', marginBottom: 16,
+                  }}>
+                    {consentRevokeError}
+                  </p>
+                )}
+                <div className="flex gap-3">
+                  <button className="erb-btn"
+                    onClick={() => { setConsentConfirm(false); setConsentRevokeError('') }}
+                    disabled={revokingConsent}
+                    style={{
+                      flex: 1, padding: '14px', borderRadius: '12px',
+                      background: 'transparent', border: '1px solid rgba(201,168,76,0.1)',
+                      color: 'rgba(28,24,20,0.9)', fontSize: '13px', cursor: 'pointer',
+                      opacity: revokingConsent ? 0.5 : 1,
+                    }}
+                  >
+                    Annuler
+                  </button>
+                  <button className="erb-btn"
+                    onClick={revokeConsent}
+                    disabled={revokingConsent}
+                    style={{
+                      flex: 1, padding: '14px', borderRadius: '12px',
+                      background: revokingConsent ? 'rgba(200,200,200,0.15)' : 'rgba(239,68,68,0.12)',
+                      border: revokingConsent ? '1px solid rgba(200,200,200,0.2)' : '1px solid rgba(239,68,68,0.3)',
+                      color: revokingConsent ? 'rgba(28,24,20,0.3)' : 'rgba(239,68,68,0.9)',
+                      fontSize: '13px', fontWeight: 600,
+                      cursor: revokingConsent ? 'not-allowed' : 'pointer',
+                      transition: 'all 0.2s',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                    }}
+                    onMouseEnter={e => { if (!revokingConsent) e.currentTarget.style.background = 'rgba(239,68,68,0.2)' }}
+                    onMouseLeave={e => { if (!revokingConsent) e.currentTarget.style.background = 'rgba(239,68,68,0.12)' }}
+                  >
+                    {revokingConsent && (
+                      <div style={{ width: 14, height: 14, border: '2px solid rgba(239,68,68,0.3)', borderTopColor: 'rgba(239,68,68,0.9)', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite', flexShrink: 0 }} />
+                    )}
+                    {revokingConsent ? 'Révocation…' : 'Révoquer le consentement'}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* modal résiliation abonnement — loi Chatel */}
+      {cancelConfirm && (
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center animate-fade-in"
+          style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)', animationFillMode: 'both' }}
+          onClick={() => { if (!cancelling) { setCancelConfirm(false); setCancelError('') } }}
+        >
+          <div
+            className="animate-fade-in-up"
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: 'rgba(253,250,246,0.98)',
+              border: '1px solid rgba(239,68,68,0.2)',
+              borderRadius: '24px 24px 0 0',
+              width: '100%', maxWidth: '480px',
+              padding: '28px 24px 40px',
+              animationFillMode: 'both',
+            }}
+          >
+            {cancelDone ? (
+              <>
+                <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '1.7rem', color: '#C9A84C', marginBottom: '12px' }}>
+                  Résiliation confirmée
+                </h2>
+                <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.9)', lineHeight: 1.7, marginBottom: '24px' }}>
+                  Votre abonnement ne sera pas renouvelé. Vous conservez l'accès Premium jusqu'à la fin de la période en cours.
+                </p>
+                <button
+                  className="btn-gold"
+                  onClick={() => setCancelConfirm(false)}
+                  style={{ width: '100%', padding: '14px', borderRadius: '12px', border: 'none', cursor: 'pointer', fontSize: '13px' }}
+                >
+                  Fermer
+                </button>
+              </>
+            ) : (
+              <>
+                <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '1.7rem', color: 'rgba(239,68,68,0.85)', marginBottom: '12px' }}>
+                  Résilier l'abonnement
+                </h2>
+                <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.9)', lineHeight: 1.7, marginBottom: '20px' }}>
+                  Votre abonnement Premium sera annulé. Vous conserverez l'accès jusqu'au{' '}
+                  <strong style={{ color: '#C9A84C' }}>
+                    {profile?.plan_expires_at
+                      ? new Date(profile.plan_expires_at).toLocaleDateString('fr-FR')
+                      : 'fin de période'}
+                  </strong>
+                  , sans renouvellement automatique.
+                </p>
+                {cancelError && (
+                  <p style={{
+                    fontSize: 12, color: 'rgba(248,113,113,0.9)',
+                    background: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.15)',
+                    borderRadius: 10, padding: '10px 14px', marginBottom: 16,
+                  }}>
+                    {cancelError}
+                  </p>
+                )}
+                <div className="flex gap-3">
+                  <button className="erb-btn"
+                    onClick={() => { setCancelConfirm(false); setCancelError('') }}
+                    disabled={cancelling}
+                    style={{
+                      flex: 1, padding: '14px', borderRadius: '12px',
+                      background: 'transparent', border: '1px solid rgba(201,168,76,0.1)',
+                      color: 'rgba(28,24,20,0.9)', fontSize: '13px', cursor: 'pointer',
+                      opacity: cancelling ? 0.5 : 1,
+                    }}
+                  >
+                    Annuler
+                  </button>
+                  <button className="erb-btn"
+                    onClick={cancelSubscription}
+                    disabled={cancelling}
+                    style={{
+                      flex: 1, padding: '14px', borderRadius: '12px',
+                      background: cancelling ? 'rgba(200,200,200,0.15)' : 'rgba(239,68,68,0.12)',
+                      border: cancelling ? '1px solid rgba(200,200,200,0.2)' : '1px solid rgba(239,68,68,0.3)',
+                      color: cancelling ? 'rgba(28,24,20,0.3)' : 'rgba(239,68,68,0.9)',
+                      fontSize: '13px', fontWeight: 600,
+                      cursor: cancelling ? 'not-allowed' : 'pointer',
+                      transition: 'all 0.2s',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                    }}
+                    onMouseEnter={e => { if (!cancelling) e.currentTarget.style.background = 'rgba(239,68,68,0.2)' }}
+                    onMouseLeave={e => { if (!cancelling) e.currentTarget.style.background = 'rgba(239,68,68,0.12)' }}
+                  >
+                    {cancelling && (
+                      <div style={{ width: 14, height: 14, border: '2px solid rgba(239,68,68,0.3)', borderTopColor: 'rgba(239,68,68,0.9)', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite', flexShrink: 0 }} />
+                    )}
+                    {cancelling ? 'Résiliation…' : 'Confirmer la résiliation'}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* modal suppression */}
       {confirm && (

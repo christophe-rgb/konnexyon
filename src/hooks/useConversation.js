@@ -44,17 +44,22 @@ export function useConversation(matchId) {
       return
     }
 
-    const loadMatch = async () => {
+    const init = async () => {
+      // SEC-003 : loadMatch en premier (séquentiel) pour vérifier que
+      // l'utilisateur est bien couple_a ou couple_b avant de s'abonner.
       const { data: m } = await supabase
         .from('matches').select('couple_a, couple_b').eq('id', matchId).single()
       if (!m || !isMounted()) return
-      const otherId = m.couple_a === profile.id ? m.couple_b : m.couple_a
+      const otherId = m.couple_a === profile.id
+        ? m.couple_b
+        : m.couple_b === profile.id ? m.couple_a : null
+      if (!otherId) { navigate('/messages'); return }
+
       const { data: p } = await supabase
         .from('profiles').select('id, couple_name, avatar_url').eq('id', otherId).single()
       if (isMounted()) setOther(p)
-    }
 
-    const loadMessages = async () => {
+      // Charger les messages uniquement si participant confirmé
       const { data, count } = await supabase
         .from('messages')
         .select('*', { count: 'exact' })
@@ -70,32 +75,32 @@ export function useConversation(matchId) {
       setMessages(page)
       setLoading(false)
 
-      const unread = page.filter(m => m.sender_id !== profile.id && !m.read_at)
+      const unread = page.filter(msg => msg.sender_id !== profile.id && !msg.read_at)
       if (unread.length) {
         await supabase.from('messages')
           .update({ read_at: new Date().toISOString() })
-          .in('id', unread.map(m => m.id))
+          .in('id', unread.map(msg => msg.id))
       }
+
+      // Subscription Realtime établie uniquement après confirmation participation
+      if (channelRef.current) supabase.removeChannel(channelRef.current)
+      const channel = supabase
+        .channel(`chat-${matchId}`)
+        .on('postgres_changes', {
+          event: 'INSERT', schema: 'public', table: 'messages',
+          filter: `match_id=eq.${matchId}`,
+        }, payload => {
+          if (!isMountedRef.current) return
+          setMessages(ms =>
+            ms.some(x => x.id === payload.new.id) ? ms : [...ms, payload.new]
+          )
+          if (payload.new.sender_id !== profile.id) markRead(payload.new.id)
+        })
+        .subscribe()
+      channelRef.current = channel
     }
 
-    loadMatch()
-    loadMessages()
-
-    if (channelRef.current) supabase.removeChannel(channelRef.current)
-    const channel = supabase
-      .channel(`chat-${matchId}`)
-      .on('postgres_changes', {
-        event: 'INSERT', schema: 'public', table: 'messages',
-        filter: `match_id=eq.${matchId}`,
-      }, payload => {
-        if (!isMountedRef.current) return
-        setMessages(ms =>
-          ms.some(x => x.id === payload.new.id) ? ms : [...ms, payload.new]
-        )
-        if (payload.new.sender_id !== profile.id) markRead(payload.new.id)
-      })
-      .subscribe()
-    channelRef.current = channel
+    init()
 
     return () => {
       isMountedRef.current = false
@@ -106,7 +111,7 @@ export function useConversation(matchId) {
 
   // ─── Actions ──────────────────────────────────────────────────────────────
   const markRead = async (msgId) => {
-    await supabase.from('messages').update({ read_at: new Date().toISOString() }).eq('id', msgId)
+    await supabase.from('messages').update({ read_at: new Date().toISOString() }).eq('id', msgId).eq('match_id', matchId)
   }
 
   const loadMore = async () => {
@@ -219,7 +224,7 @@ export function useConversation(matchId) {
       danger: true,
     })
     if (!ok) return
-    const { error } = await supabase.from('matches').delete().eq('id', matchId)
+    const { error } = await supabase.from('matches').delete().eq('id', matchId).or(`couple_a.eq.${profile.id},couple_b.eq.${profile.id}`)
     if (error) { toast(`Erreur : ${error.message}`, 'error'); return }
     navigate('/matches')
     toast('Match annulé')
