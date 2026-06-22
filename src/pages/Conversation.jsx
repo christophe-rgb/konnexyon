@@ -25,6 +25,7 @@ export default function Conversation() {
   const bottomRef  = useRef(null)
   const fileRef    = useRef(null)
   const textareaRef = useRef(null)
+  const sendingRef  = useRef(false)
 
   // auto-resize textarea
   const autoResize = useCallback(() => {
@@ -104,7 +105,8 @@ export default function Conversation() {
 
   const send = async () => {
     const content = text.trim()
-    if (!content || sending) return
+    if (!content || sendingRef.current) return
+    sendingRef.current = true
     setSending(true)
 
     if (demoMode) {
@@ -121,17 +123,22 @@ export default function Conversation() {
       setMessages(ms => [...ms, newMsg])
       setText('')
       setSending(false)
+      sendingRef.current = false
       return
     }
 
-    const { error } = await supabase.from('messages').insert({
-      match_id:  matchId,
-      sender_id: profile.id,
-      content,
-    })
-    if (error) toast(`Erreur ${error.code}: ${error.message}`, 'error')
-    setText('')
-    setSending(false)
+    try {
+      const { error } = await supabase.from('messages').insert({
+        match_id:  matchId,
+        sender_id: profile.id,
+        content,
+      })
+      if (error) toast(`Erreur ${error.code}: ${error.message}`, 'error')
+      setText('')
+    } finally {
+      setSending(false)
+      sendingRef.current = false
+    }
   }
 
   const sendPhoto = async (file) => {
@@ -310,6 +317,7 @@ export default function Conversation() {
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
             placeholder="Votre message…"
             rows={1}
+            disabled={sending}
             style={{
               flex: 1,
               background: 'rgba(245,240,232,0.9)',

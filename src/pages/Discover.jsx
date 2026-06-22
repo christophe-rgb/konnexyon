@@ -86,7 +86,7 @@ export default function Discover() {
   const like = async (toId) => {
     setLikedIds(prev => new Set([...prev, toId]))
     setSelected(null)
-    // accès libre temporairement
+    if (!premium && !demoMode) { setShowUpgrade(true); return; }
     if (!demoMode) {
       const { error } = await supabase.from('likes').insert({ from_id: profile.id, to_id: toId })
       // 23505 = duplicate key (déjà liké) → pas une vraie erreur
@@ -290,6 +290,8 @@ export default function Discover() {
           onClose={() => setShowFilters(false)}
         />
       )}
+
+      {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
 
       {showPanier && (
         <PanierSheet

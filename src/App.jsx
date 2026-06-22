@@ -60,6 +60,7 @@ function RequireProfile({ children }) {
 
 export default function App() {
   const init    = useAuthStore(s => s.init)
+  const cleanup = useAuthStore(s => s.cleanup)
   const profile = useAuthStore(s => s.profile)
   const user    = useAuthStore(s => s.user)
   const [newMatch, setNewMatch] = useState(null)
@@ -67,7 +68,7 @@ export default function App() {
     () => safeGet('age_confirmed') === '1'
   )
 
-  useEffect(() => { init() }, [init])
+  useEffect(() => { init(); return () => cleanup() }, [init, cleanup])
 
   // écoute les nouveaux matchs en realtime pour afficher la modal
   useEffect(() => {
