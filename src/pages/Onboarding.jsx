@@ -134,15 +134,17 @@ export default function Onboarding() {
 
     // eslint-disable-next-line no-unused-vars
     const { orientation_lui, orientation_elle, ...profileData } = data
+    const now = new Date().toISOString()
     const payload = {
       id: uid,
       email_1: email,
       ...profileData,
       orientation,
       email_1_confirmed: true,
-      consent_given_at:  consentTimestamp || new Date().toISOString(),
+      age_confirmed_at:  now,
+      consent_given_at:  consentTimestamp || now,
       consent_version:   CONSENT_VERSION,
-      ...(locationSql ? { location: locationSql, location_updated_at: new Date().toISOString() } : {}),
+      ...(locationSql ? { location: locationSql, location_updated_at: now } : {}),
     }
 
     // Retry 3× avec backoff exponentiel pour résister aux erreurs réseau transitoires
@@ -182,7 +184,7 @@ export default function Onboarding() {
     }).catch(() => {})
 
     // Force le store immédiatement avec orientation calculée
-    setProfile({ id: uid, email_1: email, ...profileData, orientation, email_1_confirmed: true })
+    setProfile({ id: uid, email_1: email, ...profileData, orientation, email_1_confirmed: true, age_confirmed_at: now })
     // Refresh en arrière-plan pour synchroniser les données Supabase
     fetchProfile(uid)
     const { data: updatedProfile } = await supabase
