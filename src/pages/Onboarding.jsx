@@ -44,6 +44,7 @@ export default function Onboarding() {
   const navigate     = useNavigate()
 
   const [step,      setStep]      = useState(0)
+  const [direction, setDirection] = useState('forward')
   const [saving,    setSaving]    = useState(false)
   const [photoFile, setPhotoFile] = useState(null)
   const [photoPreview, setPhotoPreview] = useState(null)
@@ -74,9 +75,13 @@ export default function Onboarding() {
       setStepError('Le pseudo du couple doit comporter au moins 2 caractères.')
       return
     }
+    setDirection('forward')
     setStep(s => Math.min(s + 1, STEPS.length - 1))
   }
-  const prev = () => setStep(s => Math.max(s - 1, 0))
+  const prev = () => {
+    setDirection('back')
+    setStep(s => Math.max(s - 1, 0))
+  }
 
   const finish = async () => {
     setSaving(true)
@@ -166,7 +171,7 @@ export default function Onboarding() {
       <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-center">
         <picture>
           <source srcSet="/logo.webp" type="image/webp" />
-          <img src="/logo.png" alt="" aria-hidden style={{
+          <img src="/logo.webp" alt="" aria-hidden style={{
             width: '130vw', maxWidth: 860,
             opacity: 0.28, filter: 'brightness(0.85) saturate(0.9)',
             userSelect: 'none', display: 'block',
@@ -219,7 +224,7 @@ export default function Onboarding() {
         </div>
 
         {/* contenu step */}
-        <div className="animate-fade-in-up mt-6" style={{ animationFillMode: 'both', animationDuration: '350ms' }} key={step}>
+        <div className={direction === 'back' ? 'animate-fade-in-down mt-6' : 'animate-fade-in-up mt-6'} style={{ animationFillMode: 'both', animationDuration: '350ms' }} key={step}>
           {step === 0 && <StepProfil data={data} set={set} toggleArr={toggleArr} />}
           {step === 1 && (
             <StepPhoto

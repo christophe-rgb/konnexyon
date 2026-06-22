@@ -12,6 +12,7 @@ export default function Settings() {
   const [saving,      setSaving]      = useState('')
   const [confirm,     setConfirm]     = useState(false)
   const [confirmText, setConfirmText] = useState('')
+  const [deleting,    setDeleting]    = useState(false)
 
   const update = async (patch, label) => {
     setSaving(label)
@@ -21,6 +22,7 @@ export default function Settings() {
   }
 
   const deleteAccount = async () => {
+    setDeleting(true)
     await supabase.from('profiles').update({ status: 'deleted' }).eq('id', profile.id)
     await supabase.auth.signOut()
     navigate('/login')
@@ -232,19 +234,23 @@ export default function Settings() {
               </button>
               <button className="erb-btn"
                 onClick={deleteAccount}
-                disabled={confirmText !== 'SUPPRIMER'}
+                disabled={confirmText !== 'SUPPRIMER' || deleting}
                 style={{
                   flex: 1, padding: '14px', borderRadius: '12px',
-                  background: confirmText === 'SUPPRIMER' ? 'rgba(239,68,68,0.12)' : 'rgba(200,200,200,0.15)',
-                  border: confirmText === 'SUPPRIMER' ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(200,200,200,0.2)',
-                  color: confirmText === 'SUPPRIMER' ? 'rgba(239,68,68,0.9)' : 'rgba(28,24,20,0.3)',
+                  background: confirmText === 'SUPPRIMER' && !deleting ? 'rgba(239,68,68,0.12)' : 'rgba(200,200,200,0.15)',
+                  border: confirmText === 'SUPPRIMER' && !deleting ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(200,200,200,0.2)',
+                  color: confirmText === 'SUPPRIMER' && !deleting ? 'rgba(239,68,68,0.9)' : 'rgba(28,24,20,0.3)',
                   fontSize: '13px', fontWeight: 600,
-                  cursor: confirmText === 'SUPPRIMER' ? 'pointer' : 'not-allowed',
+                  cursor: confirmText === 'SUPPRIMER' && !deleting ? 'pointer' : 'not-allowed',
                   transition: 'all 0.2s',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
                 }}
-                onMouseEnter={e => { if (confirmText === 'SUPPRIMER') e.currentTarget.style.background = 'rgba(239,68,68,0.2)'; }}
-                onMouseLeave={e => { if (confirmText === 'SUPPRIMER') e.currentTarget.style.background = 'rgba(239,68,68,0.12)'; }}
+                onMouseEnter={e => { if (confirmText === 'SUPPRIMER' && !deleting) e.currentTarget.style.background = 'rgba(239,68,68,0.2)'; }}
+                onMouseLeave={e => { if (confirmText === 'SUPPRIMER' && !deleting) e.currentTarget.style.background = 'rgba(239,68,68,0.12)'; }}
               >
+                {deleting && (
+                  <div style={{ width: 14, height: 14, border: '2px solid rgba(239,68,68,0.3)', borderTopColor: 'rgba(239,68,68,0.9)', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite', flexShrink: 0 }} />
+                )}
                 Supprimer
               </button>
             </div>

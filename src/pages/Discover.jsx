@@ -196,21 +196,39 @@ export default function Discover() {
 
         {/* actions toolbar */}
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowFilters(true)}
-            aria-label="Filtres de connexion"
-            className="erb-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 cursor-pointer"
-            style={{
-              background: 'rgba(237,231,219,0.9)',
-              border: '1px solid rgba(201,168,76,0.25)',
-              color: 'rgba(201,168,76,1)',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.5)'; e.currentTarget.style.color = '#C9A84C'; e.currentTarget.style.background = 'rgba(201,168,76,0.08)'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.25)'; e.currentTarget.style.color = 'rgba(201,168,76,0.8)'; e.currentTarget.style.background = 'rgba(237,231,219,0.9)'; }}
-          >
-            <SlidersHorizontal size={14} strokeWidth={1.5} />
-            Filtres
-          </button>
+          {(() => {
+            const activeCount = (filters.orientation !== 'all' ? 1 : 0) + (filters.seeking?.length || 0) + (filters.distance > 0 ? 1 : 0)
+            return (
+              <button
+                onClick={() => setShowFilters(true)}
+                aria-label="Filtres de connexion"
+                className="erb-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 cursor-pointer"
+                style={{
+                  background: activeCount > 0 ? 'rgba(201,168,76,0.15)' : 'rgba(237,231,219,0.9)',
+                  border: activeCount > 0 ? '1px solid rgba(201,168,76,0.55)' : '1px solid rgba(201,168,76,0.25)',
+                  color: 'rgba(201,168,76,1)',
+                  position: 'relative',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.5)'; e.currentTarget.style.color = '#C9A84C'; e.currentTarget.style.background = 'rgba(201,168,76,0.08)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = activeCount > 0 ? 'rgba(201,168,76,0.55)' : 'rgba(201,168,76,0.25)'; e.currentTarget.style.color = 'rgba(201,168,76,0.8)'; e.currentTarget.style.background = activeCount > 0 ? 'rgba(201,168,76,0.15)' : 'rgba(237,231,219,0.9)'; }}
+              >
+                <SlidersHorizontal size={14} strokeWidth={1.5} />
+                Filtres
+                {activeCount > 0 && (
+                  <span style={{
+                    position: 'absolute', top: '-6px', right: '-6px',
+                    minWidth: '16px', height: '16px', borderRadius: '999px',
+                    background: 'linear-gradient(135deg, #A07830, #C9A84C)',
+                    color: '#fff', fontSize: '10px', fontWeight: 700,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    padding: '0 4px', lineHeight: 1,
+                  }}>
+                    {activeCount}
+                  </span>
+                )}
+              </button>
+            )
+          })()}
 
           {/* toggle swipe/grille/carte */}
           <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid rgba(201,168,76,0.15)', background: 'rgba(237,231,219,0.9)' }}>

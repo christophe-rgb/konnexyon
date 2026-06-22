@@ -2,13 +2,7 @@ import { X, MapPin, Zap } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import XLogo from './XLogo'
-
-const SEEKING_LABELS = {
-  rencontres_occasionnelles: 'Rencontres',
-  echangisme:                'Échangisme',
-  amis_libertins:            'Amis libertins',
-  decouverte:                'Découverte',
-}
+import { SEEKING_LABELS } from '../data/labels'
 
 /* Icône X-connexion SVG inline */
 function XConnectIcon({ size = 14, color = 'currentColor' }) {
