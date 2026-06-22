@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
 
 const STEPS = [
   { key: 'profil',         label: 'Votre couple',      icon: '∞' },
+  { key: 'photo',          label: 'Votre photo',        icon: '◈' },
   { key: 'cherche',        label: 'Vos désirs',         icon: '◈' },
   { key: 'disponibilites', label: 'Disponibilités',     icon: '◷' },
   { key: 'limites',        label: 'Vos limites',        icon: '◉' },
@@ -40,8 +41,11 @@ export default function Onboarding() {
   const setProfile   = useAuthStore(s => s.setProfile)
   const navigate     = useNavigate()
 
-  const [step,   setStep]   = useState(0)
-  const [saving, setSaving] = useState(false)
+  const [step,      setStep]      = useState(0)
+  const [saving,    setSaving]    = useState(false)
+  const [photoFile, setPhotoFile] = useState(null)
+  const [photoPreview, setPhotoPreview] = useState(null)
+  const fileRef = useRef(null)
   const [data,   setData]   = useState({
     couple_name:    '',
     bio:            '',
@@ -120,6 +124,18 @@ export default function Onboarding() {
       setSaving(false)
       return
     }
+    // Upload photo si choisie
+    if (photoFile) {
+      const ext  = photoFile.name.split('.').pop().toLowerCase()
+      const path = `${uid}/avatar.${ext}`
+      const { error: upErr } = await supabase.storage.from('avatars').upload(path, photoFile, { upsert: true, contentType: photoFile.type })
+      if (!upErr) {
+        const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
+        const urlWithCache = `${publicUrl}?t=${Date.now()}`
+        await supabase.from('profiles').update({ avatar_url: urlWithCache }).eq('id', uid)
+      }
+    }
+
     // Notif Telegram admin
     supabase.functions.invoke('notify-new-user', {
       body: { record: { couple_name: data.couple_name, status: 'actif' } },
@@ -201,25 +217,35 @@ export default function Onboarding() {
         <div className="animate-fade-in-up mt-6" style={{ animationFillMode: 'both', animationDuration: '350ms' }} key={step}>
           {step === 0 && <StepProfil data={data} set={set} toggleArr={toggleArr} />}
           {step === 1 && (
+            <StepPhoto
+              photoPreview={photoPreview}
+              onFile={file => {
+                setPhotoFile(file)
+                setPhotoPreview(URL.createObjectURL(file))
+              }}
+              fileRef={fileRef}
+            />
+          )}
+          {step === 2 && (
             <StepMulti
               title="Vos désirs" subtitle="Sélectionnez tout ce qui vous correspond"
               options={SEEKING_OPTIONS} field="seeking" data={data} toggle={toggleArr}
             />
           )}
-          {step === 2 && (
+          {step === 3 && (
             <StepMulti
               title="Vos disponibilités" subtitle="Quand êtes-vous disponibles ?"
               options={AVAIL_OPTIONS} field="availabilities" data={data} toggle={toggleArr}
             />
           )}
-          {step === 3 && (
+          {step === 4 && (
             <StepMulti
               title="Vos limites" subtitle="Ces points seront visibles sur votre profil"
               options={LIMITS_OPTIONS} field="limits" data={data} toggle={toggleArr}
             />
           )}
-          {step === 4 && <StepDistance data={data} set={set} />}
-          {step === 5 && <StepVisibility data={data} set={set} />}
+          {step === 5 && <StepDistance data={data} set={set} />}
+          {step === 6 && <StepVisibility data={data} set={set} />}
         </div>
 
         {/* erreur step */}
@@ -481,6 +507,62 @@ function OField({ label, children }) {
         {label}
       </label>
       {children}
+    </div>
+  )
+}
+
+function StepPhoto({ photoPreview, onFile, fileRef }) {
+  return (
+    <div className="flex flex-col gap-5">
+      <div>
+        <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '2rem', fontWeight: 600, color: '#1C1814', marginBottom: '4px' }}>
+          Votre photo
+        </h2>
+        <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.9)' }}>Choisissez une photo de couple (optionnel)</p>
+      </div>
+
+      <div
+        onClick={() => fileRef.current?.click()}
+        style={{
+          width: '100%', aspectRatio: '4/3', borderRadius: '18px',
+          border: '2px dashed rgba(201,168,76,0.6)',
+          background: photoPreview ? 'transparent' : 'rgba(245,240,232,0.6)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          cursor: 'pointer', overflow: 'hidden', position: 'relative',
+          transition: 'border-color 0.2s',
+        }}
+      >
+        {photoPreview ? (
+          <img src={photoPreview} alt="Aperçu" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        ) : (
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '40px', marginBottom: '12px', opacity: 0.5 }}>📸</div>
+            <p style={{ fontSize: '14px', color: 'rgba(201,168,76,1)', fontWeight: 500 }}>Appuyez pour choisir une photo</p>
+            <p style={{ fontSize: '11px', color: 'rgba(28,24,20,0.5)', marginTop: '4px' }}>Pas de photos explicites</p>
+          </div>
+        )}
+      </div>
+
+      {photoPreview && (
+        <button
+          onClick={() => fileRef.current?.click()}
+          style={{
+            padding: '12px', borderRadius: '14px', cursor: 'pointer',
+            background: 'transparent', border: '1px solid rgba(201,168,76,1)',
+            color: 'rgba(201,168,76,1)', fontSize: '13px',
+          }}
+        >
+          Changer la photo
+        </button>
+      )}
+
+      <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }}
+        onChange={e => { if (e.target.files[0]) onFile(e.target.files[0]) }}
+      />
+
+      <p style={{ fontSize: '11px', color: 'rgba(28,24,20,0.5)', textAlign: 'center' }}>
+        Vous pourrez la modifier à tout moment depuis votre profil
+      </p>
     </div>
   )
 }
