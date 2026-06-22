@@ -44,7 +44,7 @@ npx vercel deploy --prod
 node /Users/parrachristophe/agent/scripts/test-site.mjs
 
 # Lier Supabase
-SUPABASE_ACCESS_TOKEN=sbp_f575235d80ad57e830d44ce9e9833e05b968f916 npx supabase link --project-ref qpynduwnteqlxhiyzknv
+SUPABASE_ACCESS_TOKEN=REDACTED npx supabase link --project-ref qpynduwnteqlxhiyzknv
 ```
 
 ---
@@ -53,7 +53,7 @@ SUPABASE_ACCESS_TOKEN=sbp_f575235d80ad57e830d44ce9e9833e05b968f916 npx supabase 
 
 ```
 Supabase project ref    : qpynduwnteqlxhiyzknv
-Supabase access token   : sbp_f575235d80ad57e830d44ce9e9833e05b968f916
+Supabase access token   : REDACTED
 Supabase anon key       : dans .env.local (VITE_SUPABASE_ANON_KEY)
 Supabase service role   : dans .env.local (ne jamais mettre dans le code front)
 Resend API key          : dans .env.local

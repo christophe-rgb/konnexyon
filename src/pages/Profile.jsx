@@ -183,7 +183,8 @@ export default function Profile() {
       const { error: upErr } = await supabase.storage.from('avatars').upload(path, file, { upsert: true, contentType: file.type })
       if (upErr) { toast(`Erreur upload : ${upErr.message}`); return }
       const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
-      const { error: dbErr } = await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', myProfile.id)
+      const urlWithCache = `${publicUrl}?t=${Date.now()}`
+      const { error: dbErr } = await supabase.from('profiles').update({ avatar_url: urlWithCache }).eq('id', myProfile.id)
       if (dbErr) { toast(`Erreur sauvegarde : ${dbErr.message}`); return }
       await fetchProfile(myProfile.id)
       toast('Photo mise à jour ✓')
