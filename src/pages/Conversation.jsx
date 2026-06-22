@@ -22,7 +22,12 @@ export default function Conversation() {
   const [sending,      setSending]      = useState(false)
   const [uploading,    setUploading]    = useState(false)
   const [loading,      setLoading]      = useState(true)
+  const [loadingMore,  setLoadingMore]  = useState(false)
+  const [hasMore,      setHasMore]      = useState(false)
+  const offsetRef      = useRef(0)
+  const PAGE_SIZE      = 50
   const bottomRef  = useRef(null)
+  const scrollRef  = useRef(null)
   const fileRef    = useRef(null)
   const textareaRef = useRef(null)
   const sendingRef  = useRef(false)
@@ -39,6 +44,7 @@ export default function Conversation() {
 
   useEffect(() => {
     if (!matchId || !profile) return
+    let isMounted = true
 
     if (demoMode) {
       const match = DEMO_MATCHES.find(m => m.id === matchId)
@@ -46,6 +52,42 @@ export default function Conversation() {
       setMessages(DEMO_MESSAGES[matchId] || [])
       setLoading(false)
       return
+    }
+
+    const loadMatch = async () => {
+      const { data: m } = await supabase
+        .from('matches').select('couple_a, couple_b').eq('id', matchId).single()
+      if (!m || !isMounted) return
+      const otherId = m.couple_a === profile.id ? m.couple_b : m.couple_a
+      const { data: p } = await supabase
+        .from('profiles').select('id, couple_name, avatar_url').eq('id', otherId).single()
+      if (isMounted) setOther(p)
+    }
+
+    const loadMessages = async () => {
+      // Charge les PAGE_SIZE derniers messages (DESC pour prendre les plus récents, puis reverse)
+      const { data, count } = await supabase
+        .from('messages')
+        .select('*', { count: 'exact' })
+        .eq('match_id', matchId)
+        .or(`deleted_for.is.null,deleted_for.not.cs.{${profile.id}}`)
+        .order('created_at', { ascending: false })
+        .limit(PAGE_SIZE)
+
+      if (!isMounted) return
+      const page = (data || []).reverse()
+      offsetRef.current = page.length
+      setHasMore((count || 0) > page.length)
+      setMessages(page)
+      setLoading(false)
+
+      // marquer comme lus
+      const unread = page.filter(m => m.sender_id !== profile.id && !m.read_at)
+      if (unread.length) {
+        await supabase.from('messages')
+          .update({ read_at: new Date().toISOString() })
+          .in('id', unread.map(m => m.id))
+      }
     }
 
     loadMatch()
@@ -62,41 +104,53 @@ export default function Conversation() {
       })
       .subscribe()
 
-    return () => supabase.removeChannel(channel)
+    return () => {
+      isMounted = false
+      supabase.removeChannel(channel)
+    }
   }, [matchId, profile])
 
+  // Scroll vers le bas uniquement à l'ouverture et à la réception d'un nouveau message
+  // (pas lors d'un "charger plus" — géré par loadMoreMessages via scrollHeight delta)
+  const prevMsgCountRef = useRef(0)
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const prevCount = prevMsgCountRef.current
+    const newCount = messages.length
+    prevMsgCountRef.current = newCount
+    // Scroll en bas si : premier chargement, ou nouveau message ajouté en fin de liste
+    if (prevCount === 0 || newCount === prevCount + 1) {
+      bottomRef.current?.scrollIntoView({ behavior: prevCount === 0 ? 'auto' : 'smooth' })
+    }
   }, [messages])
 
-  const loadMatch = async () => {
-    const { data: m } = await supabase
-      .from('matches').select('couple_a, couple_b').eq('id', matchId).single()
-    if (!m) return
-    const otherId = m.couple_a === profile.id ? m.couple_b : m.couple_a
-    const { data: p } = await supabase
-      .from('profiles').select('id, couple_name, avatar_url').eq('id', otherId).single()
-    setOther(p)
-  }
+  const loadMoreMessages = async () => {
+    if (loadingMore || !hasMore) return
+    setLoadingMore(true)
 
-  const loadMessages = async () => {
-    const { data } = await supabase
+    // Sauvegarde la hauteur du scroll avant d'injecter des messages en haut
+    const container = scrollRef.current
+    const prevScrollHeight = container?.scrollHeight || 0
+
+    const { data, count } = await supabase
       .from('messages')
-      .select('*')
+      .select('*', { count: 'exact' })
       .eq('match_id', matchId)
       .or(`deleted_for.is.null,deleted_for.not.cs.{${profile.id}}`)
-      .order('created_at', { ascending: true })
+      .order('created_at', { ascending: false })
+      .range(offsetRef.current, offsetRef.current + PAGE_SIZE - 1)
 
-    setMessages(data || [])
-    setLoading(false)
+    const older = (data || []).reverse()
+    offsetRef.current += older.length
+    setHasMore((count || 0) > offsetRef.current)
+    setMessages(ms => [...older, ...ms])
+    setLoadingMore(false)
 
-    // marquer comme lus
-    const unread = (data || []).filter(m => m.sender_id !== profile.id && !m.read_at)
-    if (unread.length) {
-      await supabase.from('messages')
-        .update({ read_at: new Date().toISOString() })
-        .in('id', unread.map(m => m.id))
-    }
+    // Restaure la position scroll pour éviter le saut vers le haut
+    requestAnimationFrame(() => {
+      if (container) {
+        container.scrollTop = container.scrollHeight - prevScrollHeight
+      }
+    })
   }
 
   const markRead = async (msgId) => {
@@ -251,7 +305,29 @@ export default function Conversation() {
       </div>
 
       {/* messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3">
+        {/* Bouton "charger plus" — affiché en haut quand il existe des messages plus anciens */}
+        {!loading && hasMore && (
+          <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: '8px' }}>
+            <button
+              onClick={loadMoreMessages}
+              disabled={loadingMore}
+              style={{
+                padding: '6px 16px', borderRadius: '20px', fontSize: '12px',
+                fontFamily: 'inherit', letterSpacing: '0.05em',
+                background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.3)',
+                color: 'rgba(201,168,76,1)', cursor: loadingMore ? 'default' : 'pointer',
+                display: 'flex', alignItems: 'center', gap: '6px',
+                opacity: loadingMore ? 0.6 : 1, transition: 'all 0.2s',
+              }}
+            >
+              {loadingMore
+                ? <><div style={{ width: 12, height: 12, border: '2px solid rgba(201,168,76,0.4)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite' }} /> Chargement…</>
+                : 'Voir les messages précédents'
+              }
+            </button>
+          </div>
+        )}
         {loading ? (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 0' }}>
             <div style={{ width: 22, height: 22, border: '2px solid rgba(201,168,76,0.4)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite' }} />

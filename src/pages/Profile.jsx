@@ -105,30 +105,32 @@ export default function Profile() {
       const demo = DEMO_PROFILES.find(p => p.id === uid)
       if (demo) setProfile(demo)
     } else {
+      let isMounted = true
+
+      const loadOtherProfile = async () => {
+        const { data } = await supabase.from('profiles').select('*').eq('id', uid).single()
+        if (isMounted) setProfile(data)
+      }
+      const checkLike = async () => {
+        const { data } = await supabase.from('likes')
+          .select('id').eq('from_id', myProfile.id).eq('to_id', uid).single()
+        if (isMounted) setLiked(!!data)
+      }
+      const checkMatch = async () => {
+        const a = myProfile.id < uid ? myProfile.id : uid
+        const b = myProfile.id < uid ? uid : myProfile.id
+        const { data } = await supabase.from('matches')
+          .select('id').eq('couple_a', a).eq('couple_b', b).single()
+        if (isMounted) setMatched(!!data)
+      }
+
       loadOtherProfile()
       checkLike()
       checkMatch()
+
+      return () => { isMounted = false }
     }
   }, [uid, myProfile])
-
-  const loadOtherProfile = async () => {
-    const { data } = await supabase.from('profiles').select('*').eq('id', uid).single()
-    setProfile(data)
-  }
-
-  const checkLike = async () => {
-    const { data } = await supabase.from('likes')
-      .select('id').eq('from_id', myProfile.id).eq('to_id', uid).single()
-    setLiked(!!data)
-  }
-
-  const checkMatch = async () => {
-    const a = myProfile.id < uid ? myProfile.id : uid
-    const b = myProfile.id < uid ? uid : myProfile.id
-    const { data } = await supabase.from('matches')
-      .select('id').eq('couple_a', a).eq('couple_b', b).single()
-    setMatched(!!data)
-  }
 
   const handleConnect = async () => {
     if (liking) return
@@ -240,7 +242,7 @@ export default function Profile() {
       setEditing(false)
       navigate('/discover?view=map')
     } catch (err) {
-      console.error('Exception save():', err)
+      if (import.meta.env.DEV) console.error('Exception save():', err)
       toast('Une erreur inattendue est survenue')
     } finally {
       setSaving(false)

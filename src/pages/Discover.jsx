@@ -47,9 +47,11 @@ export default function Discover() {
   // récupère la position GPS du profil connecté pour la carte
   useEffect(() => {
     if (demoMode || !profile) return
+    let isMounted = true
     supabase.rpc('get_my_location').then(({ data }) => {
-      if (data?.[0]) setMyMapPos(data[0])
+      if (data?.[0] && isMounted) setMyMapPos(data[0])
     })
+    return () => { isMounted = false }
   }, [profile, demoMode])
 
   // synchronise view avec le paramètre URL quand on navigue entre onglets
@@ -71,7 +73,11 @@ export default function Discover() {
       }
       const radius = filters.distance || 500
       const { data, error } = await supabase.rpc('get_nearby_compatible_profiles', { radius_km: radius })
-      if (error) console.error('RPC error:', error)
+      if (error) {
+        console.error('RPC error:', error)
+        toast('Impossible de charger les profils — ' + (error.message || 'réessayez'), 'error')
+        return
+      }
       let results = data || []
       if (filters.orientation !== 'all') results = results.filter(p => p.orientation === filters.orientation)
       if (filters.seeking?.length > 0)   results = results.filter(p => filters.seeking.some(s => p.seeking?.includes(s)))

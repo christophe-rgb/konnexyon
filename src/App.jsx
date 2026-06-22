@@ -2,7 +2,7 @@ import { useEffect, useState, lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from './store/auth'
 import { supabase } from './lib/supabase'
-import { safeGet, safeRemove } from './lib/storage'
+import { safeGet, safeSet, safeRemove } from './lib/storage'
 
 import Navbar       from './components/Navbar'
 import { ToastContainer } from './components/Toast'
@@ -55,6 +55,7 @@ function RequireProfile({ children }) {
   const { profile, loading } = useAuthStore()
   if (loading) return null
   if (!profile || !profile.email_1_confirmed) return <Navigate to="/onboarding" replace />
+  if (!profile.age_confirmed_at) return <Navigate to="/onboarding" replace />
   return children
 }
 
@@ -69,6 +70,31 @@ export default function App() {
   )
 
   useEffect(() => { init(); return () => cleanup() }, [init, cleanup])
+
+  // Vérification hybride age_confirmed : localStorage + Supabase profiles
+  // Empêche l'injection manuelle de la clé localStorage sans validation réelle
+  useEffect(() => {
+    if (!user) return
+    supabase
+      .from('profiles')
+      .select('age_confirmed_at')
+      .eq('id', user.id)
+      .single()
+      .then(({ data, error }) => {
+        if (error || !data) return
+        if (data.age_confirmed_at) {
+          // La DB confirme l'âge — synchroniser localStorage si absent
+          if (safeGet('age_confirmed') !== '1') {
+            safeSet('age_confirmed', '1')
+          }
+          setAgeConfirmed(true)
+        } else {
+          // Pas de confirmation DB — invalider la clé localStorage injectée
+          safeRemove('age_confirmed')
+          setAgeConfirmed(false)
+        }
+      })
+  }, [user])
 
   // écoute les nouveaux matchs en realtime pour afficher la modal
   useEffect(() => {

@@ -28,48 +28,55 @@ export default function Messages() {
       setLoading(false)
       return
     }
+
+    let isMounted = true
+
+    const load = async () => {
+      const { data: matchData } = await supabase
+        .from('matches')
+        .select('id, couple_a, couple_b, created_at')
+        .or(`couple_a.eq.${profile.id},couple_b.eq.${profile.id}`)
+
+      if (!isMounted) return
+      if (!matchData) { setLoading(false); return }
+
+      const threads = await Promise.all(matchData.map(async m => {
+        const otherId = m.couple_a === profile.id ? m.couple_b : m.couple_a
+
+        const { data: p } = await supabase
+          .from('profiles')
+          .select('id, couple_name, avatar_url')
+          .eq('id', otherId)
+          .single()
+
+        const { data: msg } = await supabase
+          .from('messages')
+          .select('content, photo_url, created_at, sender_id, read_at')
+          .eq('match_id', m.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single()
+
+        const unread = msg && !msg.read_at && msg.sender_id !== profile.id
+
+        return { matchId: m.id, profile: p, lastMessage: msg, unread }
+      }))
+
+      if (!isMounted) return
+
+      threads.sort((a, b) => {
+        const ta = a.lastMessage?.created_at || ''
+        const tb = b.lastMessage?.created_at || ''
+        return tb.localeCompare(ta)
+      })
+
+      setThreads(threads.filter(t => t.profile))
+      setLoading(false)
+    }
+
     load()
+    return () => { isMounted = false }
   }, [profile])
-
-  const load = async () => {
-    const { data: matchData } = await supabase
-      .from('matches')
-      .select('id, couple_a, couple_b, created_at')
-      .or(`couple_a.eq.${profile.id},couple_b.eq.${profile.id}`)
-
-    if (!matchData) { setLoading(false); return }
-
-    const threads = await Promise.all(matchData.map(async m => {
-      const otherId = m.couple_a === profile.id ? m.couple_b : m.couple_a
-
-      const { data: p } = await supabase
-        .from('profiles')
-        .select('id, couple_name, avatar_url')
-        .eq('id', otherId)
-        .single()
-
-      const { data: msg } = await supabase
-        .from('messages')
-        .select('content, photo_url, created_at, sender_id, read_at')
-        .eq('match_id', m.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single()
-
-      const unread = msg && !msg.read_at && msg.sender_id !== profile.id
-
-      return { matchId: m.id, profile: p, lastMessage: msg, unread }
-    }))
-
-    threads.sort((a, b) => {
-      const ta = a.lastMessage?.created_at || ''
-      const tb = b.lastMessage?.created_at || ''
-      return tb.localeCompare(ta)
-    })
-
-    setThreads(threads.filter(t => t.profile))
-    setLoading(false)
-  }
 
   // Paywall : la messagerie est réservée aux abonnés Premium (sauf mode démo)
   if (!demoMode && !premium) {

@@ -15,6 +15,8 @@ export function confirm(options) {
 export function ConfirmDialogHost() {
   const [state, setState] = useState(null)
   const firstBtnRef = useRef(null)
+  const lastBtnRef = useRef(null)
+  const dialogRef = useRef(null)
 
   useEffect(() => {
     listener = (opts) => setState(opts)
@@ -24,6 +26,40 @@ export function ConfirmDialogHost() {
   useEffect(() => {
     if (state) firstBtnRef.current?.focus()
   }, [state])
+
+  // Escape + focus trap via document keydown
+  useEffect(() => {
+    if (!state) return
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        close(false)
+        return
+      }
+      if (e.key === 'Tab') {
+        const first = firstBtnRef.current
+        const last = lastBtnRef.current
+        if (!first || !last) return
+        if (e.shiftKey) {
+          // Shift+Tab depuis le premier élément → aller au dernier
+          if (document.activeElement === first) {
+            e.preventDefault()
+            last.focus()
+          }
+        } else {
+          // Tab depuis le dernier élément → revenir au premier
+          if (document.activeElement === last) {
+            e.preventDefault()
+            first.focus()
+          }
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [state]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!state) return null
 
@@ -45,6 +81,7 @@ export function ConfirmDialogHost() {
       role="dialog"
       aria-modal="true"
       aria-labelledby="confirm-dialog-title"
+      ref={dialogRef}
       onClick={() => close(false)}
       style={{
         position: 'fixed', inset: 0, zIndex: 9000,
@@ -87,6 +124,7 @@ export function ConfirmDialogHost() {
             {cancelLabel}
           </button>
           <button
+            ref={lastBtnRef}
             onClick={() => close(true)}
             className={danger ? '' : 'btn-gold'}
             style={{

@@ -1,15 +1,35 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { safeSet } from '../lib/storage'
+import { supabase } from '../lib/supabase'
+import { useAuthStore } from '../store/auth'
 
 export default function AgeGate({ onConfirm }) {
   const [checked, setChecked] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const user = useAuthStore(s => s.user)
   const navigate = useNavigate()
 
-  const confirm = () => {
+  const confirm = async () => {
     if (!checked) return
-    safeSet('age_confirmed', '1')
-    onConfirm()
+    setLoading(true)
+    try {
+      // Toujours persister en localStorage pour la session courante
+      safeSet('age_confirmed', '1')
+
+      // Si l'utilisateur est connecté, persister aussi en base Supabase
+      if (user) {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ age_confirmed_at: new Date().toISOString() })
+          .eq('id', user.id)
+        if (error) console.error('[AgeGate] Supabase update error:', error)
+      }
+
+      onConfirm()
+    } finally {
+      setLoading(false)
+    }
   }
 
   const refuse = () => {
@@ -100,7 +120,7 @@ export default function AgeGate({ onConfirm }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <button
             onClick={confirm}
-            disabled={!checked}
+            disabled={!checked || loading}
             className={checked ? 'btn-gold erb-btn' : ''}
             style={{
               padding: '16px', borderRadius: 14, width: '100%',

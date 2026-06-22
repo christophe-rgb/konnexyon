@@ -23,6 +23,56 @@ export default function Matches() {
   useEffect(() => {
     if (!profile) return
     if (demoMode) { setMatches(DEMO_MATCHES); setLoading(false); return }
+    let isMounted = true
+
+    const load = async () => {
+      const { data } = await supabase
+        .from('matches')
+        .select('id, created_at, couple_a, couple_b')
+        .or(`couple_a.eq.${profile.id},couple_b.eq.${profile.id}`)
+        .order('created_at', { ascending: false })
+
+      if (!data) { if (isMounted) setLoading(false); return }
+
+      // Batch fetch all profiles in one query instead of N individual selects
+      const otherIds = data.map(m => m.couple_a === profile.id ? m.couple_b : m.couple_a)
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, couple_name, avatar_url, bio')
+        .in('id', otherIds)
+      const profileMap = Object.fromEntries((profiles || []).map(p => [p.id, p]))
+
+      const enriched = await Promise.all(data.map(async m => {
+        const otherId = m.couple_a === profile.id ? m.couple_b : m.couple_a
+
+        const { data: msg } = await supabase
+          .from('messages')
+          .select('content, photo_url, created_at')
+          .eq('match_id', m.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single()
+
+        return {
+          ...m,
+          profile: profileMap[otherId] || null,
+          lastMessage: msg?.content || (msg?.photo_url ? 'Photo' : null),
+        }
+      }))
+
+      const filtered = enriched.filter(m => m.profile)
+      if (!isMounted) return
+      setMatches(filtered)
+      setLoading(false)
+
+      // fetch locations for map
+      const ids = filtered.map(m => m.profile.id)
+      if (ids.length) {
+        const { data: locs } = await supabase.rpc('get_match_locations', { profile_ids: ids })
+        if (locs && isMounted) setMapProfiles(locs)
+      }
+    }
+
     load()
 
     const channel = supabase
@@ -30,55 +80,11 @@ export default function Matches() {
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'matches' }, () => load())
       .subscribe()
 
-    return () => supabase.removeChannel(channel)
-  }, [profile])
-
-  const load = async () => {
-    const { data } = await supabase
-      .from('matches')
-      .select('id, created_at, couple_a, couple_b')
-      .or(`couple_a.eq.${profile.id},couple_b.eq.${profile.id}`)
-      .order('created_at', { ascending: false })
-
-    if (!data) { setLoading(false); return }
-
-    // Batch fetch all profiles in one query instead of N individual selects
-    const otherIds = data.map(m => m.couple_a === profile.id ? m.couple_b : m.couple_a)
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('id, couple_name, avatar_url, bio')
-      .in('id', otherIds)
-    const profileMap = Object.fromEntries((profiles || []).map(p => [p.id, p]))
-
-    const enriched = await Promise.all(data.map(async m => {
-      const otherId = m.couple_a === profile.id ? m.couple_b : m.couple_a
-
-      const { data: msg } = await supabase
-        .from('messages')
-        .select('content, photo_url, created_at')
-        .eq('match_id', m.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single()
-
-      return {
-        ...m,
-        profile: profileMap[otherId] || null,
-        lastMessage: msg?.content || (msg?.photo_url ? 'Photo' : null),
-      }
-    }))
-
-    const filtered = enriched.filter(m => m.profile)
-    setMatches(filtered)
-    setLoading(false)
-
-    // fetch locations for map
-    const ids = filtered.map(m => m.profile.id)
-    if (ids.length) {
-      const { data: locs } = await supabase.rpc('get_match_locations', { profile_ids: ids })
-      if (locs) setMapProfiles(locs)
+    return () => {
+      isMounted = false
+      supabase.removeChannel(channel)
     }
-  }
+  }, [profile])
 
   return (
     <div className="max-w-lg mx-auto px-4 pb-nav" style={{ paddingTop: '0' }}>
