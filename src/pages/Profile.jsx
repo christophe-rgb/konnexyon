@@ -234,7 +234,10 @@ export default function Profile() {
     <div className="max-w-lg mx-auto pb-nav animate-fade-in" style={{ animationFillMode: 'both' }}>
 
       {/* hero photo */}
-      <div style={{ position: 'relative', width: '100%', aspectRatio: '4/3', overflow: 'hidden' }}>
+      <div
+        style={{ position: 'relative', width: '100%', aspectRatio: '4/3', overflow: 'hidden', cursor: isOwn ? 'pointer' : 'default' }}
+        onClick={() => isOwn && fileRef.current?.click()}
+      >
         {profile.avatar_url ? (
           <img
             src={profile.avatar_url}
