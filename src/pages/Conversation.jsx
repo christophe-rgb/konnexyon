@@ -24,13 +24,15 @@ export default function Conversation() {
   const [loading,      setLoading]      = useState(true)
   const [loadingMore,  setLoadingMore]  = useState(false)
   const [hasMore,      setHasMore]      = useState(false)
-  const offsetRef      = useRef(0)
+  const oldestRef      = useRef(null) // ISO string du plus ancien message chargé
   const PAGE_SIZE      = 50
   const bottomRef  = useRef(null)
   const scrollRef  = useRef(null)
   const fileRef    = useRef(null)
   const textareaRef = useRef(null)
   const sendingRef  = useRef(false)
+  const channelRef  = useRef(null)
+  const isMountedRef = useRef(true)
 
   // auto-resize textarea
   const autoResize = useCallback(() => {
@@ -44,7 +46,9 @@ export default function Conversation() {
 
   useEffect(() => {
     if (!matchId || !profile) return
-    let isMounted = true
+    isMountedRef.current = true
+    // alias local pour les callbacks async (loadMatch / loadMessages)
+    const isMounted = () => isMountedRef.current
 
     if (demoMode) {
       const match = DEMO_MATCHES.find(m => m.id === matchId)
@@ -57,11 +61,11 @@ export default function Conversation() {
     const loadMatch = async () => {
       const { data: m } = await supabase
         .from('matches').select('couple_a, couple_b').eq('id', matchId).single()
-      if (!m || !isMounted) return
+      if (!m || !isMounted()) return
       const otherId = m.couple_a === profile.id ? m.couple_b : m.couple_a
       const { data: p } = await supabase
         .from('profiles').select('id, couple_name, avatar_url').eq('id', otherId).single()
-      if (isMounted) setOther(p)
+      if (isMounted()) setOther(p)
     }
 
     const loadMessages = async () => {
@@ -74,9 +78,9 @@ export default function Conversation() {
         .order('created_at', { ascending: false })
         .limit(PAGE_SIZE)
 
-      if (!isMounted) return
+      if (!isMounted()) return
       const page = (data || []).reverse()
-      offsetRef.current = page.length
+      if (page.length > 0) oldestRef.current = page[0].created_at
       setHasMore((count || 0) > page.length)
       setMessages(page)
       setLoading(false)
@@ -93,20 +97,26 @@ export default function Conversation() {
     loadMatch()
     loadMessages()
 
+    if (channelRef.current) supabase.removeChannel(channelRef.current)
     const channel = supabase
       .channel(`chat-${matchId}`)
       .on('postgres_changes', {
         event: 'INSERT', schema: 'public', table: 'messages',
         filter: `match_id=eq.${matchId}`,
       }, payload => {
-        setMessages(ms => [...ms, payload.new])
+        if (!isMountedRef.current) return
+        setMessages(ms =>
+          ms.some(x => x.id === payload.new.id) ? ms : [...ms, payload.new]
+        )
         if (payload.new.sender_id !== profile.id) markRead(payload.new.id)
       })
       .subscribe()
+    channelRef.current = channel
 
     return () => {
-      isMounted = false
-      supabase.removeChannel(channel)
+      isMountedRef.current = false
+      supabase.removeChannel(channel).catch(() => {})
+      channelRef.current = null
     }
   }, [matchId, profile])
 
@@ -136,13 +146,17 @@ export default function Conversation() {
       .select('*', { count: 'exact' })
       .eq('match_id', matchId)
       .or(`deleted_for.is.null,deleted_for.not.cs.{${profile.id}}`)
+      .lt('created_at', oldestRef.current)
       .order('created_at', { ascending: false })
-      .range(offsetRef.current, offsetRef.current + PAGE_SIZE - 1)
+      .limit(PAGE_SIZE)
 
     const older = (data || []).reverse()
-    offsetRef.current += older.length
-    setHasMore((count || 0) > offsetRef.current)
-    setMessages(ms => [...older, ...ms])
+    if (older.length > 0) oldestRef.current = older[0].created_at
+    setHasMore(older.length === PAGE_SIZE)
+    setMessages(ms => {
+      const deduped = older.filter(m => !ms.some(x => x.id === m.id))
+      return [...deduped, ...ms]
+    })
     setLoadingMore(false)
 
     // Restaure la position scroll pour éviter le saut vers le haut

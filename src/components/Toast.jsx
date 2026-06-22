@@ -25,10 +25,12 @@ export function ToastContainer() {
   if (!toasts.length) return null
 
   return (
-    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2 w-full max-w-sm px-4">
+    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2 w-full max-w-sm px-4" aria-live="polite" aria-atomic="true">
       {toasts.map(t => (
         <div
           key={t.id}
+          role={t.type === 'error' ? 'alert' : 'status'}
+          aria-live={t.type === 'error' ? 'assertive' : 'polite'}
           className={clsx(
             'flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg text-sm font-medium',
             'animate-[slideDown_0.2s_ease-out]',
@@ -45,6 +47,7 @@ export function ToastContainer() {
           <button
             onClick={() => setToasts(prev => prev.filter(x => x.id !== t.id))}
             className="text-muted hover:text-text cursor-pointer"
+            aria-label="Fermer"
           >
             <X size={14} strokeWidth={1.5} />
           </button>

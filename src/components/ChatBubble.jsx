@@ -10,12 +10,15 @@ export default function ChatBubble({ message, isMine, onDelete }) {
     <div
       className={clsx('flex flex-col gap-1 max-w-[75%] group', isMine ? 'self-end items-end' : 'self-start items-start')}
       onClick={() => isMine && onDelete && setShowActions(s => !s)}
+      role={isMine && onDelete ? 'button' : undefined}
+      tabIndex={isMine && onDelete ? 0 : undefined}
+      onKeyDown={isMine && onDelete ? (e => e.key === 'Enter' && setShowActions(s => !s)) : undefined}
     >
       {message.photo_url && (
         <div style={{ aspectRatio: '4/3', maxHeight: 260, overflow: 'hidden' }} className="rounded-xl w-full">
           <img
             src={message.photo_url}
-            alt="photo"
+            alt={`Photo envoyée par ${isMine ? 'vous' : "l'autre membre"}`}
             width="100%"
             height="auto"
             loading="lazy"

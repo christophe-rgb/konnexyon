@@ -5,7 +5,12 @@ export default function MatchCard({ match }) {
   const navigate = useNavigate()
 
   return (
-    <div onClick={() => navigate(`/messages/${match.id}`)}
+    <article
+      role="button"
+      tabIndex={0}
+      aria-label={`Conversation avec ${match.profile.couple_name}`}
+      onClick={() => navigate(`/messages/${match.id}`)}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/messages/${match.id}`) } }}
       className="flex items-center gap-4 cursor-pointer group transition-all duration-200"
       style={{
         background: 'linear-gradient(135deg, rgba(245,240,232,0.9) 0%, rgba(245,240,232,0.95) 100%)',
@@ -19,8 +24,12 @@ export default function MatchCard({ match }) {
       onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.2)'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.06)' }}
     >
       {/* avatar */}
-      <div className="relative flex-shrink-0"
-        onClick={e => { e.stopPropagation(); navigate(`/profile/${match.profile.id}`) }}>
+      <button
+        className="relative flex-shrink-0"
+        aria-label="Voir le profil"
+        onClick={e => { e.stopPropagation(); navigate(`/profile/${match.profile.id}`) }}
+        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+      >
         <div style={{ width: 52, height: 52, borderRadius: '14px', overflow: 'hidden', border: '1px solid rgba(201,168,76,0.25)', boxShadow: 'none' }}>
           {match.profile.avatar_url ? (
             <img src={match.profile.avatar_url} alt={match.profile.couple_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -40,7 +49,7 @@ export default function MatchCard({ match }) {
           boxShadow: 'none',
           border: '1.5px solid #FDFAF6',
         }}>∞</div>
-      </div>
+      </button>
 
       {/* texte */}
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -69,6 +78,6 @@ export default function MatchCard({ match }) {
       }}>
         <MessageCircle size={16} strokeWidth={1.5} />
       </div>
-    </div>
+    </article>
   )
 }

@@ -157,7 +157,7 @@ export default function Login() {
             </div>
             <div className="relative">
               <input
-                id="password" type={showPwd ? 'text' : 'password'} required autoComplete="off"
+                id="password" type={showPwd ? 'text' : 'password'} required
                 value={password} onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
                 autoComplete="current-password"

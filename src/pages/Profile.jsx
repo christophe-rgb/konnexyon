@@ -147,6 +147,7 @@ export default function Profile() {
       if (error && error.code !== '23505') { toast(`Erreur : ${error.message}`, 'error'); setLiking(false); return }
       setLiked(true)
       toast('Demande de connexion envoyée ✓')
+      await new Promise(r => setTimeout(r, 300))
       checkMatch()
     }
     setLiking(false)
