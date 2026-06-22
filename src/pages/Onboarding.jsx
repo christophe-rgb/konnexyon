@@ -134,20 +134,33 @@ export default function Onboarding() {
 
     // eslint-disable-next-line no-unused-vars
     const { orientation_lui, orientation_elle, ...profileData } = data
-    const { error: upsertError } = await supabase.from('profiles').upsert({
+    const payload = {
       id: uid,
       email_1: email,
       ...profileData,
       orientation,
       email_1_confirmed: true,
-      // Consentement RGPD Art. 9 — timestamp et version du texte accepté
       consent_given_at:  consentTimestamp || new Date().toISOString(),
       consent_version:   CONSENT_VERSION,
       ...(locationSql ? { location: locationSql, location_updated_at: new Date().toISOString() } : {}),
-    })
+    }
+
+    // Retry 3× avec backoff exponentiel pour résister aux erreurs réseau transitoires
+    let upsertError = null
+    for (let attempt = 0; attempt < 3; attempt++) {
+      if (attempt > 0) await new Promise(r => setTimeout(r, attempt * 1500))
+      const result = await supabase.from('profiles').upsert(payload)
+      upsertError = result.error
+      if (!upsertError) break
+      console.warn(`Onboarding upsert attempt ${attempt + 1} failed:`, upsertError.message)
+    }
+
     if (upsertError) {
-      console.error('Upsert error:', upsertError)
-      setStepError('Erreur lors de la sauvegarde : ' + upsertError.message)
+      console.error('Onboarding upsert failed after 3 attempts:', upsertError)
+      setStepError(
+        'Erreur lors de la sauvegarde. Vérifie ta connexion et réessaie. ' +
+        'Si le problème persiste, contacte-nous : konnexyon@gmail.com'
+      )
       setSaving(false)
       return
     }
