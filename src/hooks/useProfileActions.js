@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
@@ -15,6 +15,9 @@ export function useProfileActions(uid) {
   const [liking,  setLiking]  = useState(false)
   const [matched, setMatched] = useState(false)
   const [saving,  setSaving]  = useState(false)
+
+  const connectingRef = useRef(false)
+  const reportingRef  = useRef(false)
 
   const checkMatch = useCallback(async () => {
     if (!myProfile?.id || !uid) return
@@ -33,21 +36,26 @@ export function useProfileActions(uid) {
   }, [myProfile?.id, uid])
 
   const handleConnect = async () => {
-    if (liking) return
+    if (connectingRef.current) return
+    connectingRef.current = true
     setLiking(true)
-    if (liked) {
-      const { error } = await supabase.from('likes').delete().eq('from_id', myProfile.id).eq('to_id', uid)
-      if (error) { toast('Erreur : impossible de retirer la connexion', 'error'); setLiking(false); return }
-      setLiked(false)
-    } else {
-      const { error } = await supabase.from('likes').insert({ from_id: myProfile.id, to_id: uid })
-      if (error && error.code !== '23505') { toast(`Erreur : ${error.message}`, 'error'); setLiking(false); return }
-      setLiked(true)
-      toast('Demande de connexion envoyée ✓')
-      await new Promise(r => setTimeout(r, 300))
-      checkMatch()
+    try {
+      if (liked) {
+        const { error } = await supabase.from('likes').delete().eq('from_id', myProfile.id).eq('to_id', uid)
+        if (error) { toast('Erreur : impossible de retirer la connexion', 'error'); return }
+        setLiked(false)
+      } else {
+        const { error } = await supabase.from('likes').insert({ from_id: myProfile.id, to_id: uid })
+        if (error && error.code !== '23505') { toast(`Erreur : ${error.message}`, 'error'); return }
+        setLiked(true)
+        toast('Demande de connexion envoyée ✓')
+        await new Promise(r => setTimeout(r, 300))
+        checkMatch()
+      }
+    } finally {
+      connectingRef.current = false
+      setLiking(false)
     }
-    setLiking(false)
   }
 
   const block = async () => {
@@ -66,14 +74,20 @@ export function useProfileActions(uid) {
 
   const report = async (reason) => {
     if (!reason.trim()) return false
-    const { error } = await supabase.from('reports').insert({
-      reporter_id: myProfile.id,
-      reported_id: uid,
-      reason,
-    })
-    if (error) { toast(`Erreur : ${error.message}`, 'error'); return false }
-    toast('Signalement envoyé')
-    return true
+    if (reportingRef.current) return false
+    reportingRef.current = true
+    try {
+      const { error } = await supabase.from('reports').insert({
+        reporter_id: myProfile.id,
+        reported_id: uid,
+        reason,
+      })
+      if (error) { toast(`Erreur : ${error.message}`, 'error'); return false }
+      toast('Signalement envoyé')
+      return true
+    } finally {
+      reportingRef.current = false
+    }
   }
 
   const uploadAvatar = async (file) => {

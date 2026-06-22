@@ -1,5 +1,5 @@
 /**
- * Tests unitaires minimalistes — fonctions pures extraites des hooks critiques.
+ * Tests unitaires — fonctions pures extraites des hooks critiques.
  * Aucun mock Supabase, aucun rendu React requis.
  *
  * Lancer : npx vitest run src/__tests__/hooks.test.js
@@ -121,5 +121,139 @@ describe('déduplication des messages (logique useConversation)', () => {
     const result = mergeOlderMessages([], [msg('a'), msg('b')])
     expect(result).toHaveLength(2)
     expect(result[0].id).toBe('a')
+  })
+})
+
+// ─── Validation UUID de matchId (extraite de useConversation) ─────────────────
+//
+// Regex utilisée : /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+describe('validation UUID de matchId', () => {
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+  const validUUIDs = [
+    '550e8400-e29b-41d4-a716-446655440000',
+    'A1B2C3D4-E5F6-7890-ABCD-EF1234567890', // majuscules (flag i)
+    '00000000-0000-0000-0000-000000000000',
+    'ffffffff-ffff-ffff-ffff-ffffffffffff',
+  ]
+
+  const invalidUUIDs = [
+    '',
+    'not-a-uuid',
+    '550e8400-e29b-41d4-a716',          // tronqué
+    '550e8400e29b41d4a716446655440000',  // sans tirets
+    '550e8400-e29b-41d4-a716-44665544000g', // caractère invalide 'g'
+    '../admin',                          // tentative de path traversal
+    'undefined',
+    null,
+  ]
+
+  validUUIDs.forEach(uuid => {
+    it(`accepte l'UUID valide : ${uuid}`, () => {
+      expect(UUID_RE.test(uuid)).toBe(true)
+    })
+  })
+
+  invalidUUIDs.forEach(uuid => {
+    it(`rejette la valeur invalide : ${JSON.stringify(uuid)}`, () => {
+      expect(UUID_RE.test(uuid ?? '')).toBe(false)
+    })
+  })
+})
+
+// ─── Logique de tri/filtrage des profils Discover ────────────────────────────
+//
+// Dans Discover.jsx, la fonction load() applique ces filtres côté client
+// (après la RPC Supabase ou sur DEMO_PROFILES) :
+//   1. orientation !== 'all'  → p.orientation === filter
+//   2. seeking.length > 0     → filter.seeking.some(s => p.seeking?.includes(s))
+//   3. distance > 0           → p.distance_km <= filter.distance (mode démo uniquement)
+
+describe('filtrage des profils Discover', () => {
+  const profile = (id, orientation, seeking, distance_km) => ({
+    id,
+    orientation,
+    seeking,
+    distance_km,
+  })
+
+  const profiles = [
+    profile('1', 'hetero_hetero', ['amis', 'echangiste'], 10),
+    profile('2', 'bi_all',        ['echangiste'],          30),
+    profile('3', 'hetero_bi',     ['amis'],                5),
+    profile('4', 'hetero_hetero', ['amis'],                60),
+    profile('5', 'bi_all',        ['amis', 'echangiste'], 100),
+  ]
+
+  // Simule la logique de load() de Discover.jsx
+  function applyFilters(profs, filters) {
+    let results = [...profs]
+    if (filters.orientation !== 'all')
+      results = results.filter(p => p.orientation === filters.orientation)
+    if (filters.seeking?.length > 0)
+      results = results.filter(p => filters.seeking.some(s => p.seeking?.includes(s)))
+    if (filters.distance > 0)
+      results = results.filter(p => p.distance_km <= filters.distance)
+    return results
+  }
+
+  it('sans filtre (all, aucun seeking, distance 0) retourne tous les profils', () => {
+    const result = applyFilters(profiles, { orientation: 'all', seeking: [], distance: 0 })
+    expect(result).toHaveLength(5)
+  })
+
+  it('filtre par orientation hetero_hetero', () => {
+    const result = applyFilters(profiles, { orientation: 'hetero_hetero', seeking: [], distance: 0 })
+    expect(result.map(p => p.id)).toEqual(['1', '4'])
+  })
+
+  it('filtre par orientation bi_all', () => {
+    const result = applyFilters(profiles, { orientation: 'bi_all', seeking: [], distance: 0 })
+    expect(result.map(p => p.id)).toEqual(['2', '5'])
+  })
+
+  it('filtre par seeking echangiste (OU logique)', () => {
+    const result = applyFilters(profiles, { orientation: 'all', seeking: ['echangiste'], distance: 0 })
+    expect(result.map(p => p.id)).toEqual(['1', '2', '5'])
+  })
+
+  it('filtre par seeking avec plusieurs valeurs (OR)', () => {
+    const result = applyFilters(profiles, { orientation: 'all', seeking: ['amis', 'echangiste'], distance: 0 })
+    // tous ont au moins 'amis' ou 'echangiste'
+    expect(result).toHaveLength(5)
+  })
+
+  it('filtre par distance max 30 km', () => {
+    const result = applyFilters(profiles, { orientation: 'all', seeking: [], distance: 30 })
+    expect(result.map(p => p.id)).toEqual(['1', '2', '3'])
+  })
+
+  it('filtre combiné : orientation + seeking', () => {
+    const result = applyFilters(profiles, { orientation: 'hetero_hetero', seeking: ['echangiste'], distance: 0 })
+    expect(result.map(p => p.id)).toEqual(['1'])
+  })
+
+  it('filtre combiné : orientation + distance', () => {
+    const result = applyFilters(profiles, { orientation: 'hetero_hetero', seeking: [], distance: 20 })
+    expect(result.map(p => p.id)).toEqual(['1'])
+  })
+
+  it('retourne tableau vide si aucun profil ne correspond', () => {
+    const result = applyFilters(profiles, { orientation: 'hetero_hetero', seeking: [], distance: 1 })
+    expect(result).toHaveLength(0)
+  })
+
+  it('profil sans seeking défini ne plante pas', () => {
+    const withNull = [profile('6', 'hetero_hetero', undefined, 5)]
+    const result = applyFilters(withNull, { orientation: 'all', seeking: ['amis'], distance: 0 })
+    expect(result).toHaveLength(0)
+  })
+
+  it('profil avec seeking null ne plante pas', () => {
+    const withNull = [profile('7', 'hetero_hetero', null, 5)]
+    expect(() =>
+      applyFilters(withNull, { orientation: 'all', seeking: ['amis'], distance: 0 })
+    ).not.toThrow()
   })
 })

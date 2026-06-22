@@ -34,6 +34,7 @@ const Blog           = lazy(() => import('./pages/Blog'))
 const BlogArticle    = lazy(() => import('./pages/BlogArticle'))
 const BlogCountryList    = lazy(() => import('./pages/BlogCountry').then(m => ({ default: m.BlogCountryList })))
 const BlogCountryArticle = lazy(() => import('./pages/BlogCountry').then(m => ({ default: m.BlogCountryArticle })))
+const NotFound           = lazy(() => import('./pages/NotFound'))
 
 const PageLoader = () => (
   <div className="flex h-dvh items-center justify-center" role="status" aria-label="Chargement…">
@@ -231,6 +232,7 @@ export default function App() {
             <Route path="/admin" element={
               <RequireAuth><Admin /></RequireAuth>
             } />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
         </ErrorBoundary>

@@ -1,10 +1,42 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { Trash2 } from 'lucide-react'
 import clsx from 'clsx'
+import { refreshSignedUrl } from '../lib/storageSignedUrl'
 
 export default function ChatBubble({ message, isMine, onDelete }) {
   const [showActions, setShowActions] = useState(false)
+  // imgSrc permet de substituer une URL régénérée sans muter le message parent
+  const [imgSrc, setImgSrc] = useState(message.photo_url)
+  // refreshing : verrou anti-boucle infinie (une seule tentative par image)
+  const [refreshing, setRefreshing] = useState(false)
+  // imgError : affiche un placeholder si le refresh a également échoué
+  const [imgError, setImgError] = useState(false)
+
   const time = new Date(message.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+
+  /**
+   * Appelé quand l'image échoue à se charger (typiquement 403 URL expirée).
+   * On ne tente qu'une seule régénération pour éviter toute boucle.
+   */
+  const handleImgError = useCallback(async () => {
+    if (refreshing || imgError) return   // déjà en cours ou déjà échoué
+
+    setRefreshing(true)
+    try {
+      const newUrl = await refreshSignedUrl(imgSrc)
+      if (newUrl) {
+        setImgSrc(newUrl)
+        setRefreshing(false)
+        // imgError reste false : le nouveau src va relancer le chargement
+      } else {
+        setImgError(true)
+        setRefreshing(false)
+      }
+    } catch {
+      setImgError(true)
+      setRefreshing(false)
+    }
+  }, [imgSrc, refreshing, imgError])
 
   return (
     <div
@@ -16,14 +48,50 @@ export default function ChatBubble({ message, isMine, onDelete }) {
     >
       {message.photo_url && (
         <div style={{ aspectRatio: '4/3', maxHeight: 260, overflow: 'hidden' }} className="rounded-xl w-full">
-          <img
-            src={message.photo_url}
-            alt={`Photo envoyée par ${isMine ? 'vous' : "l'autre membre"}`}
-            width="100%"
-            height="auto"
-            loading="lazy"
-            className="rounded-xl max-w-full w-full h-full object-cover cursor-pointer"
-          />
+          {imgError ? (
+            /* Placeholder affiché si le refresh a échoué */
+            <div
+              className="rounded-xl w-full h-full flex items-center justify-center text-xs"
+              style={{
+                background: 'rgba(201,168,76,0.08)',
+                border: '1px solid rgba(201,168,76,0.2)',
+                color: 'rgba(201,168,76,0.6)',
+                minHeight: 100,
+                fontFamily: 'Inter, sans-serif',
+                letterSpacing: '0.05em',
+              }}
+            >
+              Image indisponible
+            </div>
+          ) : refreshing ? (
+            /* Spinner pendant la régénération de l'URL */
+            <div
+              className="rounded-xl w-full h-full flex items-center justify-center"
+              style={{
+                background: 'rgba(201,168,76,0.05)',
+                border: '1px solid rgba(201,168,76,0.15)',
+                minHeight: 100,
+              }}
+            >
+              <div style={{
+                width: 20, height: 20,
+                border: '2px solid rgba(201,168,76,0.3)',
+                borderTopColor: '#C9A84C',
+                borderRadius: '50%',
+                animation: 'rotateX 0.8s linear infinite',
+              }} />
+            </div>
+          ) : (
+            <img
+              src={imgSrc}
+              alt={`Photo envoyée par ${isMine ? 'vous' : "l'autre membre"}`}
+              width="100%"
+              height="auto"
+              loading="lazy"
+              className="rounded-xl max-w-full w-full h-full object-cover cursor-pointer"
+              onError={handleImgError}
+            />
+          )}
         </div>
       )}
       {message.content && (
