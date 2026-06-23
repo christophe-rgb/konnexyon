@@ -14,6 +14,13 @@ export default function SwipeStack({ profiles, onLike, onPass }) {
   const profilesRef = useRef(profiles)
   useEffect(() => { profilesRef.current = profiles }, [profiles])
 
+  // Garde indexRef synchronisé avec index (triggerFly capture indexRef)
+  useEffect(() => { indexRef.current = index }, [index])
+
+  // Nouvelle liste (filtres/distance changés) → repart de la première carte.
+  // Sans ça, un index hérité hors borne affiche "Plus de connexions" à tort.
+  useEffect(() => { setIndex(0); indexRef.current = 0 }, [profiles])
+
   const current  = profiles[index]
   const next     = profiles[index + 1]
   const nextnext = profiles[index + 2]

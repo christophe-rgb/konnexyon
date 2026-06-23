@@ -1,17 +1,10 @@
 import { X } from 'lucide-react'
 import clsx from 'clsx'
 
-const ORIENTATIONS = [
-  { value: 'all',            label: 'Toutes' },
-  { value: 'hetero_hetero',  label: 'Hétéro' },
-  { value: 'hetero_bi',      label: 'Hétéro / Bi' },
-  { value: 'bi_all',         label: 'Bi & tout' },
-]
-
 const SEEKING = [
   { value: 'rencontres_occasionnelles', label: 'Rencontres' },
   { value: 'echangisme',                label: 'Échangisme' },
-  { value: 'amis_libertins',            label: 'Amis libertins' },
+  { value: 'expert',                    label: 'Expert' },
   { value: 'decouverte',                label: 'Découverte' },
 ]
 
@@ -30,27 +23,6 @@ export default function FilterPanel({ filters, onChange, onClose }) {
             <X size={22} />
           </button>
         </div>
-
-        {/* orientation */}
-        <section className="mb-5">
-          <p className="text-sm text-muted mb-2">Orientation</p>
-          <div className="flex flex-wrap gap-2">
-            {ORIENTATIONS.map(o => (
-              <button
-                key={o.value}
-                onClick={() => set('orientation', o.value)}
-                className={clsx(
-                  'erb-btn px-3 py-1.5 rounded-full text-sm border transition-colors duration-150 cursor-pointer',
-                  filters.orientation === o.value
-                    ? 'bg-gold text-bg border-gold'
-                    : 'border-[rgba(201,168,76,0.2)] text-muted hover:text-text'
-                )}
-              >
-                {o.label}
-              </button>
-            ))}
-          </div>
-        </section>
 
         {/* seeking */}
         <section className="mb-5">
