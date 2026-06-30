@@ -72,12 +72,15 @@ export const useAuthStore = create((set, get) => ({
     if (get().demoMode || get()._backfillDone) return
     set({ _backfillDone: true })
     try {
-      const { data } = await supabase.rpc('get_my_location')
-      if (data?.[0]) return // déjà localisé
-      const loc = await resolveOnboardingLocation()
-      if (!loc) return
       const uid = get().user?.id || (await supabase.auth.getUser()).data.user?.id
       if (!uid) return
+      // Détecte une position existante en lisant directement la colonne (pas via
+      // RPC) : robuste même si la migration n'est pas encore appliquée, et évite
+      // d'écraser un GPS précis par une position IP approximative.
+      const { data: row } = await supabase.from('profiles').select('location').eq('id', uid).maybeSingle()
+      if (row?.location) return // déjà localisé
+      const loc = await resolveOnboardingLocation()
+      if (!loc) return
       await supabase.from('profiles').update({
         location: `SRID=4326;POINT(${loc.lng} ${loc.lat})`,
         location_updated_at: new Date().toISOString(),
