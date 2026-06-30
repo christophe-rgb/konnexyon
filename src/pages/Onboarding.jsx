@@ -135,6 +135,9 @@ export default function Onboarding() {
       email_1: email,
       ...profileData,
       orientation,
+      // Détail Lui/Elle saisi à l'étape "Votre couple" (sinon perdu)
+      orientation_lui:  data.orientation_lui,
+      orientation_elle: data.orientation_elle,
       email_1_confirmed: true,
       // Consentement RGPD Art. 9 — timestamp et version du texte accepté
       consent_given_at:  consentTimestamp || new Date().toISOString(),

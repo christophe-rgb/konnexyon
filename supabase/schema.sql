@@ -256,14 +256,10 @@ create table public.partner_confirmations (
 create index partner_confirmations_token_idx on public.partner_confirmations(token);
 create index partner_confirmations_profile_idx on public.partner_confirmations(profile_id);
 
--- RLS : lecture par token uniquement (public), écriture par le système
+-- RLS : aucun accès direct client. La validation passe exclusivement par la RPC
+-- confirm_partner_token (security definer) ; les inserts par le service_role
+-- (Edge Function) contournent la RLS. Pas de policy = pas d'accès direct.
 alter table public.partner_confirmations enable row level security;
-
-create policy "partner_confirm_select" on public.partner_confirmations
-  for select using (true); -- accès public par token
-
-create policy "partner_confirm_update" on public.partner_confirmations
-  for update using (true); -- update via RPC security definer
 
 -- fonction de validation du token
 create or replace function public.confirm_partner_token(p_token text)
@@ -307,14 +303,21 @@ alter table public.blocks   enable row level security;
 alter table public.reports  enable row level security;
 
 -- helper : admin check (stocker le rôle dans app_metadata côté Supabase Auth)
--- suppression d'un message pour un utilisateur uniquement
+-- suppression d'un message pour soi-même uniquement.
+-- Le user_id fourni est ignoré : on force auth.uid() et on vérifie l'appartenance
+-- au match (empêche de supprimer un message "chez" l'autre membre).
 create or replace function public.delete_message_for_user(message_id uuid, user_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer set search_path = public as $$
 begin
-  update public.messages
-  set deleted_for = array_append(coalesce(deleted_for, '{}'), user_id)
-  where id = message_id
-    and not (user_id = any(coalesce(deleted_for, '{}')));
+  update public.messages msg
+  set deleted_for = array_append(coalesce(deleted_for, '{}'), auth.uid())
+  where msg.id = message_id
+    and not (auth.uid() = any(coalesce(deleted_for, '{}')))
+    and exists (
+      select 1 from public.matches m
+      where m.id = msg.match_id
+        and (m.couple_a = auth.uid() or m.couple_b = auth.uid())
+    );
 end;
 $$;
 
@@ -444,14 +447,25 @@ create policy "messages_insert" on public.messages
     )
   );
 
+-- update restreint à l'auteur du message (empêche de réécrire les messages de
+-- l'autre membre). Le marquage "lu" passe par la RPC mark_messages_read.
 create policy "messages_update" on public.messages
-  for update using (
-    exists (
+  for update using (sender_id = auth.uid()) with check (sender_id = auth.uid());
+
+create or replace function public.mark_messages_read(p_match_id uuid)
+returns void language sql security definer set search_path = public as $$
+  update public.messages
+  set read_at = now()
+  where match_id = p_match_id
+    and sender_id <> auth.uid()
+    and read_at is null
+    and exists (
       select 1 from public.matches m
-      where m.id = match_id
+      where m.id = p_match_id
         and (m.couple_a = auth.uid() or m.couple_b = auth.uid())
-    )
-  );
+    );
+$$;
+grant execute on function public.mark_messages_read(uuid) to authenticated;
 
 -- ── BLOCKS ────────────────────────────────────────────────────
 
@@ -560,3 +574,36 @@ language sql security definer as $$
     )
   order by distance_km asc;
 $$;
+
+-- ============================================================
+-- FONCTIONS : positions pour la carte
+-- ============================================================
+-- Ma propre position (marqueur "Vous"). Utilisée par Discover et le backfill.
+create or replace function public.get_my_location()
+returns table (lat float, lng float)
+language sql security definer set search_path = public as $$
+  select st_y(location::geometry)::float as lat,
+         st_x(location::geometry)::float as lng
+  from public.profiles
+  where id = auth.uid() and location is not null;
+$$;
+grant execute on function public.get_my_location() to authenticated;
+
+-- Positions des couples matchés (page Matchs), coordonnées floutées (~500 m).
+-- N'expose que les couples réellement matchés avec l'appelant.
+create or replace function public.get_match_locations(profile_ids uuid[])
+returns table (id uuid, couple_name text, avatar_url text, lat float, lng float)
+language sql security definer set search_path = public as $$
+  select p.id, p.couple_name, p.avatar_url,
+         round((st_y(p.location::geometry) + (random() - 0.5) * 0.005)::numeric, 5)::float as lat,
+         round((st_x(p.location::geometry) + (random() - 0.5) * 0.005)::numeric, 5)::float as lng
+  from public.profiles p
+  where p.id = any(profile_ids)
+    and p.location is not null
+    and exists (
+      select 1 from public.matches m
+      where m.couple_a = least(auth.uid(), p.id)
+        and m.couple_b = greatest(auth.uid(), p.id)
+    );
+$$;
+grant execute on function public.get_match_locations(uuid[]) to authenticated;

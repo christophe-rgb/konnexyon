@@ -145,7 +145,7 @@ export function useProfileActions(uid) {
       const { couple_name, bio, seeking, limits, availabilities } = form
       const { error } = await supabase
         .from('profiles')
-        .update({ couple_name, bio, seeking, limits, availabilities, orientation })
+        .update({ couple_name, bio, seeking, limits, availabilities, orientation, orientation_lui, orientation_elle })
         .eq('id', myProfile.id)
       if (error) {
         toast('Erreur lors de la sauvegarde — ' + (error.message || 'réessayez'))

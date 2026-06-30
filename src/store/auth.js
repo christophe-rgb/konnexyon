@@ -49,11 +49,17 @@ export const useAuthStore = create((set, get) => ({
   setProfile: (profile) => set({ profile }),
 
   fetchProfile: async (uid) => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', uid)
       .single()
+    if (error) {
+      // PGRST116 = aucune ligne (profil pas encore créé) → null pour router vers l'onboarding.
+      // Toute autre erreur (réseau, RLS transitoire) : ne pas écraser le profil en mémoire.
+      if (error.code === 'PGRST116') set({ profile: null })
+      return
+    }
     set({ profile: data })
   },
 

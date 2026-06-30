@@ -94,10 +94,9 @@ serve(async (req) => {
       cancel_at_period_end: true,
     })
 
-    // Marquer en BDD pour affichage UI (le webhook finalisera lors de l'expiration)
-    await supabaseAdmin.from('profiles').update({
-      plan_expires_at: profile.plan_expires_at, // on garde la date, l'accès dure jusqu'à là
-    }).eq('id', user.id)
+    // L'accès est conservé jusqu'à la fin de période ; le webhook
+    // customer.subscription.deleted finalisera le passage en 'free' à l'expiration.
+    // (Pas d'update ici : plan_expires_at n'était pas chargé → écriture inutile/erronée.)
 
     return new Response(
       JSON.stringify({ success: true, message: 'Abonnement résilié. Accès maintenu jusqu\'à la fin de la période.' }),
