@@ -139,6 +139,9 @@ export default function Onboarding() {
       orientation_lui:  data.orientation_lui,
       orientation_elle: data.orientation_elle,
       email_1_confirmed: true,
+      // L'utilisateur a forcément passé l'age-gate pour arriver ici → on garantit
+      // age_confirmed_at en base, sinon RequireProfile renvoie en boucle à l'onboarding.
+      age_confirmed_at:  new Date().toISOString(),
       // Consentement RGPD Art. 9 — timestamp et version du texte accepté
       consent_given_at:  consentTimestamp || new Date().toISOString(),
       consent_version:   CONSENT_VERSION,
@@ -167,8 +170,16 @@ export default function Onboarding() {
       body: { record: { couple_name: data.couple_name, status: 'actif' } },
     }).catch(() => {})
 
-    // Force le store immédiatement avec orientation calculée
-    setProfile({ id: uid, email_1: email, ...profileData, orientation, email_1_confirmed: true })
+    // Force le store immédiatement avec un profil COMPLET pour le routage
+    // (email_1_confirmed + age_confirmed_at) — évite le rebond vers /onboarding.
+    setProfile({
+      id: uid, email_1: email, ...profileData, orientation,
+      orientation_lui: data.orientation_lui, orientation_elle: data.orientation_elle,
+      email_1_confirmed: true,
+      age_confirmed_at: new Date().toISOString(),
+      consent_given_at: consentTimestamp || new Date().toISOString(),
+      consent_version: CONSENT_VERSION,
+    })
     // Refresh en arrière-plan pour synchroniser les données Supabase
     fetchProfile(uid)
     const { data: updatedProfile } = await supabase
