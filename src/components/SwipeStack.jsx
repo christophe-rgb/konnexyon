@@ -161,7 +161,7 @@ export default function SwipeStack({ profiles, onLike, onPass }) {
               {current.couple_name}
             </h2>
             <p style={{ fontSize: 11, color: 'rgba(201,168,76,1)', letterSpacing: '0.16em', textTransform: 'uppercase', marginBottom: 10 }}>
-              {current.orientation}{current.distance_km ? ` · ${Math.round(current.distance_km)} km` : ''}
+              {current.orientation}{current.distance_km != null ? ` · ${Math.round(current.distance_km)} km` : ''}
             </p>
             {current.bio && (
               <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', lineHeight: 1.55, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>

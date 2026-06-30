@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
 import { LogOut, Eye, EyeOff, MapPin, MapPinOff, Trash2, ChevronRight, Settings as SettingsIcon, Crown, XCircle, ShieldOff } from 'lucide-react'
 import { isPremium } from '../lib/plan'
+import { toast } from '../components/Toast'
 
 export default function Settings() {
   const { profile, fetchProfile, signOut } = useAuthStore()
@@ -74,9 +75,18 @@ export default function Settings() {
 
   const deleteAccount = async () => {
     setDeleting(true)
-    await supabase.from('profiles').update({ status: 'deleted' }).eq('id', profile.id)
-    await supabase.auth.signOut()
-    navigate('/login')
+    try {
+      // Suppression RGPD réelle (compte auth + données en cascade) via Edge Function
+      const { data, error } = await supabase.functions.invoke('delete-account', {})
+      if (error || !data?.success) {
+        throw new Error(error?.message || data?.error || 'Suppression impossible')
+      }
+      await supabase.auth.signOut()
+      navigate('/login')
+    } catch (e) {
+      toast('Erreur lors de la suppression : ' + e.message, 'error')
+      setDeleting(false)
+    }
   }
 
   const logout = async () => {

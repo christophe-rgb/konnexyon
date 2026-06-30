@@ -1,6 +1,6 @@
-import { useEffect, useState, useCallback, lazy, Suspense } from 'react'
+import { useEffect, useState, useCallback, useMemo, lazy, Suspense } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { SlidersHorizontal, Compass, Zap, Layers2, LayoutGrid, Map } from 'lucide-react'
+import { SlidersHorizontal, Compass, Zap, Layers2, LayoutGrid, Map, Bookmark } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
 import { isPremium } from '../lib/plan'
@@ -36,6 +36,12 @@ export default function Discover() {
   const [loading,    setLoading]    = useState(true)
   const [likedIds,   setLikedIds]   = useState(new Set())
   const [myMapPos,   setMyMapPos]   = useState(null)
+
+  // Tableau stable pour la carte (sinon les marqueurs sont recréés à chaque render)
+  const mapProfiles = useMemo(
+    () => profiles.filter(p => !likedIds.has(p.id)),
+    [profiles, likedIds]
+  )
 
   // synchronise la distance avec max_distance_km du profil dès qu'il est chargé
   useEffect(() => {
@@ -100,7 +106,6 @@ export default function Discover() {
     }
     setLikedIds(prev => new Set([...prev, toId]))
     setSelected(null)
-    if (!premium && !demoMode) { setShowUpgrade(true); return; }
     if (!demoMode) {
       const { error } = await supabase.from('likes').insert({ from_id: profile.id, to_id: toId })
       // 23505 = duplicate key (déjà liké) → pas une vraie erreur
@@ -199,6 +204,32 @@ export default function Discover() {
 
         {/* actions toolbar */}
         <div className="flex items-center gap-2">
+          {/* panier : profils mis de côté */}
+          {passed.length > 0 && (
+            <button
+              onClick={() => setShowPanier(true)}
+              aria-label="Profils mis de côté"
+              className="erb-btn flex items-center px-2.5 py-1.5 rounded-lg transition-all duration-200 cursor-pointer"
+              style={{
+                background: 'rgba(237,231,219,0.9)',
+                border: '1px solid rgba(201,168,76,0.25)',
+                color: 'rgba(201,168,76,1)',
+                position: 'relative',
+              }}
+            >
+              <Bookmark size={14} strokeWidth={1.5} />
+              <span style={{
+                position: 'absolute', top: '-6px', right: '-6px',
+                minWidth: '16px', height: '16px', borderRadius: '999px',
+                background: 'linear-gradient(135deg, #A07830, #C9A84C)',
+                color: '#fff', fontSize: '10px', fontWeight: 700,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                padding: '0 4px', lineHeight: 1,
+              }}>
+                {passed.length}
+              </span>
+            </button>
+          )}
           {(() => {
             const activeCount = (filters.orientation !== 'all' ? 1 : 0) + (filters.seeking?.length || 0) + (filters.distance > 0 ? 1 : 0)
             return (
@@ -272,7 +303,7 @@ export default function Discover() {
               Chargement de la carte…
             </div>
           }>
-            <MapView profiles={profiles.filter(p => !likedIds.has(p.id))} onSelect={setSelected} myProfile={myMapPos} />
+            <MapView profiles={mapProfiles} onSelect={setSelected} myProfile={myMapPos} />
           </Suspense>
           {selected && (
             <div className="absolute bottom-4 left-4 right-4 max-w-sm mx-auto z-[1000] animate-fade-in-up" style={{ animationFillMode: 'both' }}>

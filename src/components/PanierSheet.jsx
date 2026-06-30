@@ -116,7 +116,7 @@ function PanierCard({ profile, onLike, onRemove, index }) {
           {profile.couple_name}
         </p>
         <p style={{ fontSize: 11, color: 'rgba(201,168,76,1)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-          {profile.orientation}{profile.distance_km ? ` · ${Math.round(profile.distance_km)} km` : ''}
+          {profile.orientation}{profile.distance_km != null ? ` · ${Math.round(profile.distance_km)} km` : ''}
         </p>
         {profile.liked && (
           <p style={{ fontSize: 10, color: 'rgba(201,168,76,1)', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 3 }}>

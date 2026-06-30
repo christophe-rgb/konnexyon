@@ -30,7 +30,8 @@ create type profile_status as enum (
   'active',
   'inactive',
   'suspended',
-  'deleted'
+  'deleted',
+  'banned'
 );
 
 create type report_status as enum (
@@ -74,6 +75,21 @@ create table public.profiles (
   email_2         text,
   email_1_confirmed boolean not null default false,
   email_2_confirmed boolean not null default false,
+
+  -- orientation détaillée (ajouté par migration add_plan_columns)
+  orientation_lui  text default 'hetero' check (orientation_lui  in ('hetero','bi')),
+  orientation_elle text default 'hetero' check (orientation_elle in ('hetero','bi')),
+
+  -- abonnement premium (migrations add_plan_columns / add_stripe_subscription_id)
+  plan                   text not null default 'free' check (plan in ('free','premium')),
+  plan_expires_at        timestamptz,
+  stripe_customer_id     text,
+  stripe_subscription_id text,
+
+  -- RGPD Art. 9 (migration add_consent_fields) + vérification d'âge (add_age_confirmed_at)
+  consent_given_at  timestamptz,
+  consent_version   text,
+  age_confirmed_at  timestamptz,
 
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now()
@@ -207,21 +223,23 @@ create trigger on_like_inserted
   for each row execute function public.create_match_if_mutual();
 
 -- ============================================================
--- MATCH DELETE on unlike
+-- MATCH DELETE on block
 -- ============================================================
-create or replace function public.delete_match_on_unlike()
-returns trigger language plpgsql security definer as $$
+-- Un unlike ne détruit PAS le match (la conversation est conservée). C'est le
+-- blocage d'un couple qui supprime le match (et ses messages en cascade).
+create or replace function public.delete_match_on_block()
+returns trigger language plpgsql security definer set search_path = public as $$
 begin
   delete from public.matches
-  where (couple_a = least(old.from_id, old.to_id)
-     and couple_b = greatest(old.from_id, old.to_id));
-  return old;
+  where couple_a = least(new.blocker_id, new.blocked_id)
+    and couple_b = greatest(new.blocker_id, new.blocked_id);
+  return new;
 end;
 $$;
 
-create trigger on_like_deleted
-  after delete on public.likes
-  for each row execute function public.delete_match_on_unlike();
+create trigger on_block_inserted
+  after insert on public.blocks
+  for each row execute function public.delete_match_on_block();
 
 -- ============================================================
 -- PHOTO EXPIRY — cron job (pg_cron, tourne toutes les heures)
@@ -347,27 +365,39 @@ $$;
 
 -- ── PROFILES ──────────────────────────────────────────────────
 
--- lecture : profil visible uniquement si
---   • status = active
---   • pas de blocage mutuel
---   • visibilité = public  OU  (matches_only et on est matchés)  OU  c'est mon profil
-create policy "profiles_select" on public.profiles
-  for select using (
+-- Logique de visibilité déportée dans une fonction SECURITY DEFINER pour éviter
+-- la récursion RLS (un upsert évaluait profiles_select via RETURNING * en même
+-- temps que la policy UPDATE → "infinite recursion detected").
+-- Visible si : status=active, pas de blocage mutuel, et (mon profil OU public
+-- OU matches_only avec match existant).
+create or replace function public.profile_is_visible(
+  p_id uuid, p_status text, p_visibility text
+)
+returns boolean language sql stable security definer set search_path = public as $$
+  select
     auth.uid() is not null
-    and status = 'active'
-    and not public.is_blocked(id)
+    and p_status = 'active'
+    and not exists (
+      select 1 from public.blocks
+      where (blocker_id = auth.uid() and blocked_id = p_id)
+         or (blocker_id = p_id       and blocked_id = auth.uid())
+    )
     and (
-      id = auth.uid()
-      or visibility = 'public'
+      p_id = auth.uid()
+      or p_visibility = 'public'
       or (
-        visibility = 'matches_only'
+        p_visibility = 'matches_only'
         and exists (
           select 1 from public.matches
-          where (couple_a = least(auth.uid(), id) and couple_b = greatest(auth.uid(), id))
+          where couple_a = least(auth.uid(), p_id)
+            and couple_b = greatest(auth.uid(), p_id)
         )
       )
-    )
-  );
+    );
+$$;
+
+create policy "profiles_select" on public.profiles
+  for select using (public.profile_is_visible(id, status::text, visibility::text));
 
 -- mode discret : profil visible uniquement par soi-même et ses matchs
 -- (la policy ci-dessus couvre déjà ce cas ; discreet = invisible pour public)
@@ -556,17 +586,7 @@ language sql security definer as $$
     and not public.is_blocked(p.id)
     -- filtre distance
     and st_distance(p.location, me.location) <= (radius_km * 1000)
-    -- filtre compatibilité (orientations croisées)
-    and (
-      -- les deux hétéro
-      (p.orientation = 'hetero_hetero' and (
-        select orientation from public.profiles where id = auth.uid()
-      ) in ('hetero_hetero', 'hetero_bi', 'bi_all'))
-      or
-      p.orientation = 'bi_all'
-      or
-      (select orientation from public.profiles where id = auth.uid()) = 'bi_all'
-    )
+    -- matching symétrique : l'orientation est une info, pas un filtre
     -- pas encore liké (pour ne pas réafficher)
     and not exists (
       select 1 from public.likes l

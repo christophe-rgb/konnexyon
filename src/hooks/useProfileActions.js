@@ -24,14 +24,14 @@ export function useProfileActions(uid) {
     const a = myProfile.id < uid ? myProfile.id : uid
     const b = myProfile.id < uid ? uid : myProfile.id
     const { data } = await supabase.from('matches')
-      .select('id').eq('couple_a', a).eq('couple_b', b).single()
+      .select('id').eq('couple_a', a).eq('couple_b', b).maybeSingle()
     setMatched(!!data)
   }, [myProfile?.id, uid])
 
   const checkLike = useCallback(async () => {
     if (!myProfile?.id || !uid) return
     const { data } = await supabase.from('likes')
-      .select('id').eq('from_id', myProfile.id).eq('to_id', uid).single()
+      .select('id').eq('from_id', myProfile.id).eq('to_id', uid).maybeSingle()
     setLiked(!!data)
   }, [myProfile?.id, uid])
 
@@ -49,8 +49,9 @@ export function useProfileActions(uid) {
         if (error && error.code !== '23505') { toast(`Erreur : ${error.message}`, 'error'); return }
         setLiked(true)
         toast('Demande de connexion envoyée ✓')
-        await new Promise(r => setTimeout(r, 300))
-        checkMatch()
+        // Le trigger on_like_inserted crée le match dans la même transaction
+        // que l'insert : inutile d'attendre, on vérifie directement.
+        await checkMatch()
       }
     } finally {
       connectingRef.current = false

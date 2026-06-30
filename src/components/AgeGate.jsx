@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { safeSet } from '../lib/storage'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
+import { toast } from './Toast'
 
 export default function AgeGate({ onConfirm }) {
   const [checked, setChecked] = useState(false)
@@ -14,18 +15,24 @@ export default function AgeGate({ onConfirm }) {
     if (!checked) return
     setLoading(true)
     try {
-      // Toujours persister en localStorage pour la session courante
-      safeSet('age_confirmed', '1')
-
-      // Si l'utilisateur est connecté, persister aussi en base Supabase
+      // Si l'utilisateur est connecté, persister en base AVANT d'entrer.
+      // Sinon RequireProfile (qui lit age_confirmed_at) le renverrait en boucle
+      // à l'onboarding. En cas d'échec, on ne valide pas.
       if (user) {
         const { error } = await supabase
           .from('profiles')
           .update({ age_confirmed_at: new Date().toISOString() })
           .eq('id', user.id)
-        if (error) console.error('[AgeGate] Supabase update error:', error)
+        if (error) {
+          console.error('[AgeGate] Supabase update error:', error)
+          toast('Erreur, veuillez réessayer.', 'error')
+          setLoading(false)
+          return
+        }
       }
 
+      // Persiste en localStorage pour la session courante puis entre
+      safeSet('age_confirmed', '1')
       onConfirm()
     } finally {
       setLoading(false)

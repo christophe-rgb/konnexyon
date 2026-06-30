@@ -21,6 +21,7 @@ export default function MapView({ profiles, onSelect, myProfile }) {
   const mapRef       = useRef(null)
   const markersRef   = useRef([])
   const myMarkerRef  = useRef(null)
+  const hasCenteredRef = useRef(false)
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
@@ -59,8 +60,12 @@ export default function MapView({ profiles, onSelect, myProfile }) {
     myMarkerRef.current = L.marker([myProfile.lat, myProfile.lng], { icon: myIcon, zIndexOffset: 1000 })
       .addTo(mapRef.current)
 
-    // Centre la carte sur le profil utilisateur
-    mapRef.current.setView([myProfile.lat, myProfile.lng], 11)
+    // Centre la carte sur le profil utilisateur — une seule fois (sinon
+    // re-centrage intempestif si la position est re-fournie après navigation)
+    if (!hasCenteredRef.current) {
+      mapRef.current.setView([myProfile.lat, myProfile.lng], 11)
+      hasCenteredRef.current = true
+    }
   }, [myProfile])
 
   // Marqueurs des autres profils + fit bounds
