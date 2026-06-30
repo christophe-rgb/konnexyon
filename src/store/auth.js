@@ -31,8 +31,12 @@ export const useAuthStore = create((set, get) => ({
       if (_event === 'INITIAL_SESSION') return
       if (get().demoMode) return
       if (session?.user) {
+        // Au sign-in, bloquer le routage le temps de charger le profil (évite un
+        // renvoi transitoire vers /onboarding alors qu'un profil existe déjà).
+        const isSignIn = _event === 'SIGNED_IN'
+        if (isSignIn) set({ loading: true })
         await get().fetchProfile(session.user.id)
-        set({ user: session.user })
+        set({ user: session.user, ...(isSignIn ? { loading: false } : {}) })
         get().backfillLocationIfMissing()
       } else {
         set({ user: null, profile: null })

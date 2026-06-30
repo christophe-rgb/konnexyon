@@ -23,6 +23,16 @@ serve(async (req) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   )
 
+  // Idempotence : Stripe peut re-livrer le même event. On l'enregistre ; si la
+  // clé primaire existe déjà, c'est un doublon → on ne retraite pas (sinon une
+  // re-livraison de checkout.session.completed prolongerait l'abonnement).
+  const { error: dupErr } = await supabase.from('stripe_events').insert({ id: event.id })
+  if (dupErr) {
+    return new Response(JSON.stringify({ received: true, duplicate: true }), {
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session
     // N'accorder Premium que si le paiement est réellement abouti

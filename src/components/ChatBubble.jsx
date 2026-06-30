@@ -21,6 +21,12 @@ export default function ChatBubble({ message, isMine, onDelete }) {
   const handleImgError = useCallback(async () => {
     if (refreshing || imgError) return   // déjà en cours ou déjà échoué
 
+    // Rétention : passé photo_expires_at, on ne régénère plus l'accès à la photo.
+    if (message.photo_expires_at && new Date(message.photo_expires_at) < new Date()) {
+      setImgError(true)
+      return
+    }
+
     setRefreshing(true)
     try {
       const newUrl = await refreshSignedUrl(imgSrc)
@@ -36,7 +42,7 @@ export default function ChatBubble({ message, isMine, onDelete }) {
       setImgError(true)
       setRefreshing(false)
     }
-  }, [imgSrc, refreshing, imgError])
+  }, [imgSrc, refreshing, imgError, message.photo_expires_at])
 
   return (
     <div

@@ -223,21 +223,23 @@ create trigger on_like_inserted
   for each row execute function public.create_match_if_mutual();
 
 -- ============================================================
--- MATCH DELETE on unlike
+-- MATCH DELETE on block
 -- ============================================================
-create or replace function public.delete_match_on_unlike()
-returns trigger language plpgsql security definer as $$
+-- Un unlike ne détruit PAS le match (la conversation est conservée). C'est le
+-- blocage d'un couple qui supprime le match (et ses messages en cascade).
+create or replace function public.delete_match_on_block()
+returns trigger language plpgsql security definer set search_path = public as $$
 begin
   delete from public.matches
-  where (couple_a = least(old.from_id, old.to_id)
-     and couple_b = greatest(old.from_id, old.to_id));
-  return old;
+  where couple_a = least(new.blocker_id, new.blocked_id)
+    and couple_b = greatest(new.blocker_id, new.blocked_id);
+  return new;
 end;
 $$;
 
-create trigger on_like_deleted
-  after delete on public.likes
-  for each row execute function public.delete_match_on_unlike();
+create trigger on_block_inserted
+  after insert on public.blocks
+  for each row execute function public.delete_match_on_block();
 
 -- ============================================================
 -- PHOTO EXPIRY — cron job (pg_cron, tourne toutes les heures)
@@ -584,17 +586,7 @@ language sql security definer as $$
     and not public.is_blocked(p.id)
     -- filtre distance
     and st_distance(p.location, me.location) <= (radius_km * 1000)
-    -- filtre compatibilité (orientations croisées)
-    and (
-      -- les deux hétéro
-      (p.orientation = 'hetero_hetero' and (
-        select orientation from public.profiles where id = auth.uid()
-      ) in ('hetero_hetero', 'hetero_bi', 'bi_all'))
-      or
-      p.orientation = 'bi_all'
-      or
-      (select orientation from public.profiles where id = auth.uid()) = 'bi_all'
-    )
+    -- matching symétrique : l'orientation est une info, pas un filtre
     -- pas encore liké (pour ne pas réafficher)
     and not exists (
       select 1 from public.likes l

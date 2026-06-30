@@ -49,8 +49,9 @@ export function useProfileActions(uid) {
         if (error && error.code !== '23505') { toast(`Erreur : ${error.message}`, 'error'); return }
         setLiked(true)
         toast('Demande de connexion envoyée ✓')
-        await new Promise(r => setTimeout(r, 300))
-        checkMatch()
+        // Le trigger on_like_inserted crée le match dans la même transaction
+        // que l'insert : inutile d'attendre, on vérifie directement.
+        await checkMatch()
       }
     } finally {
       connectingRef.current = false
