@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
 import { validateImageFile } from '../lib/upload'
+import { resolveOnboardingLocation } from '../lib/geo'
 import { toast } from '../components/Toast'
 
 // Version du texte de consentement — incrémenter si le texte change
@@ -113,15 +114,10 @@ export default function Onboarding() {
       return
     }
 
-    let locationSql = null
-    if (navigator.geolocation) {
-      await new Promise(resolve => {
-        navigator.geolocation.getCurrentPosition(pos => {
-          locationSql = `SRID=4326;POINT(${pos.coords.longitude} ${pos.coords.latitude})`
-          resolve()
-        }, resolve, { timeout: 5000 })
-      })
-    }
+    // GPS précis si accordé, sinon repli sur une position IP approximative.
+    // Sans position, le couple n'apparaîtrait jamais sur la carte.
+    const loc = await resolveOnboardingLocation()
+    const locationSql = loc ? `SRID=4326;POINT(${loc.lng} ${loc.lat})` : null
     // Calcule l'enum orientation depuis lui + elle
     const orientationMap = {
       'hetero-hetero': 'hetero_hetero',
@@ -139,6 +135,9 @@ export default function Onboarding() {
       email_1: email,
       ...profileData,
       orientation,
+      // Détail Lui/Elle saisi à l'étape "Votre couple" (sinon perdu)
+      orientation_lui:  data.orientation_lui,
+      orientation_elle: data.orientation_elle,
       email_1_confirmed: true,
       // Consentement RGPD Art. 9 — timestamp et version du texte accepté
       consent_given_at:  consentTimestamp || new Date().toISOString(),

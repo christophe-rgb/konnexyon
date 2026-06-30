@@ -77,9 +77,7 @@ export function useConversation(matchId) {
 
       const unread = page.filter(msg => msg.sender_id !== profile.id && !msg.read_at)
       if (unread.length) {
-        await supabase.from('messages')
-          .update({ read_at: new Date().toISOString() })
-          .in('id', unread.map(msg => msg.id))
+        await supabase.rpc('mark_messages_read', { p_match_id: matchId })
       }
 
       // Subscription Realtime établie uniquement après confirmation participation
@@ -94,7 +92,7 @@ export function useConversation(matchId) {
           setMessages(ms =>
             ms.some(x => x.id === payload.new.id) ? ms : [...ms, payload.new]
           )
-          if (payload.new.sender_id !== profile.id) markRead(payload.new.id)
+          if (payload.new.sender_id !== profile.id) markRead()
         })
         .subscribe()
       channelRef.current = channel
@@ -104,14 +102,16 @@ export function useConversation(matchId) {
 
     return () => {
       isMountedRef.current = false
-      supabase.removeChannel(channel).catch(() => {})
+      if (channelRef.current) supabase.removeChannel(channelRef.current)
       channelRef.current = null
     }
   }, [matchId, profile])
 
   // ─── Actions ──────────────────────────────────────────────────────────────
-  const markRead = async (msgId) => {
-    await supabase.from('messages').update({ read_at: new Date().toISOString() }).eq('id', msgId).eq('match_id', matchId)
+  // Marque comme lus tous les messages reçus du match (via RPC sécurisée :
+  // la policy messages_update ne permet plus de modifier les messages de l'autre).
+  const markRead = async () => {
+    await supabase.rpc('mark_messages_read', { p_match_id: matchId })
   }
 
   const loadMore = async () => {
@@ -180,7 +180,8 @@ export function useConversation(matchId) {
     if (!magic.ok) { toast(magic.error, 'error'); return }
     setUploading(true)
 
-    const ext  = file.name.split('.').pop()
+    // Extension dérivée du type réellement validé (pas du nom de fichier fourni)
+    const ext  = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' }[file.type] || 'jpg'
     const path = `${matchId}/${Date.now()}.${ext}`
 
     const { error: upErr } = await supabase.storage.from('chat-photos').upload(path, file)

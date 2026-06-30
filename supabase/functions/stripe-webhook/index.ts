@@ -25,6 +25,10 @@ serve(async (req) => {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session
+    // N'accorder Premium que si le paiement est réellement abouti
+    if (session.payment_status && session.payment_status !== 'paid') {
+      return new Response('ok')
+    }
     const userId  = session.metadata?.user_id
     const plan    = session.metadata?.plan || '1m'
     if (!userId) return new Response('ok')
@@ -57,20 +61,15 @@ serve(async (req) => {
         stripe_customer_id: null,
       }).eq('id', userId)
     } else {
-      // Fallback : chercher via l'email du customer Stripe
+      // Fallback : retrouver le profil via le stripe_customer_id stocké en base
+      // (getUserByEmail n'existe pas dans supabase-js v2).
       const customerId = sub.customer as string
-      const customer = await stripe.customers.retrieve(customerId)
-      if (!customer.deleted && customer.email) {
-        const { data: authUser } = await supabase.auth.admin.getUserByEmail(customer.email)
-        if (authUser?.user?.id) {
-          await supabase.from('profiles').update({
-            plan: 'free',
-            plan_expires_at: null,
-            stripe_subscription_id: null,
-            stripe_customer_id: null,
-          }).eq('id', authUser.user.id)
-        }
-      }
+      await supabase.from('profiles').update({
+        plan: 'free',
+        plan_expires_at: null,
+        stripe_subscription_id: null,
+        stripe_customer_id: null,
+      }).eq('stripe_customer_id', customerId)
     }
   }
 

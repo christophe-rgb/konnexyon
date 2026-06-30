@@ -28,7 +28,17 @@ export default function Settings() {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ consent_given_at: null, orientation: null, seeking: null })
+        // Efface TOUTES les données sensibles Art. 9 (orientation, désirs, dispos, limites)
+        .update({
+          consent_given_at: null,
+          consent_version:  null,
+          orientation:      null,
+          orientation_lui:  null,
+          orientation_elle: null,
+          seeking:          null,
+          availabilities:   null,
+          limits:           null,
+        })
         .eq('id', profile.id)
       if (error) throw new Error(error.message)
       await fetchProfile(profile.id)

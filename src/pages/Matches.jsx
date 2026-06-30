@@ -68,7 +68,8 @@ export default function Matches() {
       // fetch locations for map
       const ids = filtered.map(m => m.profile.id)
       if (ids.length) {
-        const { data: locs } = await supabase.rpc('get_match_locations', { profile_ids: ids })
+        const { data: locs, error: locErr } = await supabase.rpc('get_match_locations', { profile_ids: ids })
+        if (locErr) console.error('get_match_locations:', locErr)
         if (locs && isMounted) setMapProfiles(locs)
       }
     }
@@ -84,7 +85,7 @@ export default function Matches() {
       isMounted = false
       supabase.removeChannel(channel)
     }
-  }, [profile])
+  }, [profile?.id, demoMode])
 
   return (
     <div className="max-w-lg mx-auto px-4 pb-nav" style={{ paddingTop: '0' }}>

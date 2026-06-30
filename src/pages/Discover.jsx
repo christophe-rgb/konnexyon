@@ -65,13 +65,15 @@ export default function Discover() {
     try {
       if (demoMode) {
         let results = [...DEMO_PROFILES]
-        if (filters.orientation !== 'all') results = results.filter(p => p.orientation === filters.orientation)
+        // L'orientation est filtrée par compatibilité côté serveur (RPC) ; un
+        // filtre d'égalité stricte ici viderait la liste à tort.
         if (filters.seeking?.length > 0)   results = results.filter(p => filters.seeking.some(s => p.seeking?.includes(s)))
         if (filters.distance > 0)          results = results.filter(p => p.distance_km <= filters.distance)
         setProfiles(results)
         return
       }
-      const radius = filters.distance || 500
+      // "Peu importe" (0) = rayon très large, pas 500 km
+      const radius = filters.distance > 0 ? filters.distance : 20000
       const { data, error } = await supabase.rpc('get_nearby_compatible_profiles', { radius_km: radius })
       if (error) {
         console.error('RPC error:', error)
@@ -79,7 +81,6 @@ export default function Discover() {
         return
       }
       let results = data || []
-      if (filters.orientation !== 'all') results = results.filter(p => p.orientation === filters.orientation)
       if (filters.seeking?.length > 0)   results = results.filter(p => filters.seeking.some(s => p.seeking?.includes(s)))
       setProfiles(results)
     } finally {
@@ -90,6 +91,8 @@ export default function Discover() {
   useEffect(() => { load() }, [load])
 
   const like = async (toId) => {
+    // guard : carte hors borne / id manquant → ne rien insérer (évite to_id NULL)
+    if (!toId) return
     // guard anti-auto-swipe : ne jamais liker son propre profil
     if (!demoMode && profile?.id && toId === profile.id) {
       console.warn('[like] auto-swipe bloqué (toId === profile.id)')
@@ -269,7 +272,7 @@ export default function Discover() {
               Chargement de la carte…
             </div>
           }>
-            <MapView profiles={profiles} onSelect={setSelected} myProfile={myMapPos} />
+            <MapView profiles={profiles.filter(p => !likedIds.has(p.id))} onSelect={setSelected} myProfile={myMapPos} />
           </Suspense>
           {selected && (
             <div className="absolute bottom-4 left-4 right-4 max-w-sm mx-auto z-[1000] animate-fade-in-up" style={{ animationFillMode: 'both' }}>
