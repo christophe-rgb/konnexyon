@@ -30,7 +30,8 @@ create type profile_status as enum (
   'active',
   'inactive',
   'suspended',
-  'deleted'
+  'deleted',
+  'banned'
 );
 
 create type report_status as enum (
@@ -74,6 +75,21 @@ create table public.profiles (
   email_2         text,
   email_1_confirmed boolean not null default false,
   email_2_confirmed boolean not null default false,
+
+  -- orientation détaillée (ajouté par migration add_plan_columns)
+  orientation_lui  text default 'hetero' check (orientation_lui  in ('hetero','bi')),
+  orientation_elle text default 'hetero' check (orientation_elle in ('hetero','bi')),
+
+  -- abonnement premium (migrations add_plan_columns / add_stripe_subscription_id)
+  plan                   text not null default 'free' check (plan in ('free','premium')),
+  plan_expires_at        timestamptz,
+  stripe_customer_id     text,
+  stripe_subscription_id text,
+
+  -- RGPD Art. 9 (migration add_consent_fields) + vérification d'âge (add_age_confirmed_at)
+  consent_given_at  timestamptz,
+  consent_version   text,
+  age_confirmed_at  timestamptz,
 
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now()

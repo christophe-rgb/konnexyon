@@ -24,14 +24,14 @@ export function useProfileActions(uid) {
     const a = myProfile.id < uid ? myProfile.id : uid
     const b = myProfile.id < uid ? uid : myProfile.id
     const { data } = await supabase.from('matches')
-      .select('id').eq('couple_a', a).eq('couple_b', b).single()
+      .select('id').eq('couple_a', a).eq('couple_b', b).maybeSingle()
     setMatched(!!data)
   }, [myProfile?.id, uid])
 
   const checkLike = useCallback(async () => {
     if (!myProfile?.id || !uid) return
     const { data } = await supabase.from('likes')
-      .select('id').eq('from_id', myProfile.id).eq('to_id', uid).single()
+      .select('id').eq('from_id', myProfile.id).eq('to_id', uid).maybeSingle()
     setLiked(!!data)
   }, [myProfile?.id, uid])
 

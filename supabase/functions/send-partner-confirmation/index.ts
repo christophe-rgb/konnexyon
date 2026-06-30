@@ -18,6 +18,27 @@ serve(async (req) => {
       })
     }
 
+    // Authentification : seul le propriétaire du profil peut déclencher l'envoi.
+    // Sans ça, n'importe qui pouvait forger des confirmations vers une adresse
+    // arbitraire et invalider en boucle le token légitime d'un couple.
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: 'Non authentifié' }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+    const supabaseUser = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_ANON_KEY')!,
+      { global: { headers: { Authorization: authHeader } } }
+    )
+    const { data: { user } } = await supabaseUser.auth.getUser()
+    if (!user || user.id !== profile_id) {
+      return new Response(JSON.stringify({ error: 'Accès refusé' }), {
+        status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     // client admin (service_role)
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
