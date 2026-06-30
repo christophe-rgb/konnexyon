@@ -77,18 +77,23 @@ export default function MapView({ profiles, onSelect, myProfile }) {
     const valid = profiles.filter(p => p.lng != null && p.lat != null)
 
     valid.forEach(p => {
+      const liked = !!p.liked   // couple déjà contacté → marqueur distinct (vert + ✓)
       const initial = escapeHtml(p.couple_name?.[0] || '?')
       const safeAvatar = safeUrl(p.avatar_url)
       const inner = safeAvatar
         ? `<img src="${safeAvatar}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
         : `<span style="font-family:Cormorant,serif;font-weight:700;font-size:13px;color:#0D0D0D;">${initial}</span>`
+      const ring = liked ? '#4ade80' : '#fff'
+      const badge = liked
+        ? `<div style="position:absolute;bottom:-3px;right:-3px;width:16px;height:16px;border-radius:50%;background:#4ade80;border:2px solid #fff;display:flex;align-items:center;justify-content:center;box-shadow:0 0 6px rgba(74,222,128,0.7);"><svg width="8" height="7" viewBox="0 0 12 10" fill="none"><path d="M1 5L4.5 8.5L11 1" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`
+        : ''
       const icon = L.divIcon({
         className: '',
-        html: `<div style="width:36px;height:36px;border-radius:50%;background:#C9A84C;border:2px solid #fff;cursor:pointer;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 0 12px rgba(201,168,76,0.6);">${inner}</div>`,
+        html: `<div style="position:relative;width:36px;height:36px;cursor:pointer;"><div style="width:36px;height:36px;border-radius:50%;background:#C9A84C;border:2px solid ${ring};display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 0 12px rgba(201,168,76,0.6);">${inner}</div>${badge}</div>`,
         iconSize: [36, 36],
         iconAnchor: [18, 18],
       })
-      const marker = L.marker([p.lat, p.lng], { icon })
+      const marker = L.marker([p.lat, p.lng], { icon, zIndexOffset: liked ? 500 : 0 })
         .on('click', () => onSelect?.(p))
         .addTo(mapRef.current)
       markersRef.current.push(marker)

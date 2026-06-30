@@ -559,7 +559,8 @@ returns table (
   seeking       text[],
   distance_km   float,
   lng           float,
-  lat           float
+  lat           float,
+  liked         boolean
 )
 language sql security definer as $$
   select
@@ -573,7 +574,9 @@ language sql security definer as $$
     round((st_distance(p.location, me.location) / 1000)::numeric, 0)::float as distance_km,
     -- coordonnées floutées à ~500m (0.005 degrés ≈ 550m)
     round((st_x(p.location::geometry) + (random() - 0.5) * 0.005)::numeric, 5)::float as lng,
-    round((st_y(p.location::geometry) + (random() - 0.5) * 0.005)::numeric, 5)::float as lat
+    round((st_y(p.location::geometry) + (random() - 0.5) * 0.005)::numeric, 5)::float as lat,
+    -- couples déjà contactés : gardés sur la carte (marqués), retirés du swipe côté client
+    exists (select 1 from public.likes l where l.from_id = auth.uid() and l.to_id = p.id) as liked
   from public.profiles p
   cross join (
     select location from public.profiles where id = auth.uid()
@@ -587,11 +590,6 @@ language sql security definer as $$
     -- filtre distance
     and st_distance(p.location, me.location) <= (radius_km * 1000)
     -- matching symétrique : l'orientation est une info, pas un filtre
-    -- pas encore liké (pour ne pas réafficher)
-    and not exists (
-      select 1 from public.likes l
-      where l.from_id = auth.uid() and l.to_id = p.id
-    )
   order by distance_km asc;
 $$;
 

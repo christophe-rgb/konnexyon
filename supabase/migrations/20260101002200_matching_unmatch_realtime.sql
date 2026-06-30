@@ -6,20 +6,25 @@
 -- Avant, un couple hetero_bi n'apparaissait qu'aux viewers bi_all (catalogue
 -- amputé, asymétrique). On retire la clause d'orientation : tout couple actif,
 -- public, dans le rayon et non liké/bloqué est proposé.
-create or replace function public.get_nearby_compatible_profiles(
+-- drop nécessaire : on change le type de retour (ajout colonne `liked`)
+drop function if exists public.get_nearby_compatible_profiles(integer);
+create function public.get_nearby_compatible_profiles(
   radius_km integer default 50
 )
 returns table (
   id uuid, couple_name text, bio text, avatar_url text,
   orientation couple_orientation, looking_for looking_for_type[],
-  seeking text[], distance_km float, lng float, lat float
+  seeking text[], distance_km float, lng float, lat float, liked boolean
 )
 language sql security definer set search_path = public as $$
   select
     p.id, p.couple_name, p.bio, p.avatar_url, p.orientation, p.looking_for, p.seeking,
     round((st_distance(p.location, me.location) / 1000)::numeric, 0)::float as distance_km,
     round((st_x(p.location::geometry) + (random() - 0.5) * 0.005)::numeric, 5)::float as lng,
-    round((st_y(p.location::geometry) + (random() - 0.5) * 0.005)::numeric, 5)::float as lat
+    round((st_y(p.location::geometry) + (random() - 0.5) * 0.005)::numeric, 5)::float as lat,
+    -- les couples déjà contactés ne sont PAS exclus : on les garde sur la carte,
+    -- marqués via ce drapeau (mais on les retire de la pile de swipe côté client)
+    exists (select 1 from public.likes l where l.from_id = auth.uid() and l.to_id = p.id) as liked
   from public.profiles p
   cross join (select location from public.profiles where id = auth.uid()) me
   where p.id <> auth.uid()
@@ -28,9 +33,6 @@ language sql security definer set search_path = public as $$
     and p.hide_location = false
     and not public.is_blocked(p.id)
     and st_distance(p.location, me.location) <= (radius_km * 1000)
-    and not exists (
-      select 1 from public.likes l where l.from_id = auth.uid() and l.to_id = p.id
-    )
   order by distance_km asc;
 $$;
 
