@@ -35,6 +35,11 @@
 9. `supabase/migrations/20260101002700_admin_reset_delete_bot_thread.sql`  ← RPC vider/supprimer une conversation de bot
 10. `supabase/migrations/20260101002800_bots_france_par_recherche.sql`  ← 10 bots France (par type de recherche)
 11. `supabase/migrations/20260101002900_venues_lieux.sql`  ← rubrique **Lieux** (table `venues` + RPC annuaire/carte + **pipeline de prospection** : contacté/accepté/refusé, dossier admin temps réel)
+12. `supabase/migrations/20260101003000_venue_leads.sql`  ← **Réponses partenaires** (table `venue_leads` + RPC `submit_venue_lead`/`admin_list_leads`/`admin_mark_lead` + Realtime) — **⚠️ À EXÉCUTER (probablement pas encore fait)**
+
+### 🔴 À exécuter en priorité (au réveil)
+- **`20260101003000_venue_leads.sql`** (sinon la page `/partenaire` plante à l'envoi).
+- Le **pré-remplissage des ~20 lieux de l'Hérault** (bloc SQL `insert into public.venues …` fourni en chat) si pas déjà fait.
 
 **IMPORTANT — `is_admin()` doit exister AVANT toute fonction admin** (définie dans `supabase/schema.sql`). Sinon les `create function admin_*` échouent et Supabase annule tout le bloc :
 ```sql
@@ -68,6 +73,19 @@ Edge Functions à (re)déployer via CLI : `supabase functions deploy stripe-webh
 - **Bots villes** : 5 bots Lyon/Paris/Montpellier. Boîte des bots avec encart « Messages en attente », **Photos des bots** (upload), et **vider/supprimer** une conversation.
 - **Admin** : page sur fond noir (sinon onglets blancs sur blanc invisibles).
 - **Fix carte** : « peu importe » (`max_distance_km = 0`) enfin pris en compte (test `!= null`, plus la véracité).
+
+## 🏷️ Démarchage des lieux & partenaires (session)
+- **Rubrique Lieux** : page publique `/lieux` (annuaire + carte à épingles) + onglet admin **Lieux** (ajout/édition/suppression, géoloc via adresse, pipeline de prospection **temps réel** : « Mail envoyé » → *Contacté*, « Accepté » → mis en avant/publié, « Refusé » → supprimé).
+- **Page partenaire** : `/partenaire` = mini étude de marché où un lieu répond (formule, contact, message) → **arrive en temps réel** dans admin → onglet **Réponses** (`venue_leads`, Realtime). Numéro affiché : **06 63 46 07 69**. Argument « résiliation en 1 clic, sans engagement ».
+- **Concept offre = taille de l'épingle sur la carte** : Gratuit (taille standard) · Essentiel 19€ (agrandi comme un couple) · Premium 49€ (2× plus gros + badge Partenaire) · Événement 25€ (flash 7 j). Visuels d'illustration dans `public/offres/tier-*.png`. (⚠️ à ce stade c'est du **marketing/copie** ; le dimensionnement réel des marqueurs par formule n'est PAS encore implémenté côté carte — à faire si voulu, via un champ `tier`.)
+- **Démarchage** : `DEMARCHAGE_LIEUX_HERAULT.md` (liste lieux 34 + emails + tarifs) · **PDF** `public/offres/Konnexyon-proposition-partenariat.pdf` (charte + logo) · **20 brouillons Gmail** créés (1 par lieu, destinataire provisoire `konnexyon@gmail.com` à remplacer). Expéditeur/contact : **konnexyon@gmail.com**.
+
+## 🔁 Reprendre demain (pistes ouvertes)
+- Implémenter le **vrai dimensionnement des épingles** par formule sur la carte (champ `tier` sur `venues` : standard/essentiel/premium ; + effet « flash » pour événement).
+- Mettre les **visuels d'offre** (`public/offres/tier-*.png`) sur la page `/partenaire`.
+- Brouillon de **relance** (J+4) pour les lieux sans réponse.
+- Envoi d'emails **automatique** (Resend/SendGrid + Edge Function + désinscription RGPD) si on veut industrialiser.
+- **Résiliation en 1 clic réelle** (nécessite comptes partenaires + Stripe) — promesse affichée mais pas encore branchée.
 
 ## 🧪 Mode test (à revenir en « vraies règles » plus tard)
 Actuellement volontairement permissif pour tester :

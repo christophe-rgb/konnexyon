@@ -96,12 +96,14 @@
 > partenaires avec une offre **gratuite de lancement**, puis on monétise une fois
 > le trafic prouvé. Prix volontairement bas et sans engagement.
 
-| Formule | Prix | Ce qui est inclus |
+> **Concept clé (argument visuel)** : la **taille de votre épingle sur la carte = votre formule**. Plus vous montez en gamme, plus vous ressortez. (Visuels d'illustration : `Gratuit / Essentiel / Premium / Événement`.)
+
+| Formule | Prix | Taille sur la carte & inclus |
 | --- | --- | --- |
-| **Lancement — Gratuit** | 0 € (offre de lancement, limitée) | Fiche annuaire : nom, type, ville, 1 photo, description courte, 1 lien. En échange : le lieu mentionne Konnexyon à sa clientèle (flyer/story/lien). |
-| **Essentiel** | **19 €/mois** ou 190 €/an (2 mois offerts) | Fiche complète + **épingle sur la carte** + photo + coordonnées + lien site/réseaux. |
-| **Premium — Mise en avant** | **49 €/mois** ou 490 €/an | Tout Essentiel + **badge « Partenaire »**, position en tête de l'annuaire, galerie de 5 photos, mise en avant sur la carte, 1 post/story Konnexyon par mois. |
-| **Coup de projecteur événement** | **25 € / événement** | Mise en avant d'une soirée/événement (bannière annuaire + notification) pendant 7 jours. |
+| **Lancement — Gratuit** | 0 € (offre de lancement, limitée) | Votre établissement apparaît **à sa taille standard**. Fiche : nom, type, ville, 1 photo, description, 1 lien. En échange : mention de Konnexyon à votre clientèle. |
+| **Essentiel** | **19 €/mois** ou 190 €/an (2 mois offerts) | Épingle **renforcée et agrandie — aussi visible qu'un couple** + coordonnées + lien site/réseaux. |
+| **Premium — Mise en avant** | **49 €/mois** ou 490 €/an | Épingle **2× plus grosse que les couples** + **badge « Partenaire »**, tête d'annuaire, galerie 5 photos, 1 post/story par mois. |
+| **Coup de projecteur événement** | **25 € / événement** | **Flash lumineux** sur votre établissement pendant 7 jours (soirée/thème) + notification aux membres. |
 
 **Remises & leviers de vente**
 - **-50 % les 3 premiers mois** pour les 10 premiers lieux signés (« partenaires fondateurs »).

@@ -23,10 +23,10 @@ const FORMULES = [
 ]
 
 const OFFERS = [
-  { title: 'Gratuit',   price: 'Lancement', desc: 'Votre lieu sur la carte' },
-  { title: 'Essentiel', price: '19 €/mois', desc: 'Mise en avant renforcée' },
-  { title: 'Premium',   price: '49 €/mois', desc: 'Visibilité maximale' },
-  { title: 'Événement', price: '25 €',      desc: 'Une soirée mise en avant' },
+  { title: 'Gratuit',   price: 'Lancement', desc: 'Votre établissement sur la carte, à sa taille standard' },
+  { title: 'Essentiel', price: '19 €/mois', desc: 'Épingle agrandie — aussi visible qu’un couple' },
+  { title: 'Premium',   price: '49 €/mois', desc: '2× plus gros que les couples · badge « Partenaire »' },
+  { title: 'Événement', price: '25 €',      desc: 'Flash lumineux sur votre lieu pendant 7 jours' },
 ]
 
 const CREAM = '#F7F5EF'
