@@ -28,16 +28,16 @@ export default function MapView({ profiles, onSelect, myProfile }) {
 
     mapRef.current = L.map(containerRef.current, { zoomControl: true }).setView([46.6, 2.3], 6)
 
-    const tiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    const tiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       attribution: '© OpenStreetMap contributors © CARTO',
       subdomains: 'abcd',
       maxZoom: 19,
     }).addTo(mapRef.current)
 
-    // renforce le contraste des tuiles : routes et frontières plus visibles
+    // thème clair : léger contraste pour garder routes et frontières nettes
     tiles.on('load', () => {
       const pane = mapRef.current?.getPane('tilePane')
-      if (pane) pane.style.filter = 'brightness(1.6) contrast(1.3)'
+      if (pane) pane.style.filter = 'contrast(1.05) saturate(1.05)'
     })
 
     return () => { mapRef.current?.remove(); mapRef.current = null }
