@@ -38,7 +38,11 @@ export default function Profile() {
   const [editing,    setEditing]    = useState(false)
   const [form,       setForm]       = useState({})
   const [showReport, setShowReport] = useState(false)
+  const [imgError,   setImgError]   = useState(false)
   const fileRef = useRef(null)
+
+  // Réinitialise l'erreur d'image quand l'avatar change (nouveau profil / upload)
+  useEffect(() => { setImgError(false) }, [profile?.avatar_url])
 
   const {
     liked, liking, matched, saving,
@@ -87,36 +91,43 @@ export default function Profile() {
 
       {/* hero photo */}
       <div
-        style={{ position: 'relative', width: '100%', aspectRatio: '4/3', overflow: 'hidden', cursor: isOwn ? 'pointer' : 'default' }}
+        style={{ position: 'relative', width: '100%', aspectRatio: '4/3', overflow: 'hidden', cursor: isOwn ? 'pointer' : 'default', borderRadius: '0 0 24px 24px', boxShadow: '0 12px 32px rgba(0,0,0,0.10)' }}
         onClick={() => isOwn && fileRef.current?.click()}
       >
-        {profile.avatar_url ? (
+        {profile.avatar_url && !imgError ? (
           <img
             src={profile.avatar_url}
             alt={`Photo de ${profile.couple_name}`}
+            onError={() => setImgError(true)}
             style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }}
           />
         ) : (
           <div style={{
             width: '100%', height: '100%',
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            background: 'linear-gradient(145deg, #F0EBE2 0%, #EDE7DB 100%)',
+            background: 'radial-gradient(circle at 50% 40%, #F4EFE5 0%, #EDE7DB 70%, #E7DFCF 100%)',
           }}>
             <span style={{
-              fontFamily: 'Cormorant, serif', fontSize: '96px', fontWeight: 300,
-              background: 'linear-gradient(135deg, #A07830, #C9A84C, #E8CC7A)',
+              fontFamily: 'Cormorant, serif', fontSize: '104px', fontWeight: 300, lineHeight: 1,
+              background: 'linear-gradient(135deg, #B8891F, #F4D875, #B8891F)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-              opacity: 0.4,
+              opacity: 0.55, filter: 'drop-shadow(0 2px 10px rgba(184,137,31,0.15))',
             }}>
               {profile.couple_name?.[0] ?? '∞'}
+            </span>
+            <span style={{
+              marginTop: '10px', fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase',
+              color: 'rgba(184,137,31,0.55)',
+            }}>
+              ∞ Konnexyon ∞
             </span>
           </div>
         )}
 
-        {/* gradient overlay */}
+        {/* gradient overlay — transition élégante vers le corps crème */}
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'linear-gradient(to top, rgba(253,250,246,1) 0%, rgba(253,250,246,0.3) 50%, transparent 100%)',
+          background: 'linear-gradient(to top, rgba(253,250,246,1) 0%, rgba(253,250,246,0.55) 32%, rgba(5,5,5,0.10) 78%, rgba(5,5,5,0.22) 100%)',
         }} />
 
         {/* upload / delete buttons (own profile) */}
@@ -189,18 +200,33 @@ export default function Profile() {
       <div style={{ padding: '0 20px 24px' }}>
 
         {/* nom + orientation */}
-        <div className="animate-fade-in-up delay-100" style={{ animationFillMode: 'both', marginTop: '20px', marginBottom: '20px' }}>
-          <h1 style={{ fontFamily: 'Cormorant, serif', fontSize: '2.4rem', fontWeight: 600, color: '#1C1814', lineHeight: 1.1, marginBottom: '6px' }}>
+        <div className="animate-fade-in-up delay-100" style={{ animationFillMode: 'both', marginTop: '18px', marginBottom: '22px', textAlign: 'center' }}>
+          <h1 style={{
+            fontFamily: 'Cormorant, serif', fontSize: '2.6rem', fontWeight: 600,
+            background: 'linear-gradient(135deg, #B8891F, #F4D875, #B8891F)',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+            lineHeight: 1.1, marginBottom: '10px', letterSpacing: '0.01em',
+          }}>
             {profile.couple_name}
           </h1>
           {(profile.orientation_lui || profile.orientation_elle) && (
-            <p style={{ fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)' }}>
-              Lui · {ORIENTATION_LABELS[profile.orientation_lui] || profile.orientation_lui || '—'}
-              {' '}/ Elle · {ORIENTATION_LABELS[profile.orientation_elle] || profile.orientation_elle || '—'}
-            </p>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: '10px',
+              padding: '5px 14px', borderRadius: '99px',
+              background: 'rgba(212,175,55,0.08)',
+              border: '1px solid rgba(212,175,55,0.22)',
+            }}>
+              <span style={{ fontSize: '10px', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(184,137,31,1)', fontWeight: 500 }}>
+                Lui · {ORIENTATION_LABELS[profile.orientation_lui] || profile.orientation_lui || '—'}
+              </span>
+              <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'rgba(212,175,55,0.5)' }} />
+              <span style={{ fontSize: '10px', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(184,137,31,1)', fontWeight: 500 }}>
+                Elle · {ORIENTATION_LABELS[profile.orientation_elle] || profile.orientation_elle || '—'}
+              </span>
+            </div>
           )}
           {profile.bio && (
-            <p style={{ fontSize: '14px', color: 'rgba(28,24,20,0.9)', lineHeight: 1.7, marginTop: '12px' }}>
+            <p style={{ fontSize: '14px', color: 'rgba(28,24,20,0.82)', lineHeight: 1.75, marginTop: '14px' }}>
               {profile.bio}
             </p>
           )}
@@ -212,15 +238,16 @@ export default function Profile() {
             <button className="erb-btn"
               onClick={() => setEditing(true)}
               style={{
-                flex: 1, padding: '13px', borderRadius: '14px',
-                background: 'rgba(245,240,232,0.85)',
-                border: '1px solid rgba(201,168,76,0.25)',
-                color: 'rgba(201,168,76,1)',
-                fontSize: '13px', letterSpacing: '0.08em',
-                cursor: 'pointer', transition: 'all 0.2s',
+                flex: 1, padding: '14px', borderRadius: '14px',
+                background: 'linear-gradient(135deg, rgba(212,175,55,0.10), rgba(242,211,107,0.06))',
+                border: '1px solid rgba(212,175,55,0.3)',
+                color: 'rgba(184,137,31,1)',
+                fontSize: '13px', letterSpacing: '0.08em', fontWeight: 500,
+                cursor: 'pointer', transition: 'all 0.25s ease-out',
+                boxShadow: '0 2px 10px rgba(212,175,55,0.08)',
               }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.5)'; e.currentTarget.style.background = 'rgba(201,168,76,0.08)'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.25)'; e.currentTarget.style.background = 'transparent'; }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(212,175,55,0.55)'; e.currentTarget.style.background = 'linear-gradient(135deg, rgba(212,175,55,0.18), rgba(242,211,107,0.10))'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(212,175,55,0.16)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(212,175,55,0.3)'; e.currentTarget.style.background = 'linear-gradient(135deg, rgba(212,175,55,0.10), rgba(242,211,107,0.06))'; e.currentTarget.style.boxShadow = '0 2px 10px rgba(212,175,55,0.08)'; }}
             >
               Modifier mon profil
             </button>
@@ -228,17 +255,17 @@ export default function Profile() {
               onClick={() => navigate('/settings')}
               aria-label="Paramètres"
               style={{
-                width: 48, height: 48, borderRadius: '14px', flexShrink: 0,
+                width: 50, height: 50, borderRadius: '14px', flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: 'rgba(245,240,232,0.85)',
-                border: '1px solid rgba(201,168,76,0.25)',
+                background: 'rgba(245,240,232,0.9)',
+                border: '1px solid rgba(212,175,55,0.25)',
                 color: 'rgba(28,24,20,0.9)',
-                cursor: 'pointer', transition: 'all 0.2s',
+                cursor: 'pointer', transition: 'all 0.25s ease-out',
               }}
-              onMouseEnter={e => { e.currentTarget.style.color = '#C9A84C'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.45)'; }}
-              onMouseLeave={e => { e.currentTarget.style.color = 'rgba(28,24,20,0.9)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.25)'; }}
+              onMouseEnter={e => { e.currentTarget.style.color = '#B8891F'; e.currentTarget.style.borderColor = 'rgba(212,175,55,0.5)'; e.currentTarget.style.background = 'rgba(212,175,55,0.08)'; }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'rgba(28,24,20,0.9)'; e.currentTarget.style.borderColor = 'rgba(212,175,55,0.25)'; e.currentTarget.style.background = 'rgba(245,240,232,0.9)'; }}
             >
-              <Settings size={17} strokeWidth={1.5} />
+              <Settings size={18} strokeWidth={1.5} />
             </button>
           </div>
         )}
@@ -356,10 +383,19 @@ export default function Profile() {
 
 function Section({ title, children }) {
   return (
-    <div className="animate-fade-in-up delay-200" style={{ animationFillMode: 'both' }}>
-      <p style={{ fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)', marginBottom: '10px' }}>
-        {title}
-      </p>
+    <div className="animate-fade-in-up delay-200" style={{
+      animationFillMode: 'both',
+      padding: '18px 18px 20px',
+      borderRadius: '18px',
+      background: 'rgba(245,240,232,0.55)',
+      border: '1px solid rgba(212,175,55,0.14)',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+        <p style={{ fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(184,137,31,1)', fontWeight: 500, whiteSpace: 'nowrap' }}>
+          {title}
+        </p>
+        <span style={{ flex: 1, height: '1px', background: 'linear-gradient(to right, rgba(212,175,55,0.35), transparent)' }} />
+      </div>
       {children}
     </div>
   )
@@ -370,11 +406,13 @@ function TagList({ items, map, gold = false }) {
     <div className="flex flex-wrap gap-2">
       {items.map(v => (
         <span key={v} style={{
-          fontSize: '12px', padding: '5px 13px', borderRadius: '99px',
-          border: gold ? '1px solid rgba(201,168,76,0.25)' : '1px solid rgba(28,24,20,0.2)',
-          color: gold ? 'rgba(201,168,76,1)' : 'rgba(28,24,20,0.9)',
-          background: gold ? 'rgba(201,168,76,0.28)' : 'rgba(28,24,20,0.07)',
-          letterSpacing: '0.04em',
+          fontSize: '12px', padding: '6px 14px', borderRadius: '99px',
+          border: gold ? '1px solid rgba(212,175,55,0.35)' : '1px solid rgba(28,24,20,0.14)',
+          color: gold ? 'rgba(184,137,31,1)' : 'rgba(28,24,20,0.9)',
+          background: gold
+            ? 'linear-gradient(135deg, rgba(212,175,55,0.14), rgba(242,211,107,0.08))'
+            : 'rgba(28,24,20,0.05)',
+          letterSpacing: '0.03em', fontWeight: 500,
         }}>
           {map[v] || v}
         </span>
