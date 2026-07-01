@@ -318,6 +318,10 @@
   0%   { background-position: -200% center; }
   100% { background-position:  200% center; }
 }
+@keyframes shimmerBg {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
 @keyframes jewelShine {
   0%   { background-position: 200% center; }
   50%  { background-position:  -50% center; }

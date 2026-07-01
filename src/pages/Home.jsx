@@ -85,6 +85,27 @@ export default function Home() {
 
         <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', maxWidth: 520 }}>
 
+          {/* badge 100% GRATUIT — fun & éclatant */}
+          <div className="animate-fade-in-up" style={{
+            display: 'inline-flex', alignItems: 'center', gap: 10,
+            padding: '9px 22px', borderRadius: 99, marginBottom: 18,
+            background: 'linear-gradient(135deg, #4ade80, #C9A84C, #E8CC7A)',
+            backgroundSize: '200% 100%',
+            boxShadow: '0 10px 34px rgba(74,222,128,0.35), inset 0 1px 0 rgba(255,255,255,0.45)',
+            animation: 'shimmerBg 5s ease-in-out infinite',
+            animationFillMode: 'both',
+          }}>
+            <span style={{ fontSize: 18 }} aria-hidden>🎉</span>
+            <span style={{
+              fontFamily: 'Cormorant, serif', fontWeight: 700, fontSize: '1.1rem',
+              letterSpacing: '0.12em', textTransform: 'uppercase', color: '#0D0D0D',
+            }}>100% Gratuit</span>
+            <span style={{ fontSize: 11, color: 'rgba(13,13,13,0.7)', fontWeight: 600, letterSpacing: '0.04em' }}>
+              · tout est offert
+            </span>
+          </div>
+          <br />
+
           {/* badge */}
           <div className="animate-fade-in" style={{
             display: 'inline-flex', alignItems: 'center', gap: 8,

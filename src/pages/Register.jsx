@@ -63,6 +63,17 @@ export default function Register() {
           <p style={{ fontSize: '12px', color: 'rgba(28,24,20,0.9)', marginTop: '6px', letterSpacing: '0.05em' }}>
             Connectez-vous à ceux qui vous correspondent
           </p>
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: 7, marginTop: 14,
+            padding: '6px 15px', borderRadius: 99,
+            background: 'linear-gradient(135deg, #4ade80, #C9A84C, #E8CC7A)',
+            boxShadow: '0 6px 20px rgba(74,222,128,0.3), inset 0 1px 0 rgba(255,255,255,0.4)',
+          }}>
+            <span aria-hidden>🎉</span>
+            <span style={{ fontWeight: 700, fontSize: 12, letterSpacing: '0.08em', color: '#0D0D0D', textTransform: 'uppercase' }}>
+              100% gratuit
+            </span>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
