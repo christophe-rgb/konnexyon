@@ -1,6 +1,7 @@
 import { useEffect, useState, lazy, Suspense } from 'react'
+import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { MapPin, Phone, ExternalLink } from 'lucide-react'
+import { MapPin, Phone, ExternalLink, Store } from 'lucide-react'
 
 const VenuesMap = lazy(() => import('../components/VenuesMap').catch(() => ({ default: () => (
   <div className="w-full h-full flex items-center justify-center" style={{ color: 'rgba(201,168,76,1)', fontSize: '13px' }}>Carte indisponible</div>
@@ -88,6 +89,17 @@ export default function Lieux() {
           </p>
         </div>
       </header>
+
+      {/* accès partenaire (discret) */}
+      <Link to="/partenaire" style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+        marginTop: 12, padding: '10px 16px', borderRadius: 12, textDecoration: 'none',
+        background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.3)',
+        color: '#8A6A18', fontSize: 12.5, fontWeight: 600, letterSpacing: '0.03em',
+      }}>
+        <Store size={14} strokeWidth={1.7} />
+        Vous gérez un lieu ? Rejoignez-nous
+      </Link>
 
       {/* carte */}
       {mapVenues.length > 0 && (

@@ -32,6 +32,7 @@ const Confidentialite = lazy(() => import('./pages/Confidentialite'))
 const Contact        = lazy(() => import('./pages/Contact'))
 const Blog           = lazy(() => import('./pages/Blog'))
 const Lieux          = lazy(() => import('./pages/Lieux'))
+const Partenaire     = lazy(() => import('./pages/Partenaire'))
 const BlogArticle    = lazy(() => import('./pages/BlogArticle'))
 const BlogCountryList    = lazy(() => import('./pages/BlogCountry').then(m => ({ default: m.BlogCountryList })))
 const BlogCountryArticle = lazy(() => import('./pages/BlogCountry').then(m => ({ default: m.BlogCountryArticle })))
@@ -200,6 +201,7 @@ export default function App() {
             <Route path="/confidentialite"   element={<Confidentialite />} />
             <Route path="/contact"           element={<Contact />} />
             <Route path="/lieux"             element={<Lieux />} />
+            <Route path="/partenaire"        element={<Partenaire />} />
             <Route path="/blog"              element={<Blog />} />
             <Route path="/blog/:slug"        element={<BlogArticle />} />
             <Route path="/belgique"          element={<BlogCountryList country="belgique" />} />

@@ -184,6 +184,7 @@ export default function Home() {
         <div style={{ display: 'flex', gap: 20 }}>
           <Link to="/blog" style={{ fontSize: 11, color: 'rgba(240,237,232,0.5)', textDecoration: 'none', letterSpacing: '0.06em' }}>Guide</Link>
           <Link to="/lieux" style={{ fontSize: 11, color: 'rgba(240,237,232,0.5)', textDecoration: 'none', letterSpacing: '0.06em' }}>Lieux</Link>
+          <Link to="/partenaire" style={{ fontSize: 11, color: 'rgba(201,168,76,1)', textDecoration: 'none', letterSpacing: '0.06em' }}>Devenir partenaire</Link>
           <Link to="/cgu" style={{ fontSize: 11, color: 'rgba(240,237,232,0.5)', textDecoration: 'none', letterSpacing: '0.06em' }}>CGU</Link>
           <Link to="/confidentialite" style={{ fontSize: 11, color: 'rgba(240,237,232,0.5)', textDecoration: 'none', letterSpacing: '0.06em' }}>Confidentialité</Link>
           <Link to="/contact" style={{ fontSize: 11, color: 'rgba(240,237,232,0.5)', textDecoration: 'none', letterSpacing: '0.06em' }}>Contact</Link>
