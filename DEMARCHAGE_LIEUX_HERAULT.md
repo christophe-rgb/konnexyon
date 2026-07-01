@@ -90,10 +90,32 @@
 3. Offre : « Le référencement de lancement est gratuit — nom, photo, description, lien. »
 4. Demande : « À qui puis-je envoyer une petite fiche à remplir par email ? »
 
-## 5) Suivi (à tenir à jour)
-| Lieu | Contacté le | Canal | Réponse | Statut | Notes |
-| --- | --- | --- | --- | --- | --- |
-| | | | | à contacter | |
+## 5) Tarifs à proposer (grille cohérente, phase de lancement)
+
+> Logique : Konnexyon démarre, l'audience se construit. On attire d'abord les
+> partenaires avec une offre **gratuite de lancement**, puis on monétise une fois
+> le trafic prouvé. Prix volontairement bas et sans engagement.
+
+| Formule | Prix | Ce qui est inclus |
+| --- | --- | --- |
+| **Lancement — Gratuit** | 0 € (offre de lancement, limitée) | Fiche annuaire : nom, type, ville, 1 photo, description courte, 1 lien. En échange : le lieu mentionne Konnexyon à sa clientèle (flyer/story/lien). |
+| **Essentiel** | **19 €/mois** ou 190 €/an (2 mois offerts) | Fiche complète + **épingle sur la carte** + photo + coordonnées + lien site/réseaux. |
+| **Premium — Mise en avant** | **49 €/mois** ou 490 €/an | Tout Essentiel + **badge « Partenaire »**, position en tête de l'annuaire, galerie de 5 photos, mise en avant sur la carte, 1 post/story Konnexyon par mois. |
+| **Coup de projecteur événement** | **25 € / événement** | Mise en avant d'une soirée/événement (bannière annuaire + notification) pendant 7 jours. |
+
+**Remises & leviers de vente**
+- **-50 % les 3 premiers mois** pour les 10 premiers lieux signés (« partenaires fondateurs »).
+- **Gratuit à vie** pour un lieu emblématique/référent en échange d'une vraie mise en avant croisée (deal au cas par cas).
+- Paiement annuel = **2 mois offerts**. Sans engagement au mensuel (résiliable).
+- Pack multi-lieux (même enseigne) : **-20 %** dès 2 établissements.
+
+> À afficher clairement : « Offre de lancement — le référencement de base reste
+> gratuit tant que l'audience se construit. » Ça rassure et facilite le premier oui.
+
+## 6) Suivi (à tenir à jour)
+| Lieu | Contacté le | Canal | Formule proposée | Réponse | Statut | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| | | | | | à contacter | |
 
 ---
 Sources de recherche : petitfute.co.uk (Hérault), saunaclublebali.fr, capdagdestudio.com,
