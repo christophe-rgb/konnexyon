@@ -114,8 +114,60 @@ export default function BotInbox() {
       </div>
     )
   }
+  const pending = threads.filter(t => t.unread_from_client > 0)
+  const totalPending = pending.reduce((n, t) => n + (t.unread_from_client || 0), 0)
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+
+      {/* Boîte : messages en attente de réponse */}
+      <div style={{
+        borderRadius: 16, padding: 14, marginBottom: 4,
+        background: pending.length ? 'linear-gradient(135deg, rgba(239,68,68,0.14), rgba(201,168,76,0.10))' : 'rgba(255,255,255,0.03)',
+        border: `1px solid ${pending.length ? 'rgba(239,68,68,0.35)' : 'rgba(255,255,255,0.06)'}`,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: pending.length ? 10 : 0 }}>
+          <span style={{ fontSize: 15 }} aria-hidden>📨</span>
+          <p style={{ fontSize: 13, fontWeight: 700, color: '#fff', letterSpacing: '0.02em' }}>
+            Messages en attente
+          </p>
+          <span style={{
+            marginLeft: 'auto', minWidth: 22, height: 22, borderRadius: 999, padding: '0 7px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: pending.length ? '#EF4444' : 'rgba(255,255,255,0.1)',
+            color: '#fff', fontSize: 12, fontWeight: 700,
+          }}>{totalPending}</span>
+        </div>
+        {pending.length === 0 ? (
+          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 8 }}>
+            Aucun message en attente — tu es à jour ✓
+          </p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {pending.map(t => (
+              <button key={`p-${t.match_id}`} onClick={() => openThread(t)}
+                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 10px', borderRadius: 12, cursor: 'pointer', textAlign: 'left', background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <div style={{ width: 34, height: 34, borderRadius: 10, overflow: 'hidden', flexShrink: 0, background: '#2a2620' }}>
+                  {t.client_avatar ? <img src={t.client_avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(201,168,76,0.7)', fontFamily: 'Cormorant, serif', fontSize: 15 }}>{t.client_name?.[0]}</div>}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontSize: 12.5, fontWeight: 600, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {t.client_name} <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 11, fontWeight: 400 }}>→ {t.bot_name}</span>
+                  </p>
+                  <p style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.55)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {t.last_message || 'Nouveau message'}
+                  </p>
+                </div>
+                <span style={{ flexShrink: 0, minWidth: 20, height: 20, borderRadius: 999, background: '#EF4444', color: '#fff', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 6px' }}>
+                  {t.unread_from_client}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
       {threads.map(t => (
         <button key={t.match_id} onClick={() => openThread(t)}
           style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 12, borderRadius: 14, cursor: 'pointer', textAlign: 'left', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
