@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
@@ -22,6 +22,13 @@ export default function Settings() {
   const [revokingConsent,     setRevokingConsent]     = useState(false)
   const [consentRevokeDone,   setConsentRevokeDone]   = useState(false)
   const [consentRevokeError,  setConsentRevokeError]  = useState('')
+  const [isAdmin,             setIsAdmin]             = useState(false)
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setIsAdmin(data?.user?.app_metadata?.role === 'admin')
+    })
+  }, [])
 
   const revokeConsent = async () => {
     setRevokingConsent(true)
@@ -213,6 +220,18 @@ export default function Settings() {
             </div>
           </div>
         </Section>
+
+        {/* espace admin — visible uniquement pour les admins */}
+        {isAdmin && (
+          <Section title="Administration">
+            <Row
+              icon={SettingsIcon}
+              label="Espace admin — Boîte des bots"
+              desc="Modération des signalements et réponses aux messages des bots"
+              onClick={() => navigate('/admin')}
+            />
+          </Section>
+        )}
 
         {/* confidentialité RGPD */}
         <Section title="Confidentialité">
