@@ -194,69 +194,24 @@ export default function Settings() {
           />
         </Section>
 
-        {/* abonnement */}
-        <Section title="Abonnement">
-          <button
-            className="erb-btn"
-            onClick={() => navigate('/abonnement')}
-            style={{
-              width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: '16px', borderRadius: '14px', cursor: 'pointer', textAlign: 'left',
-              background: premium ? 'rgba(201,168,76,0.28)' : 'rgba(245,240,232,0.8)',
-              border: premium ? '1px solid rgba(201,168,76,0.5)' : '1px solid rgba(201,168,76,0.15)',
-              transition: 'all 0.2s',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <Crown size={18} strokeWidth={1.5} style={{ color: premium ? '#C9A84C' : 'rgba(201,168,76,1)', flexShrink: 0 }} />
-              <div>
-                <p style={{ fontSize: 13, fontWeight: 500, color: premium ? '#C9A84C' : 'rgba(28,24,20,0.9)', marginBottom: 2 }}>
-                  {premium ? 'Premium actif' : 'Passer Premium'}
-                </p>
-                <p style={{ fontSize: 11, color: 'rgba(28,24,20,0.9)' }}>
-                  {premium
-                    ? (profile?.plan_expires_at ? `Expire le ${new Date(profile.plan_expires_at).toLocaleDateString('fr-FR')}` : 'Abonnement actif')
-                    : 'À partir de 9,90 €/mois'}
-                </p>
-              </div>
+        {/* accès gratuit — tout est offert */}
+        <Section title="Votre accès">
+          <div style={{
+            width: '100%', display: 'flex', alignItems: 'center', gap: 12,
+            padding: '16px', borderRadius: '14px',
+            background: 'linear-gradient(135deg, rgba(74,222,128,0.16), rgba(201,168,76,0.16))',
+            border: '1px solid rgba(74,222,128,0.4)',
+          }}>
+            <span style={{ fontSize: 22 }} aria-hidden>🎉</span>
+            <div>
+              <p style={{ fontSize: 13, fontWeight: 700, color: '#1C1814', marginBottom: 2 }}>
+                100% Gratuit — tout est offert
+              </p>
+              <p style={{ fontSize: 11, color: 'rgba(28,24,20,0.75)' }}>
+                Likez, matchez et discutez sans aucune limite. Profitez-en !
+              </p>
             </div>
-            <ChevronRight size={16} strokeWidth={1.5} style={{ color: 'rgba(201,168,76,1)' }} />
-          </button>
-
-          {/* Bouton résiliation — obligatoire loi Chatel / art. L.215-1 Code conso */}
-          {premium && (
-            <button
-              className="erb-btn"
-              onClick={() => { setCancelConfirm(true); setCancelError(''); setCancelDone(false) }}
-              style={{
-                width: '100%', display: 'flex', alignItems: 'center', gap: 12,
-                padding: '14px 16px', borderRadius: '14px',
-                marginTop: '8px', cursor: 'pointer', textAlign: 'left',
-                background: 'rgba(245,240,232,0.8)',
-                border: '1px solid rgba(239,68,68,0.15)',
-                transition: 'all 0.2s',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.borderColor = 'rgba(239,68,68,0.35)'
-                e.currentTarget.style.background = 'rgba(239,68,68,0.05)'
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.borderColor = 'rgba(239,68,68,0.15)'
-                e.currentTarget.style.background = 'rgba(245,240,232,0.8)'
-              }}
-            >
-              <XCircle size={17} strokeWidth={1.5} style={{ color: 'rgba(239,68,68,0.65)', flexShrink: 0 }} />
-              <div style={{ flex: 1 }}>
-                <p style={{ fontSize: 13, fontWeight: 500, color: 'rgba(239,68,68,0.8)' }}>
-                  Résilier mon abonnement
-                </p>
-                <p style={{ fontSize: 11, color: 'rgba(28,24,20,0.6)', marginTop: 2 }}>
-                  Accès maintenu jusqu'à la fin de la période
-                </p>
-              </div>
-              <ChevronRight size={15} strokeWidth={1.5} style={{ color: 'rgba(239,68,68,0.4)' }} />
-            </button>
-          )}
+          </div>
         </Section>
 
         {/* confidentialité RGPD */}

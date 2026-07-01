@@ -27,7 +27,6 @@ const Conversation   = lazy(() => import('./pages/Conversation'))
 const Profile        = lazy(() => import('./pages/Profile'))
 const Settings       = lazy(() => import('./pages/Settings'))
 const Admin          = lazy(() => import('./pages/Admin'))
-const Abonnement     = lazy(() => import('./pages/Abonnement'))
 const CGU            = lazy(() => import('./pages/CGU'))
 const Confidentialite = lazy(() => import('./pages/Confidentialite'))
 const Contact        = lazy(() => import('./pages/Contact'))
@@ -229,9 +228,6 @@ export default function App() {
             } />
             <Route path="/settings" element={
               <RequireAuth><RequireProfile><Settings /></RequireProfile></RequireAuth>
-            } />
-            <Route path="/abonnement" element={
-              <RequireAuth><RequireProfile><Abonnement /></RequireProfile></RequireAuth>
             } />
             <Route path="/admin" element={
               <RequireAuth><Admin /></RequireAuth>
