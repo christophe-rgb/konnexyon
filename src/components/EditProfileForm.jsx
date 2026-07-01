@@ -20,6 +20,13 @@ const LIMITS_OPTIONS = [
   { value: 'pas_penetration',       label: 'Pas de pénétration' },
 ]
 
+const DISTANCE_OPTIONS = [
+  { value: 20,  label: 'Moins de 20 km' },
+  { value: 50,  label: '20 – 50 km' },
+  { value: 100, label: '50 – 100 km' },
+  { value: 0,   label: 'Peu importe' },
+]
+
 const inputStyle = {
   width: '100%',
   background: 'rgba(245,240,232,0.85)',
@@ -165,6 +172,30 @@ export default function EditProfileForm({ form, setForm, onSave, onCancel, savin
                   background: active ? 'rgba(201,168,76,0.28)' : 'transparent',
                   color: active ? 'rgba(201,168,76,1)' : 'rgba(28,24,20,0.8)',
                   fontSize: '13px', transition: 'all 0.2s',
+                }}
+              >{o.label}</button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Distance maximale */}
+      <div>
+        <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)', marginBottom: '10px' }}>
+          Distance maximale
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {DISTANCE_OPTIONS.map(o => {
+            const active = (form.max_distance_km ?? 50) === o.value
+            return (
+              <button key={o.value} type="button"
+                onClick={() => set('max_distance_km', o.value)}
+                style={{
+                  padding: '9px 14px', borderRadius: '99px', cursor: 'pointer',
+                  border: `1px solid ${active ? 'rgba(201,168,76,0.5)' : 'rgba(201,168,76,0.15)'}`,
+                  background: active ? 'rgba(201,168,76,0.28)' : 'transparent',
+                  color: active ? '#C9A84C' : 'rgba(28,24,20,0.8)',
+                  fontSize: '12px', transition: 'all 0.2s',
                 }}
               >{o.label}</button>
             )
