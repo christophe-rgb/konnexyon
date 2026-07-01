@@ -96,55 +96,64 @@ export default function Matches() {
           <picture>
             <source srcSet="/logo.webp" type="image/webp" />
             <img src="/logo.webp" alt="" aria-hidden style={{
-              width: '120vw', maxWidth: 820, opacity: 0.12,
-              filter: 'brightness(1.1) saturate(0.75)', display: 'block', userSelect: 'none',
+              width: '135vw', maxWidth: 960, opacity: 0.22,
+              filter: 'brightness(1.12) saturate(0.8)', display: 'block', userSelect: 'none',
             }} />
           </picture>
         </div>
         <div style={{ position: 'absolute', inset: 0,
-          background: 'radial-gradient(ellipse at center, rgba(253,250,246,0.25) 0%, rgba(253,250,246,0.7) 55%, rgba(253,250,246,0.95) 100%)' }} />
+          background: 'radial-gradient(ellipse at center, rgba(253,250,246,0.12) 0%, rgba(253,250,246,0.55) 55%, rgba(253,250,246,0.9) 100%)' }} />
       </div>
 
-      {/* header */}
+      {/* header — barre sombre pleine largeur, titre centré */}
       <header
         className="sticky top-0 z-10 mb-2 animate-fade-in"
         style={{
-          background: '#050505',
+          background: 'linear-gradient(180deg, #0A0A0A 0%, #050505 100%)',
           borderBottom: '1px solid rgba(212,175,55,0.28)',
+          boxShadow: '0 6px 22px rgba(0,0,0,0.28)',
           width: '100vw', marginLeft: 'calc(50% - 50vw)',
+          position: 'sticky',
           animationFillMode: 'both',
         }}
       >
-       <div className="max-w-lg mx-auto flex items-center justify-between px-5 py-4">
-        <div>
-          <h1 style={{
-            fontFamily: 'Cormorant, serif',
-            fontSize: '1.8rem',
-            fontWeight: 600,
-            background: 'linear-gradient(135deg, #B8891F, #F4D875, #B8891F)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-            letterSpacing: '0.03em',
-          }}>
-            Vos connexions
-          </h1>
-          {!loading && matches.length > 0 && (
-            <p style={{ fontSize: '11px', color: 'rgba(201,168,76,1)', letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: '2px' }}>
-              {matches.length} connexion{matches.length > 1 ? 's' : ''} mutuelles
-            </p>
-          )}
+       <div className="max-w-lg mx-auto flex flex-col items-center justify-center text-center px-5 py-4" style={{ position: 'relative' }}>
+        {/* halo doré derrière le titre */}
+        <div aria-hidden style={{
+          position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
+          width: 260, height: 90, pointerEvents: 'none',
+          background: 'radial-gradient(ellipse at center, rgba(212,175,55,0.18) 0%, rgba(212,175,55,0) 70%)',
+        }} />
+        {/* accent décoratif centré */}
+        <div style={{
+          width: 34, height: 34, borderRadius: '11px', marginBottom: 6,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'radial-gradient(circle, rgba(201,168,76,0.12), rgba(201,168,76,0.04))',
+          border: '1px solid rgba(201,168,76,0.28)',
+          boxShadow: '0 0 14px rgba(201,168,76,0.18)',
+          position: 'relative',
+        }}>
+          <Zap size={15} strokeWidth={1.5} style={{ color: 'rgba(201,168,76,1)' }} />
         </div>
-        <div className="flex items-center gap-2">
-          <div style={{
-            width: 36, height: 36, borderRadius: '12px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'radial-gradient(circle, rgba(201,168,76,0.1), rgba(201,168,76,0.1))',
-            border: '1px solid rgba(201,168,76,0.2)',
-          }}>
-            <Zap size={16} strokeWidth={1.5} style={{ color: 'rgba(201,168,76,1)' }} />
-          </div>
-        </div>
+        <h1 style={{
+          fontFamily: 'Cormorant, serif',
+          fontSize: '1.9rem',
+          fontWeight: 600,
+          background: 'linear-gradient(135deg, #B8891F, #F4D875, #B8891F)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+          letterSpacing: '0.03em',
+          lineHeight: 1.1,
+          position: 'relative',
+        }}>
+          Vos connexions
+        </h1>
+        {!loading && matches.length > 0 && (
+          <p style={{ fontSize: '11px', color: 'rgba(201,168,76,1)', letterSpacing: '0.16em', textTransform: 'uppercase', marginTop: '4px', position: 'relative' }}>
+            {matches.length} connexion{matches.length > 1 ? 's' : ''} mutuelles
+          </p>
+        )}
        </div>
       </header>
 
