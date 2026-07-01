@@ -51,9 +51,11 @@ export default function Discover() {
     [profiles, likedIds]
   )
 
-  // synchronise la distance avec max_distance_km du profil dès qu'il est chargé
+  // synchronise la distance avec max_distance_km du profil dès qu'il est chargé.
+  // NB: 0 = « peu importe » (rayon illimité) — il faut le propager, donc on teste
+  // != null et pas la simple véracité (0 est falsy et était ignoré avant).
   useEffect(() => {
-    if (profile?.max_distance_km) {
+    if (profile && profile.max_distance_km != null) {
       setFilters(f => ({ ...f, distance: profile.max_distance_km }))
     }
   }, [profile?.max_distance_km])
