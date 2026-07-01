@@ -31,6 +31,7 @@ const CGU            = lazy(() => import('./pages/CGU'))
 const Confidentialite = lazy(() => import('./pages/Confidentialite'))
 const Contact        = lazy(() => import('./pages/Contact'))
 const Blog           = lazy(() => import('./pages/Blog'))
+const Lieux          = lazy(() => import('./pages/Lieux'))
 const BlogArticle    = lazy(() => import('./pages/BlogArticle'))
 const BlogCountryList    = lazy(() => import('./pages/BlogCountry').then(m => ({ default: m.BlogCountryList })))
 const BlogCountryArticle = lazy(() => import('./pages/BlogCountry').then(m => ({ default: m.BlogCountryArticle })))
@@ -198,6 +199,7 @@ export default function App() {
             <Route path="/cgu"               element={<CGU />} />
             <Route path="/confidentialite"   element={<Confidentialite />} />
             <Route path="/contact"           element={<Contact />} />
+            <Route path="/lieux"             element={<Lieux />} />
             <Route path="/blog"              element={<Blog />} />
             <Route path="/blog/:slug"        element={<BlogArticle />} />
             <Route path="/belgique"          element={<BlogCountryList country="belgique" />} />
