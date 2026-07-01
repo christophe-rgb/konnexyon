@@ -1,16 +1,18 @@
 import { useNavigate } from 'react-router-dom'
 import { MessageCircle } from 'lucide-react'
+import { useChatDock } from '../store/chatDock'
 
 export default function MatchCard({ match }) {
   const navigate = useNavigate()
+  const openChat = useChatDock(s => s.openChat)
 
   return (
     <article
       role="button"
       tabIndex={0}
       aria-label={`Conversation avec ${match.profile.couple_name}`}
-      onClick={() => navigate(`/messages/${match.id}`)}
-      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/messages/${match.id}`) } }}
+      onClick={() => openChat(match.id)}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openChat(match.id) } }}
       className="flex items-center gap-4 cursor-pointer group transition-all duration-200"
       style={{
         background: 'linear-gradient(135deg, rgba(245,240,232,0.9) 0%, rgba(245,240,232,0.95) 100%)',

@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { supabase } from '../lib/supabase'
 import { resolveOnboardingLocation } from '../lib/geo'
+import { useChatDock } from './chatDock'
 import { DEMO_USER, DEMO_PROFILE } from '../lib/demo'
 
 export const useAuthStore = create((set, get) => ({
@@ -96,6 +97,7 @@ export const useAuthStore = create((set, get) => ({
 
   signOut: async () => {
     const wasDemo = get().demoMode
+    useChatDock.getState().closeAll()
     set({ user: null, profile: null, demoMode: false })
     if (!wasDemo) await supabase.auth.signOut()
   },

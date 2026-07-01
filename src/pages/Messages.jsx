@@ -6,11 +6,13 @@ import { DEMO_MATCHES, DEMO_MESSAGES } from '../lib/demo'
 import { MessageCircle } from 'lucide-react'
 import { isPremium } from '../lib/plan'
 import UpgradeModal from '../components/UpgradeModal'
+import { useChatDock } from '../store/chatDock'
 
 export default function Messages() {
   const profile  = useAuthStore(s => s.profile)
   const demoMode = useAuthStore(s => s.demoMode)
   const navigate = useNavigate()
+  const openChat = useChatDock(s => s.openChat)
   const [threads,     setThreads]     = useState([])
   const [loading,     setLoading]     = useState(true)
   const [showUpgrade, setShowUpgrade] = useState(false)
@@ -171,7 +173,7 @@ export default function Messages() {
           {threads.map((t, i) => (
             <button
               key={t.matchId}
-              onClick={() => navigate(`/messages/${t.matchId}`)}
+              onClick={() => openChat(t.matchId)}
               className="erb-btn animate-fade-in-up"
               style={{
                 animationDelay: `${i * 50}ms`,
