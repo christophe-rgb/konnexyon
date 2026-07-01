@@ -134,42 +134,42 @@ export default function App() {
   return (
     <div className="min-h-dvh bg-bg text-text" style={{ position: 'relative' }}>
 
-      {/* Bouton panique — discret, toujours visible */}
+      {/* Bouton sortie rapide — clair et labellisé */}
       <button
         onClick={panicExit}
-        title="Fermer"
-        aria-label="Fermer le site"
+        title="Quitter le site rapidement"
+        aria-label="Quitter le site rapidement"
         style={{
           position: 'fixed',
           top: '90px',
           right: '14px',
           zIndex: 9999,
-          width: 32,
-          height: 32,
-          borderRadius: '50%',
-          background: 'rgba(200,190,175,0.55)',
-          border: '1px solid rgba(28,24,20,0.08)',
-          color: 'rgba(220,50,50,0.85)',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
+          gap: '6px',
+          padding: '7px 13px 7px 10px',
+          borderRadius: '999px',
+          background: 'rgba(220,50,50,0.92)',
+          border: '1px solid rgba(255,255,255,0.35)',
+          color: '#fff',
           cursor: 'pointer',
-          fontSize: '16px',
+          fontSize: '11px',
+          fontWeight: 700,
+          letterSpacing: '0.14em',
+          textTransform: 'uppercase',
           backdropFilter: 'blur(6px)',
+          boxShadow: '0 4px 14px rgba(220,50,50,0.35)',
           transition: 'all 0.2s',
         }}
-        onMouseEnter={e => {
-          e.currentTarget.style.background = 'rgba(60,20,20,0.85)'
-          e.currentTarget.style.color = 'rgba(255,80,80,1)'
-          e.currentTarget.style.borderColor = 'rgba(220,50,50,0.4)'
-        }}
-        onMouseLeave={e => {
-          e.currentTarget.style.background = 'rgba(200,190,175,0.55)'
-          e.currentTarget.style.color = 'rgba(220,50,50,0.85)'
-          e.currentTarget.style.borderColor = 'rgba(28,24,20,0.08)'
-        }}
+        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(190,30,30,1)'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(220,50,50,0.92)'; e.currentTarget.style.transform = 'translateY(0)' }}
       >
-        ⚠
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+        Sortie
       </button>
 
       <ToastContainer />
