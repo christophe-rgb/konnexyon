@@ -109,10 +109,10 @@ export default function Matches() {
       <header
         className="sticky top-0 z-10 flex items-center justify-between px-1 py-4 mb-2 animate-fade-in"
         style={{
-          background: 'rgba(253,250,246,0.95)',
+          background: 'rgba(5,5,5,0.92)',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
-          borderBottom: '1px solid rgba(201,168,76,0.15)',
+          borderBottom: '1px solid rgba(212,175,55,0.22)',
           animationFillMode: 'both',
         }}
       >

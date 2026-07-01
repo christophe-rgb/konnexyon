@@ -132,10 +132,10 @@ export default function Discover() {
       <header
         className="flex items-center justify-between px-4 py-3 animate-fade-in"
         style={{
-          background: 'rgba(253,250,246,0.96)',
+          background: 'rgba(5,5,5,0.92)',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
-          borderBottom: '1px solid rgba(201,168,76,0.15)',
+          borderBottom: '1px solid rgba(212,175,55,0.22)',
           animationFillMode: 'both',
         }}
       >
@@ -219,9 +219,9 @@ export default function Discover() {
               aria-label="Profils mis de côté"
               className="erb-btn flex items-center px-2.5 py-1.5 rounded-lg transition-all duration-200 cursor-pointer"
               style={{
-                background: 'rgba(237,231,219,0.9)',
-                border: '1px solid rgba(201,168,76,0.25)',
-                color: 'rgba(201,168,76,1)',
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(212,175,55,0.3)',
+                color: 'rgba(212,175,55,1)',
                 position: 'relative',
               }}
             >
@@ -246,13 +246,13 @@ export default function Discover() {
                 aria-label="Filtres de connexion"
                 className="erb-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 cursor-pointer"
                 style={{
-                  background: activeCount > 0 ? 'rgba(201,168,76,0.15)' : 'rgba(237,231,219,0.9)',
-                  border: activeCount > 0 ? '1px solid rgba(201,168,76,0.55)' : '1px solid rgba(201,168,76,0.25)',
-                  color: 'rgba(201,168,76,1)',
+                  background: activeCount > 0 ? 'rgba(212,175,55,0.18)' : 'rgba(255,255,255,0.06)',
+                  border: activeCount > 0 ? '1px solid rgba(212,175,55,0.55)' : '1px solid rgba(212,175,55,0.3)',
+                  color: 'rgba(212,175,55,1)',
                   position: 'relative',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.5)'; e.currentTarget.style.color = '#C9A84C'; e.currentTarget.style.background = 'rgba(201,168,76,0.08)'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = activeCount > 0 ? 'rgba(201,168,76,0.55)' : 'rgba(201,168,76,0.25)'; e.currentTarget.style.color = 'rgba(201,168,76,0.8)'; e.currentTarget.style.background = activeCount > 0 ? 'rgba(201,168,76,0.15)' : 'rgba(237,231,219,0.9)'; }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(212,175,55,0.6)'; e.currentTarget.style.color = '#F2D36B'; e.currentTarget.style.background = 'rgba(212,175,55,0.14)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = activeCount > 0 ? 'rgba(212,175,55,0.55)' : 'rgba(212,175,55,0.3)'; e.currentTarget.style.color = 'rgba(212,175,55,1)'; e.currentTarget.style.background = activeCount > 0 ? 'rgba(212,175,55,0.18)' : 'rgba(255,255,255,0.06)'; }}
               >
                 <SlidersHorizontal size={14} strokeWidth={1.5} />
                 Filtres
@@ -273,7 +273,7 @@ export default function Discover() {
           })()}
 
           {/* toggle swipe/grille/carte */}
-          <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid rgba(201,168,76,0.15)', background: 'rgba(237,231,219,0.9)' }}>
+          <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid rgba(212,175,55,0.22)', background: 'rgba(255,255,255,0.06)' }}>
             {[
               { id: 'swipe', Icon: Layers2,    aria: 'Mode swipe' },
               { id: 'list',  Icon: LayoutGrid, aria: 'Vue grille' },
@@ -287,9 +287,9 @@ export default function Discover() {
                 className="erb-btn px-3 py-2 transition-all duration-200 cursor-pointer"
                 style={{
                   background: view === id
-                    ? 'linear-gradient(135deg, #A07830, #C9A84C, #E8CC7A)'
+                    ? 'linear-gradient(135deg, #B8891F, #F4D875, #B8891F)'
                     : 'transparent',
-                  color: view === id ? '#050505' : 'rgba(28,24,20,0.6)',
+                  color: view === id ? '#050505' : 'rgba(240,237,232,0.6)',
                 }}
               >
                 <Icon size={15} strokeWidth={view === id ? 2 : 1.5} />
