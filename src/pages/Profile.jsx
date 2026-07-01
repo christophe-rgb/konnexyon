@@ -63,6 +63,7 @@ export default function Profile() {
         seeking:          myProfile?.seeking || [],
         limits:           myProfile?.limits || [],
         availabilities:   myProfile?.availabilities || [],
+        max_distance_km:  myProfile?.max_distance_km ?? 50,
       })
     } else if (demoMode) {
       const demo = DEMO_PROFILES.find(p => p.id === uid)
