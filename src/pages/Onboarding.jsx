@@ -105,11 +105,15 @@ export default function Onboarding() {
     setSaving(true)
     setStepError('')
 
-    // Récupère le user Supabase directement (cas où le store n'est pas encore hydraté)
-    const uid   = user?.id   || (await supabase.auth.getUser()).data.user?.id
-    const email = user?.email || (await supabase.auth.getUser()).data.user?.email
-    if (!uid) {
-      setStepError('Session expirée. Veuillez vous reconnecter.')
+    // Source de vérité : le serveur d'auth (getUser valide le JWT). Évite
+    // d'utiliser un id de session périmé — si le compte a été supprimé côté
+    // dashboard, getUser renvoie null et on abandonne proprement au lieu de
+    // provoquer une violation de clé étrangère (profiles_id_fkey).
+    const { data: { user: authUser }, error: authErr } = await supabase.auth.getUser()
+    const uid   = authUser?.id
+    const email = authUser?.email
+    if (authErr || !uid) {
+      setStepError('Votre session n’est plus valide. Déconnectez-vous et réinscrivez-vous.')
       setSaving(false)
       return
     }
