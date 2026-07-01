@@ -69,21 +69,31 @@ export default function Home() {
       {/* hero */}
       <section style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '100px 24px 60px', position: 'relative', overflow: 'hidden' }}>
 
-        {/* fond logo — centré, contenu dans le hero, fondu bas discret */}
-        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <picture>
-            <source srcSet="/logo.webp" type="image/webp" />
-            <img src="/logo.webp" alt="" aria-hidden style={{
-              width: '90vw', maxWidth: 600,
-              maxHeight: '92vh', objectFit: 'contain',
-              opacity: 0.22, filter: 'brightness(1.4)',
-              maskImage: 'linear-gradient(to bottom, black 0%, black 78%, transparent 95%)',
-              WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 78%, transparent 95%)',
-            }} />
-          </picture>
-        </div>
+        {/* fond : halo doré doux qui met le logo en valeur */}
+        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none',
+          background: 'radial-gradient(ellipse 58% 46% at 50% 34%, rgba(201,168,76,0.18), transparent 68%)' }} />
 
         <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', maxWidth: 520 }}>
+
+          {/* LOGO — net, proéminent, reflet bijou + halo doré */}
+          <div style={{ marginBottom: 24 }}>
+            <div className="animate-fade-in shine-img" style={{
+              position: 'relative', display: 'inline-block',
+              borderRadius: '50%', animationFillMode: 'both',
+            }}>
+              <div style={{ position: 'absolute', inset: -26, borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(201,168,76,0.4), transparent 70%)', filter: 'blur(6px)' }} />
+              <picture>
+                <source srcSet="/logo.webp" type="image/webp" />
+                <img src="/logo.webp" alt="Konnexyon" className="animate-float" style={{
+                  position: 'relative', display: 'block',
+                  width: 'clamp(150px, 40vw, 240px)', height: 'auto',
+                  filter: 'drop-shadow(0 8px 30px rgba(201,168,76,0.5)) brightness(1.05)',
+                }} />
+              </picture>
+            </div>
+          </div>
+
 
           {/* badge 100% GRATUIT — fun & éclatant */}
           <div className="animate-fade-in-up" style={{
@@ -104,7 +114,7 @@ export default function Home() {
               · tout est offert
             </span>
           </div>
-          <br />
+          <div style={{ height: 0 }} />
 
           {/* badge */}
           <div className="animate-fade-in" style={{
