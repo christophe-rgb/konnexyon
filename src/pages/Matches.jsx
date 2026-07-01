@@ -90,6 +90,21 @@ export default function Matches() {
   return (
     <div className="max-w-lg mx-auto px-4 pb-nav" style={{ paddingTop: '0' }}>
 
+      {/* logo en fond, reflet bijou */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: -1, pointerEvents: 'none', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="shine-img" style={{ position: 'relative' }}>
+          <picture>
+            <source srcSet="/logo.webp" type="image/webp" />
+            <img src="/logo.webp" alt="" aria-hidden style={{
+              width: '120vw', maxWidth: 820, opacity: 0.12,
+              filter: 'brightness(1.1) saturate(0.75)', display: 'block', userSelect: 'none',
+            }} />
+          </picture>
+        </div>
+        <div style={{ position: 'absolute', inset: 0,
+          background: 'radial-gradient(ellipse at center, rgba(253,250,246,0.25) 0%, rgba(253,250,246,0.7) 55%, rgba(253,250,246,0.95) 100%)' }} />
+      </div>
+
       {/* header */}
       <header
         className="sticky top-0 z-10 flex items-center justify-between px-1 py-4 mb-2 animate-fade-in"
