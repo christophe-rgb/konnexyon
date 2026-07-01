@@ -95,6 +95,7 @@ export default function Admin() {
   })
 
   return (
+    <div style={{ background: '#0A0A0A', minHeight: '100dvh', width: '100vw', marginLeft: 'calc(50% - 50vw)' }}>
     <div style={{ maxWidth: 720, margin: '0 auto', padding: '24px 16px 80px' }}>
 
       {/* header */}
@@ -103,7 +104,7 @@ export default function Admin() {
           <Shield size={18} strokeWidth={1.5} style={{ color: 'rgba(239,68,68,0.8)' }} />
         </div>
         <div>
-          <h1 style={{ fontFamily: 'Cormorant, serif', fontSize: '1.8rem', fontWeight: 600, color: '#1C1814' }}>Modération</h1>
+          <h1 style={{ fontFamily: 'Cormorant, serif', fontSize: '1.8rem', fontWeight: 600, color: '#F0EDE8' }}>Modération</h1>
           <p style={{ fontSize: 11, letterSpacing: '0.12em', color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Panneau d'administration</p>
         </div>
       </div>
@@ -185,6 +186,7 @@ export default function Admin() {
       )}
 
       </>)}
+    </div>
     </div>
   )
 }
