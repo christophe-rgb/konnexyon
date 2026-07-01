@@ -65,6 +65,7 @@ create table public.profiles (
   visibility      profile_visibility not null default 'public',
   status          profile_status not null default 'active',
   hide_location   boolean not null default false,
+  is_bot          boolean not null default false,   -- profil automate (auto-réponse)
 
   -- géolocalisation (point PostGIS)
   location        geography(point, 4326),

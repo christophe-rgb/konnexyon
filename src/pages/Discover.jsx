@@ -36,6 +36,7 @@ export default function Discover() {
   const [loading,    setLoading]    = useState(true)
   const [likedIds,   setLikedIds]   = useState(new Set())
   const [myMapPos,   setMyMapPos]   = useState(null)
+  const [showFreeBanner, setShowFreeBanner] = useState(true)
 
   // Carte : on garde TOUS les couples, y compris ceux déjà contactés (marqués
   // `liked` → marqueur vert + ✓). Le drapeau vient du RPC, ou de likedIds pour
@@ -298,6 +299,26 @@ export default function Discover() {
         </div>
       </header>
 
+      {/* ── bannière : 100% gratuit ── */}
+      {showFreeBanner && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          padding: '8px 14px',
+          background: 'linear-gradient(90deg, rgba(74,222,128,0.18), rgba(201,168,76,0.18))',
+          borderBottom: '1px solid rgba(74,222,128,0.3)',
+        }}>
+          <span style={{ fontSize: 15 }} aria-hidden>🎉</span>
+          <p style={{ flex: 1, fontSize: 12, color: '#1C1814', letterSpacing: '0.02em' }}>
+            <strong style={{ color: '#1C1814' }}>Konnexyon est 100% gratuit</strong>{' '}— likez, matchez et discutez sans aucune limite ✨
+          </p>
+          <button
+            onClick={() => setShowFreeBanner(false)}
+            aria-label="Fermer"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(28,24,20,0.5)', fontSize: 16, lineHeight: 1, padding: 2 }}
+          >×</button>
+        </div>
+      )}
+
       {/* ── content ── */}
       {loading ? (
         <div className="flex-1 overflow-y-auto p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -363,7 +384,6 @@ export default function Discover() {
         />
       )}
 
-      {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
 
       {showPanier && (
         <PanierSheet
