@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { Send, ArrowLeft, Bot } from 'lucide-react'
+import { Send, ArrowLeft, Bot, Trash2, Eraser } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { confirm } from './ConfirmDialog'
 
 // Boîte des bots (admin) : voir les messages reçus par les bots et répondre
 // à leur place.
@@ -45,6 +46,26 @@ export default function BotInbox() {
     await loadMessages(active.match_id)
   }
 
+  const resetThread = async () => {
+    if (!active) return
+    const ok = await confirm({ title: 'Vider la conversation', message: `Effacer tous les messages avec ${active.client_name} ? La connexion est conservée.`, confirmLabel: 'Vider', danger: true })
+    if (!ok) return
+    const { error } = await supabase.rpc('admin_reset_bot_thread', { p_match_id: active.match_id })
+    if (error) { console.error('admin_reset_bot_thread:', error.message); return }
+    await loadMessages(active.match_id)
+    loadThreads()
+  }
+
+  const deleteThread = async () => {
+    if (!active) return
+    const ok = await confirm({ title: 'Supprimer la conversation', message: `Supprimer définitivement la conversation avec ${active.client_name} (messages + connexion) ?`, confirmLabel: 'Supprimer', danger: true })
+    if (!ok) return
+    const { error } = await supabase.rpc('admin_delete_bot_thread', { p_match_id: active.match_id })
+    if (error) { console.error('admin_delete_bot_thread:', error.message); return }
+    setActive(null)
+    loadThreads()
+  }
+
   // ── Vue conversation ──
   if (active) {
     return (
@@ -59,6 +80,14 @@ export default function BotInbox() {
               <Bot size={10} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3 }} /> Tu réponds en tant que {active.bot_name}
             </p>
           </div>
+          <button onClick={resetThread} aria-label="Vider la conversation" title="Vider (garder la connexion)"
+            style={{ flexShrink: 0, width: 32, height: 32, borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)' }}>
+            <Eraser size={15} strokeWidth={1.6} />
+          </button>
+          <button onClick={deleteThread} aria-label="Supprimer la conversation" title="Supprimer la conversation"
+            style={{ flexShrink: 0, width: 32, height: 32, borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.35)', color: '#EF4444' }}>
+            <Trash2 size={15} strokeWidth={1.6} />
+          </button>
         </div>
 
         <div style={{ flex: 1, overflowY: 'auto', padding: 12, display: 'flex', flexDirection: 'column', gap: 8, background: 'rgba(0,0,0,0.15)' }}>
