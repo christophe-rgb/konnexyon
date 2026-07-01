@@ -37,9 +37,16 @@ export default function Discover() {
   const [likedIds,   setLikedIds]   = useState(new Set())
   const [myMapPos,   setMyMapPos]   = useState(null)
 
-  // Tableau stable pour la carte (sinon les marqueurs sont recréés à chaque render)
+  // Carte : on garde TOUS les couples, y compris ceux déjà contactés (marqués
+  // `liked` → marqueur vert + ✓). Le drapeau vient du RPC, ou de likedIds pour
+  // les likes faits dans la session courante (avant rechargement).
   const mapProfiles = useMemo(
-    () => profiles.filter(p => !likedIds.has(p.id)),
+    () => profiles.map(p => ({ ...p, liked: p.liked || likedIds.has(p.id) })),
+    [profiles, likedIds]
+  )
+  // Pile de swipe : on retire les couples déjà contactés (pas de re-swipe)
+  const swipeProfiles = useMemo(
+    () => profiles.filter(p => !(p.liked || likedIds.has(p.id))),
     [profiles, likedIds]
   )
 
@@ -316,7 +323,7 @@ export default function Discover() {
       ) : view === 'swipe' ? (
         <Suspense fallback={<ProfileCardSkeleton />}>
           <SwipeStack
-            profiles={profiles}
+            profiles={swipeProfiles}
             onLike={like}
             onPass={id => {
               setProfiles(ps => {
