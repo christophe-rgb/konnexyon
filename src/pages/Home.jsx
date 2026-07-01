@@ -59,23 +59,16 @@ export default function Home() {
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none',
           background: 'radial-gradient(ellipse 70% 55% at 50% 42%, rgba(201,168,76,0.22), transparent 68%)' }} />
 
-        {/* LOGO géant, reflet bijou + double halo pulsant */}
-        <div className="shine-img animate-fade-in" style={{
-          position: 'relative', display: 'inline-block', zIndex: 1,
-          borderRadius: '50%', animationFillMode: 'both',
+        {/* LOGO géant, sans cadre, lueur qui épouse sa forme, en mouvement */}
+        <div className="animate-fade-in" style={{
+          position: 'relative', display: 'inline-block', zIndex: 1, animationFillMode: 'both',
         }}>
-          {/* halo large pulsant */}
-          <div className="animate-pulse-gold" style={{ position: 'absolute', inset: '-18%', borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(201,168,76,0.65), transparent 64%)', filter: 'blur(30px)' }} />
-          {/* halo serré plus intense */}
-          <div style={{ position: 'absolute', inset: '-4%', borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(232,204,122,0.45), transparent 60%)', filter: 'blur(10px)' }} />
           <picture>
             <source srcSet="/logo.webp" type="image/webp" />
             <img src="/logo.webp" alt="Konnexyon" className="animate-float" style={{
-              position: 'relative', display: 'block',
-              width: 'min(96vw, 840px)', maxHeight: '78vh', objectFit: 'contain', height: 'auto',
-              filter: 'drop-shadow(0 18px 70px rgba(201,168,76,0.85)) brightness(1.22) contrast(1.08) saturate(1.05)',
+              display: 'block',
+              width: 'min(98vw, 920px)', maxHeight: '82vh', objectFit: 'contain', height: 'auto',
+              filter: 'drop-shadow(0 20px 80px rgba(201,168,76,0.85)) drop-shadow(0 0 40px rgba(201,168,76,0.35)) brightness(1.22) contrast(1.08) saturate(1.05)',
             }} />
           </picture>
         </div>
