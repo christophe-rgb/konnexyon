@@ -56,7 +56,7 @@ export default function AgeGate({ onConfirm }) {
       <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', pointerEvents: 'none' }}>
         <picture>
           <source srcSet="/logo.webp" type="image/webp" />
-          <img src="/logo.webp" alt="" aria-hidden style={{ width: '130vw', maxWidth: 800, opacity: 0.08, filter: 'brightness(1.4)' }} />
+          <img src="/logo.webp" alt="" aria-hidden style={{ width: '130vw', maxWidth: 800, opacity: 0.16, filter: 'brightness(1.4)' }} />
         </picture>
       </div>
 

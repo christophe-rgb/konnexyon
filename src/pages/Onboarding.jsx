@@ -207,7 +207,7 @@ export default function Onboarding() {
           <source srcSet="/logo.webp" type="image/webp" />
           <img src="/logo.webp" alt="" aria-hidden style={{
             width: '130vw', maxWidth: 860,
-            opacity: 0.28, filter: 'brightness(0.85) saturate(0.9)',
+            opacity: 0.36, filter: 'brightness(0.85) saturate(0.9)',
             userSelect: 'none', display: 'block',
           }} />
         </picture>
