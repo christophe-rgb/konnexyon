@@ -89,6 +89,51 @@ export default function Profile() {
   return (
     <div className="max-w-lg mx-auto pb-nav animate-fade-in" style={{ animationFillMode: 'both' }}>
 
+      {/* header — barre sombre pleine largeur, titre centré (cohérence premium) */}
+      <header
+        className="sticky top-0 z-10"
+        style={{
+          background: 'linear-gradient(180deg, #0A0A0A 0%, #050505 100%)',
+          borderBottom: '1px solid rgba(212,175,55,0.28)',
+          boxShadow: '0 6px 22px rgba(0,0,0,0.28)',
+          width: '100vw', marginLeft: 'calc(50% - 50vw)',
+        }}
+      >
+       <div className="max-w-lg mx-auto flex flex-col items-center justify-center text-center px-5 py-4" style={{ position: 'relative' }}>
+        {/* halo doré derrière le titre */}
+        <div aria-hidden style={{
+          position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
+          width: 260, height: 90, pointerEvents: 'none',
+          background: 'radial-gradient(ellipse at center, rgba(212,175,55,0.18) 0%, rgba(212,175,55,0) 70%)',
+        }} />
+        {/* accent décoratif centré */}
+        <div style={{
+          width: 34, height: 34, borderRadius: '11px', marginBottom: 6,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'radial-gradient(circle, rgba(201,168,76,0.12), rgba(201,168,76,0.04))',
+          border: '1px solid rgba(201,168,76,0.28)',
+          boxShadow: '0 0 14px rgba(201,168,76,0.18)',
+          position: 'relative',
+        }}>
+          <span style={{ fontSize: 16, color: 'rgba(201,168,76,1)', lineHeight: 1 }} aria-hidden>∞</span>
+        </div>
+        <h1 style={{
+          fontFamily: 'Cormorant, serif',
+          fontSize: '1.9rem',
+          fontWeight: 600,
+          background: 'linear-gradient(135deg, #B8891F, #F4D875, #B8891F)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+          letterSpacing: '0.03em',
+          lineHeight: 1.1,
+          position: 'relative',
+        }}>
+          Mon profil
+        </h1>
+       </div>
+      </header>
+
       {/* hero photo */}
       <div
         style={{ position: 'relative', width: '100%', aspectRatio: '4/3', overflow: 'hidden', cursor: isOwn ? 'pointer' : 'default', borderRadius: '0 0 24px 24px', boxShadow: '0 12px 32px rgba(0,0,0,0.10)' }}
