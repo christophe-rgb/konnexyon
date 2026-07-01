@@ -114,44 +114,54 @@ export default function Messages() {
   return (
     <div className="max-w-lg mx-auto pb-nav">
 
-      {/* header — barre noire pleine largeur, contenu centré */}
+      {/* header — barre sombre pleine largeur, titre centré */}
       <header
         className="sticky top-0 z-10 animate-fade-in"
         style={{
-          background: '#050505',
+          background: 'linear-gradient(180deg, #0A0A0A 0%, #050505 100%)',
           borderBottom: '1px solid rgba(212,175,55,0.28)',
+          boxShadow: '0 6px 22px rgba(0,0,0,0.28)',
           width: '100vw', marginLeft: 'calc(50% - 50vw)',
           animationFillMode: 'both',
         }}
       >
-       <div className="max-w-lg mx-auto flex items-center justify-between px-5 py-4">
-        <div>
-          <h1 style={{
-            fontFamily: 'Cormorant, serif',
-            fontSize: '1.8rem',
-            fontWeight: 600,
-            background: 'linear-gradient(135deg, #B8891F, #F4D875, #B8891F)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-            letterSpacing: '0.03em',
-          }}>
-            Messages
-          </h1>
-          {!loading && threads.length > 0 && (
-            <p style={{ fontSize: '11px', color: 'rgba(201,168,76,1)', letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: '2px' }}>
-              {threads.length} conversation{threads.length > 1 ? 's' : ''}
-            </p>
-          )}
-        </div>
+       <div className="max-w-lg mx-auto flex flex-col items-center justify-center text-center px-5 py-4" style={{ position: 'relative' }}>
+        {/* halo doré derrière le titre */}
+        <div aria-hidden style={{
+          position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
+          width: 260, height: 90, pointerEvents: 'none',
+          background: 'radial-gradient(ellipse at center, rgba(212,175,55,0.18) 0%, rgba(212,175,55,0) 70%)',
+        }} />
+        {/* accent décoratif centré */}
         <div style={{
-          width: 36, height: 36, borderRadius: '12px',
+          width: 34, height: 34, borderRadius: '11px', marginBottom: 6,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          background: 'radial-gradient(circle, rgba(201,168,76,0.1), rgba(201,168,76,0.1))',
-          border: '1px solid rgba(201,168,76,0.2)',
+          background: 'radial-gradient(circle, rgba(201,168,76,0.12), rgba(201,168,76,0.04))',
+          border: '1px solid rgba(201,168,76,0.28)',
+          boxShadow: '0 0 14px rgba(201,168,76,0.18)',
+          position: 'relative',
         }}>
-          <MessageCircle size={16} strokeWidth={1.5} style={{ color: 'rgba(201,168,76,1)' }} />
+          <MessageCircle size={15} strokeWidth={1.5} style={{ color: 'rgba(201,168,76,1)' }} />
         </div>
+        <h1 style={{
+          fontFamily: 'Cormorant, serif',
+          fontSize: '1.9rem',
+          fontWeight: 600,
+          background: 'linear-gradient(135deg, #B8891F, #F4D875, #B8891F)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+          letterSpacing: '0.03em',
+          lineHeight: 1.1,
+          position: 'relative',
+        }}>
+          Messages
+        </h1>
+        {!loading && threads.length > 0 && (
+          <p style={{ fontSize: '11px', color: 'rgba(201,168,76,1)', letterSpacing: '0.16em', textTransform: 'uppercase', marginTop: '4px', position: 'relative' }}>
+            {threads.length} conversation{threads.length > 1 ? 's' : ''}
+          </p>
+        )}
        </div>
       </header>
 
