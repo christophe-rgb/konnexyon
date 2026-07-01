@@ -150,7 +150,7 @@ export default function Discover() {
           }}>
             <span style={{
               fontSize: '15px',
-              background: 'linear-gradient(135deg,#A07830,#E8CC7A)',
+              background: 'linear-gradient(135deg, #B8891F, #F4D875, #B8891F)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
             }}>∞</span>
@@ -161,7 +161,7 @@ export default function Discover() {
             fontSize: '1.25rem',
             letterSpacing: '0.12em',
             textTransform: 'uppercase',
-            background: 'linear-gradient(135deg, #A07830, #C9A84C, #E8CC7A, #C9A84C)',
+            background: 'linear-gradient(135deg, #B8891F, #F4D875, #B8891F, #F4D875)',
             backgroundSize: '200%',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',

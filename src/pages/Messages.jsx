@@ -130,7 +130,7 @@ export default function Messages() {
             fontFamily: 'Cormorant, serif',
             fontSize: '1.8rem',
             fontWeight: 600,
-            background: 'linear-gradient(135deg, #A07830, #C9A84C, #E8CC7A)',
+            background: 'linear-gradient(135deg, #B8891F, #F4D875, #B8891F)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
