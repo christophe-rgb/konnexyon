@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
 import { AlertTriangle, CheckCircle, XCircle, ExternalLink, ShieldOff, Shield, Filter, Trash2 } from 'lucide-react'
 import { confirm } from '../components/ConfirmDialog'
+import BotInbox from '../components/BotInbox'
 
 export default function Admin() {
   const user     = useAuthStore(s => s.user)
@@ -13,6 +14,7 @@ export default function Admin() {
   const [reports, setReports] = useState([])
   const [loading, setLoading] = useState(true)
   const [filter,  setFilter]  = useState('pending') // pending | all | resolved
+  const [tab,     setTab]     = useState('reports')  // reports | bots
 
   useEffect(() => { checkAdmin() }, [user])
 
@@ -105,6 +107,21 @@ export default function Admin() {
         </div>
       </div>
 
+      {/* onglets */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+        {[{ k: 'reports', l: 'Signalements' }, { k: 'bots', l: 'Boîte des bots' }].map(t => (
+          <button key={t.k} onClick={() => setTab(t.k)} style={{
+            padding: '7px 16px', borderRadius: 99, fontSize: 12, cursor: 'pointer',
+            border: tab === t.k ? '1px solid rgba(201,168,76,0.6)' : '1px solid rgba(255,255,255,0.08)',
+            background: tab === t.k ? 'rgba(201,168,76,0.1)' : 'transparent',
+            color: tab === t.k ? '#C9A84C' : 'rgba(255,255,255,0.35)',
+            letterSpacing: '0.06em', transition: 'all 0.2s',
+          }}>{t.l}</button>
+        ))}
+      </div>
+
+      {tab === 'bots' ? <BotInbox /> : (<>
+
       {/* stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 24 }}>
         {[
@@ -165,6 +182,8 @@ export default function Admin() {
           ))}
         </div>
       )}
+
+      </>)}
     </div>
   )
 }
