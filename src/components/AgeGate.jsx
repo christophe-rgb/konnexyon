@@ -57,18 +57,18 @@ export default function AgeGate({ onConfirm }) {
       <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', pointerEvents: 'none' }}>
         {/* halo doré */}
         <div style={{ position: 'absolute', inset: 0,
-          background: 'radial-gradient(ellipse 72% 58% at 50% 46%, rgba(201,168,76,0.22), transparent 70%)' }} />
+          background: 'radial-gradient(ellipse 80% 66% at 50% 46%, rgba(201,168,76,0.34), transparent 72%)' }} />
         <picture>
           <source srcSet="/logo.webp" type="image/webp" />
           <img src="/logo.webp" alt="" aria-hidden className="animate-float" style={{
-            width: 'min(120vw, 760px)', maxHeight: '86vh', objectFit: 'contain', height: 'auto',
-            opacity: 0.6,
-            filter: 'drop-shadow(0 20px 80px rgba(201,168,76,0.7)) drop-shadow(0 0 40px rgba(201,168,76,0.3)) brightness(1.15) saturate(1.05)',
+            width: 'min(150vw, 1040px)', maxHeight: '96vh', objectFit: 'contain', height: 'auto',
+            opacity: 0.92,
+            filter: 'drop-shadow(0 24px 100px rgba(201,168,76,0.95)) drop-shadow(0 0 60px rgba(232,204,122,0.6)) brightness(1.42) contrast(1.08) saturate(1.12)',
           }} />
         </picture>
-        {/* léger voile pour garder le texte lisible */}
+        {/* voile léger pour garder le texte lisible sans éteindre le logo */}
         <div style={{ position: 'absolute', inset: 0,
-          background: 'radial-gradient(ellipse at center, rgba(10,10,10,0.35) 0%, rgba(10,10,10,0.72) 60%, rgba(10,10,10,0.9) 100%)' }} />
+          background: 'radial-gradient(ellipse at center, rgba(10,10,10,0.12) 0%, rgba(10,10,10,0.5) 62%, rgba(10,10,10,0.82) 100%)' }} />
       </div>
 
       <div style={{ position: 'relative', zIndex: 1, maxWidth: 420, width: '100%' }}>
