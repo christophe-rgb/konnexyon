@@ -61,7 +61,7 @@ export default function AgeGate({ onConfirm }) {
         <picture>
           <source srcSet="/logo.webp" type="image/webp" />
           <img src="/logo.webp" alt="" aria-hidden className="animate-float" style={{
-            width: 'min(150vw, 1040px)', maxHeight: '96vh', objectFit: 'contain', height: 'auto',
+            width: '98vw', maxWidth: 1700, maxHeight: '96vh', objectFit: 'contain', height: 'auto',
             opacity: 0.92,
             filter: 'drop-shadow(0 24px 100px rgba(201,168,76,0.95)) drop-shadow(0 0 60px rgba(232,204,122,0.6)) brightness(1.42) contrast(1.08) saturate(1.12)',
           }} />
