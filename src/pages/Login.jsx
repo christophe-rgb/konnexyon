@@ -49,7 +49,7 @@ export default function Login() {
               style={{
                 width: '130vw',
                 maxWidth: '860px',
-                opacity: 0.12,
+                opacity: 0.20,
                 filter: 'brightness(1.1) saturate(0.7)',
                 userSelect: 'none',
                 display: 'block',

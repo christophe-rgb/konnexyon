@@ -76,7 +76,7 @@ export default function Home() {
             <img src="/logo.webp" alt="" aria-hidden style={{
               width: '90vw', maxWidth: 600,
               maxHeight: '92vh', objectFit: 'contain',
-              opacity: 0.14, filter: 'brightness(1.4)',
+              opacity: 0.22, filter: 'brightness(1.4)',
               maskImage: 'linear-gradient(to bottom, black 0%, black 78%, transparent 95%)',
               WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 78%, transparent 95%)',
             }} />
