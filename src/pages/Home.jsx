@@ -18,45 +18,28 @@ export default function Home() {
   if (user) return null
 
   return (
-    <div className="min-h-dvh flex flex-col relative overflow-x-hidden" style={{ background: '#FDFAF6' }}>
+    <div style={{ minHeight: '100dvh', background: '#0A0A0A', color: '#F0EDE8', overflowX: 'hidden', position: 'relative' }}>
 
-      {/* header */}
+      {/* header sombre */}
       <header style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        background: 'rgba(253,250,246,0.92)',
-        backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(201,168,76,0.2)',
+        background: 'rgba(10,10,10,0.72)',
+        backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+        borderBottom: '1px solid rgba(201,168,76,0.18)',
         padding: '14px 24px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: 10,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'radial-gradient(circle, rgba(201,168,76,0.1), rgba(201,168,76,0.1))',
-            border: '1px solid rgba(201,168,76,0.25)',
-          }}>
-            <span style={{ fontSize: 16, background: 'linear-gradient(135deg,#A07830,#E8CC7A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>∞</span>
-          </div>
-          <span style={{
-            fontFamily: 'Cormorant, serif', fontWeight: 600, fontSize: '1.2rem',
-            letterSpacing: '0.12em', textTransform: 'uppercase',
-            background: 'linear-gradient(135deg, #A07830, #C9A84C, #E8CC7A)',
-            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-          }}>Konnexyon</span>
-        </div>
+        <span style={{
+          fontFamily: 'Cormorant, serif', fontWeight: 600, fontSize: '1.2rem',
+          letterSpacing: '0.14em', textTransform: 'uppercase',
+          background: 'linear-gradient(135deg, #A07830, #C9A84C, #E8CC7A)',
+          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+        }}>Konnexyon</span>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <Link to="/blog" style={{
-            padding: '7px 14px', borderRadius: 10,
-            border: '1px solid rgba(201,168,76,0.3)',
-            color: 'rgba(201,168,76,0.85)', fontSize: 12,
-            textDecoration: 'none', letterSpacing: '0.04em',
-            display: 'none',
-          }} className="sm:block">Guide</Link>
           <Link to="/login" style={{
             padding: '7px 14px', borderRadius: 10,
-            border: '1px solid rgba(201,168,76,0.3)',
-            color: 'rgba(201,168,76,0.85)', fontSize: 12,
+            border: '1px solid rgba(201,168,76,0.35)',
+            color: 'rgba(201,168,76,0.9)', fontSize: 12,
             textDecoration: 'none', letterSpacing: '0.04em',
           }}>Se connecter</Link>
           <Link to="/register" className="btn-gold" style={{
@@ -66,92 +49,82 @@ export default function Home() {
         </div>
       </header>
 
-      {/* hero */}
-      <section style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '100px 24px 60px', position: 'relative', overflow: 'hidden' }}>
+      {/* HERO — plein écran noir, logo qui prend toute la page */}
+      <section style={{
+        minHeight: '100dvh', display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        padding: '90px 20px 40px', position: 'relative', overflow: 'hidden', textAlign: 'center',
+      }}>
+        {/* halo doré central sur le noir */}
+        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none',
+          background: 'radial-gradient(ellipse 70% 55% at 50% 42%, rgba(201,168,76,0.22), transparent 68%)' }} />
 
-        {/* fond logo — centré, contenu dans le hero, fondu bas discret */}
-        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        {/* LOGO géant, reflet bijou + double halo pulsant */}
+        <div className="shine-img animate-fade-in" style={{
+          position: 'relative', display: 'inline-block', zIndex: 1,
+          borderRadius: '50%', animationFillMode: 'both',
+        }}>
+          {/* halo large pulsant */}
+          <div className="animate-pulse-gold" style={{ position: 'absolute', inset: '-18%', borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(201,168,76,0.65), transparent 64%)', filter: 'blur(30px)' }} />
+          {/* halo serré plus intense */}
+          <div style={{ position: 'absolute', inset: '-4%', borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(232,204,122,0.45), transparent 60%)', filter: 'blur(10px)' }} />
           <picture>
             <source srcSet="/logo.webp" type="image/webp" />
-            <img src="/logo.webp" alt="" aria-hidden style={{
-              width: '90vw', maxWidth: 600,
-              maxHeight: '92vh', objectFit: 'contain',
-              opacity: 0.22, filter: 'brightness(1.4)',
-              maskImage: 'linear-gradient(to bottom, black 0%, black 78%, transparent 95%)',
-              WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 78%, transparent 95%)',
+            <img src="/logo.webp" alt="Konnexyon" className="animate-float" style={{
+              position: 'relative', display: 'block',
+              width: 'min(96vw, 840px)', maxHeight: '78vh', objectFit: 'contain', height: 'auto',
+              filter: 'drop-shadow(0 18px 70px rgba(201,168,76,0.85)) brightness(1.22) contrast(1.08) saturate(1.05)',
             }} />
           </picture>
         </div>
 
-        <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', maxWidth: 520 }}>
-
-          {/* badge 100% GRATUIT — fun & éclatant */}
-          <div className="animate-fade-in-up" style={{
-            display: 'inline-flex', alignItems: 'center', gap: 10,
-            padding: '9px 22px', borderRadius: 99, marginBottom: 18,
-            background: 'linear-gradient(135deg, #4ade80, #C9A84C, #E8CC7A)',
-            backgroundSize: '200% 100%',
-            boxShadow: '0 10px 34px rgba(74,222,128,0.35), inset 0 1px 0 rgba(255,255,255,0.45)',
-            animation: 'shimmerBg 5s ease-in-out infinite',
-            animationFillMode: 'both',
-          }}>
-            <span style={{ fontSize: 18 }} aria-hidden>🎉</span>
+        {/* accroche + badge + CTA */}
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: 560, marginTop: 18 }}>
+          <div style={{ marginBottom: 16 }}>
             <span style={{
-              fontFamily: 'Cormorant, serif', fontWeight: 700, fontSize: '1.1rem',
-              letterSpacing: '0.12em', textTransform: 'uppercase', color: '#0D0D0D',
-            }}>100% Gratuit</span>
-            <span style={{ fontSize: 11, color: 'rgba(13,13,13,0.7)', fontWeight: 600, letterSpacing: '0.04em' }}>
-              · tout est offert
-            </span>
-          </div>
-          <br />
-
-          {/* badge */}
-          <div className="animate-fade-in" style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8,
-            padding: '6px 16px', borderRadius: 99,
-            background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.1)',
-            marginBottom: 28, animationFillMode: 'both',
-          }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#C9A84C', boxShadow: '0 0 8px #C9A84C' }} />
-            <span style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)' }}>
-              France · Belgique · Suisse · Québec · 18+
+              display: 'inline-flex', alignItems: 'center', gap: 10,
+              padding: '9px 22px', borderRadius: 99,
+              background: 'linear-gradient(135deg, #4ade80, #C9A84C, #E8CC7A)', backgroundSize: '200% 100%',
+              boxShadow: '0 10px 34px rgba(74,222,128,0.35), inset 0 1px 0 rgba(255,255,255,0.45)',
+              animation: 'shimmerBg 5s ease-in-out infinite',
+            }}>
+              <span style={{ fontSize: 18 }} aria-hidden>🎉</span>
+              <span style={{ fontFamily: 'Cormorant, serif', fontWeight: 700, fontSize: '1.1rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#0D0D0D' }}>100% Gratuit</span>
+              <span style={{ fontSize: 11, color: 'rgba(13,13,13,0.7)', fontWeight: 600 }}>· tout est offert</span>
             </span>
           </div>
 
-          <h1 className="animate-fade-in-up shine-text" style={{
-            fontFamily: 'Cormorant, serif', fontSize: 'clamp(2.8rem, 8vw, 4.5rem)',
-            fontWeight: 700, lineHeight: 1.1, marginBottom: 20,
+          <h1 className="animate-fade-in-up" style={{
+            fontFamily: 'Cormorant, serif', fontSize: 'clamp(2.2rem, 6.5vw, 3.6rem)',
+            fontWeight: 700, lineHeight: 1.12, marginBottom: 16,
+            background: 'linear-gradient(135deg, #A07830, #C9A84C, #E8CC7A, #C9A84C)', backgroundSize: '200%',
+            WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent',
             animationDelay: '0.1s', animationFillMode: 'both',
           }}>
             Libertins par choix.<br />Connectés par désir.
           </h1>
 
-          <p className="animate-fade-in-up" style={{
-            fontSize: 16, color: 'rgba(28,24,20,0.9)', lineHeight: 1.8,
-            marginBottom: 40, animationDelay: '0.2s', animationFillMode: 'both',
-          }}>
-            Konnexyon est la plateforme de rencontres exclusive pour couples ouverts.<br />
-            Rencontrez, échangez et connectez en toute discrétion.
+          <p className="animate-fade-in-up" style={{ fontSize: 15, color: 'rgba(240,237,232,0.72)', lineHeight: 1.7, marginBottom: 30, animationDelay: '0.2s', animationFillMode: 'both' }}>
+            La plateforme de rencontres exclusive pour couples ouverts.
           </p>
 
-          <div className="animate-fade-in-up" style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', animationDelay: '0.3s', animationFillMode: 'both', marginTop: 24 }}>
-            <Link to="/register" className="btn-gold" style={{
-              padding: '17px 48px', borderRadius: 14, fontSize: 14,
-              letterSpacing: '0.14em', textDecoration: 'none', display: 'inline-block',
-            }}>
-              Créer ma connexion ∞
-            </Link>
-            <p style={{ fontSize: 11, color: 'rgba(28,24,20,0.7)', letterSpacing: '0.08em' }}>
-              Accès gratuit · Sans engagement
-            </p>
-          </div>
+          <Link to="/register" className="btn-gold animate-fade-in-up" style={{
+            display: 'inline-block', padding: '17px 48px', borderRadius: 14, fontSize: 14,
+            letterSpacing: '0.14em', textDecoration: 'none', animationDelay: '0.3s', animationFillMode: 'both',
+          }}>
+            Créer ma connexion ∞
+          </Link>
+          <p style={{ fontSize: 11, color: 'rgba(240,237,232,0.5)', letterSpacing: '0.08em', marginTop: 14 }}>
+            Accès gratuit · Sans engagement · France · Belgique · Suisse · Québec · 18+
+          </p>
         </div>
       </section>
 
-      {/* features */}
+      {/* features (sombre) */}
       <section style={{ padding: '80px 24px', maxWidth: 600, margin: '0 auto', width: '100%' }}>
-        <p className="animate-fade-in" style={{ textAlign: 'center', fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)', marginBottom: 48 }}>
+        <p style={{ textAlign: 'center', fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)', marginBottom: 48 }}>
           Pourquoi Konnexyon
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -159,41 +132,40 @@ export default function Home() {
             { icon: '◈', title: 'Couples uniquement', desc: 'Une communauté 100% couples — aucun célibataire. Des rencontres entre égaux, en toute confiance.' },
             { icon: '◉', title: 'Discrétion absolue', desc: 'Vos données restent privées. Géolocalisation approximative, profil invisible si vous le souhaitez.' },
             { icon: '∞', title: 'Connexions réelles', desc: 'Swipez, connectez, échangez. Un système de matching pensé pour les couples libertins.' },
-            { icon: '◎', title: 'Par proximité', desc: 'Rencontrez des couples près de chez vous. Distance configurable selon vos envies.' },
+            { icon: '🎉', title: '100% gratuit', desc: 'Likes illimités, messagerie, matchs — tout est offert, sans abonnement.' },
           ].map((f, i) => (
-            <div key={i} className="animate-fade-in-up card-luxury" style={{
+            <div key={i} style={{
               padding: '22px 24px', borderRadius: 18,
               display: 'flex', gap: 18, alignItems: 'flex-start',
-              animationDelay: `${i * 0.1}s`, animationFillMode: 'both',
+              background: 'rgba(255,255,255,0.035)', border: '1px solid rgba(201,168,76,0.18)',
             }}>
               <span style={{
                 width: 40, height: 40, borderRadius: 12, flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.1)',
+                background: 'rgba(201,168,76,0.12)', border: '1px solid rgba(201,168,76,0.2)',
                 fontSize: 18, color: '#C9A84C',
               }}>{f.icon}</span>
               <div>
-                <p style={{ fontSize: 15, fontWeight: 500, color: '#1C1814', marginBottom: 6 }}>{f.title}</p>
-                <p style={{ fontSize: 13, color: 'rgba(28,24,20,0.7)', lineHeight: 1.6 }}>{f.desc}</p>
+                <p style={{ fontSize: 15, fontWeight: 500, color: '#F0EDE8', marginBottom: 6 }}>{f.title}</p>
+                <p style={{ fontSize: 13, color: 'rgba(240,237,232,0.6)', lineHeight: 1.6 }}>{f.desc}</p>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* CTA bas */}
-      <section style={{ padding: '60px 24px 80px', textAlign: 'center' }}>
+      {/* CTA bas (sombre) */}
+      <section style={{ padding: '40px 24px 80px', textAlign: 'center' }}>
         <div style={{
-          maxWidth: 480, margin: '0 auto',
-          padding: '40px 32px', borderRadius: 24,
-          background: 'linear-gradient(145deg, rgba(201,168,76,0.06), rgba(201,168,76,0.04))',
-          border: '1px solid rgba(201,168,76,0.25)',
+          maxWidth: 480, margin: '0 auto', padding: '40px 32px', borderRadius: 24,
+          background: 'linear-gradient(145deg, rgba(201,168,76,0.1), rgba(201,168,76,0.04))',
+          border: '1px solid rgba(201,168,76,0.3)',
         }}>
           <XLogo size={40} style={{ margin: '0 auto 20px' }} />
-          <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '2rem', fontWeight: 600, color: '#1C1814', marginBottom: 12 }}>
+          <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '2rem', fontWeight: 600, color: '#F0EDE8', marginBottom: 12 }}>
             Prêts à vous connecter ?
           </h2>
-          <p style={{ fontSize: 14, color: 'rgba(28,24,20,0.7)', lineHeight: 1.7, marginBottom: 28 }}>
+          <p style={{ fontSize: 14, color: 'rgba(240,237,232,0.65)', lineHeight: 1.7, marginBottom: 28 }}>
             Rejoignez une communauté exclusive de couples qui partagent vos valeurs.
           </p>
           <Link to="/register" className="btn-gold" style={{
@@ -208,20 +180,19 @@ export default function Home() {
         </div>
       </section>
 
-      {/* footer */}
+      {/* footer (sombre) */}
       <footer style={{
-        borderTop: '1px solid rgba(201,168,76,0.15)',
-        padding: '24px',
+        borderTop: '1px solid rgba(201,168,76,0.15)', padding: '24px',
         display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 12,
       }}>
-        <span style={{ fontSize: 11, color: 'rgba(28,24,20,0.7)', letterSpacing: '0.08em' }}>
+        <span style={{ fontSize: 11, color: 'rgba(240,237,232,0.5)', letterSpacing: '0.08em' }}>
           © 2026 Konnexyon · Europe francophone · Réservé aux adultes consentants · 18+
         </span>
         <div style={{ display: 'flex', gap: 20 }}>
-          <Link to="/blog" style={{ fontSize: 11, color: 'rgba(28,24,20,0.7)', textDecoration: 'none', letterSpacing: '0.06em' }}>Guide & Conseils</Link>
-          <Link to="/cgu" style={{ fontSize: 11, color: 'rgba(28,24,20,0.7)', textDecoration: 'none', letterSpacing: '0.06em' }}>CGU</Link>
-          <Link to="/confidentialite" style={{ fontSize: 11, color: 'rgba(28,24,20,0.7)', textDecoration: 'none', letterSpacing: '0.06em' }}>Confidentialité</Link>
-          <Link to="/contact" style={{ fontSize: 11, color: 'rgba(28,24,20,0.7)', textDecoration: 'none', letterSpacing: '0.06em' }}>Contact</Link>
+          <Link to="/blog" style={{ fontSize: 11, color: 'rgba(240,237,232,0.5)', textDecoration: 'none', letterSpacing: '0.06em' }}>Guide</Link>
+          <Link to="/cgu" style={{ fontSize: 11, color: 'rgba(240,237,232,0.5)', textDecoration: 'none', letterSpacing: '0.06em' }}>CGU</Link>
+          <Link to="/confidentialite" style={{ fontSize: 11, color: 'rgba(240,237,232,0.5)', textDecoration: 'none', letterSpacing: '0.06em' }}>Confidentialité</Link>
+          <Link to="/contact" style={{ fontSize: 11, color: 'rgba(240,237,232,0.5)', textDecoration: 'none', letterSpacing: '0.06em' }}>Contact</Link>
         </div>
       </footer>
     </div>
