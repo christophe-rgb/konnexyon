@@ -33,6 +33,8 @@
 7. `supabase/migrations/20260101002500_bots_villes_and_admin_avatar.sql`  ← 5 bots (Lyon x2, Paris x2, Montpellier) + RPC `admin_set_bot_avatar`
 8. `supabase/migrations/20260101002600_remove_two_cap_dagde_bots.sql`  ← supprime Sophie & Lucas + Camille & Hugo
 9. `supabase/migrations/20260101002700_admin_reset_delete_bot_thread.sql`  ← RPC vider/supprimer une conversation de bot
+10. `supabase/migrations/20260101002800_bots_france_par_recherche.sql`  ← 10 bots France (par type de recherche)
+11. `supabase/migrations/20260101002900_venues_lieux.sql`  ← rubrique **Lieux** (table `venues` + RPC annuaire/carte + **pipeline de prospection** : contacté/accepté/refusé, dossier admin temps réel)
 
 **IMPORTANT — `is_admin()` doit exister AVANT toute fonction admin** (définie dans `supabase/schema.sql`). Sinon les `create function admin_*` échouent et Supabase annule tout le bloc :
 ```sql

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { confirm } from './ConfirmDialog'
 import { toast } from './Toast'
-import { Plus, Pencil, Trash2, MapPin, ArrowLeft } from 'lucide-react'
+import { Plus, Pencil, Trash2, MapPin, ArrowLeft, Send, Check, X, Eye, EyeOff } from 'lucide-react'
 
 const TYPES = [
   { value: 'club',    label: 'Club' },
@@ -24,14 +24,22 @@ export default function VenuesAdmin() {
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(null) // objet form ou null (= liste)
 
+  // Dossier complet (tous les lieux, y compris masqués/prospects).
   const load = async () => {
-    setLoading(true)
-    const { data, error } = await supabase.rpc('get_venues')
-    if (error) console.error('get_venues:', error.message)
+    const { data, error } = await supabase.rpc('admin_list_venues')
+    if (error) console.error('admin_list_venues:', error.message)
     setVenues(data || [])
     setLoading(false)
   }
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+    // Dossier en temps réel : toute modif des lieux rafraîchit la liste.
+    const ch = supabase
+      .channel('venues-admin')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'venues' }, () => load())
+      .subscribe()
+    return () => { supabase.removeChannel(ch) }
+  }, [])
 
   const remove = async (v) => {
     const ok = await confirm({
@@ -46,17 +54,70 @@ export default function VenuesAdmin() {
     load()
   }
 
+  // Pipeline de prospection.
+  const setProspect = async (v, status) => {
+    if (status === 'refuse') {
+      const ok = await confirm({
+        title: 'Refusé — supprimer',
+        message: `« ${v.name} » a refusé ? Le lieu sera retiré du dossier.`,
+        confirmLabel: 'Supprimer', danger: true,
+      })
+      if (!ok) return
+    }
+    const { error } = await supabase.rpc('admin_set_venue_prospect', { p_id: v.id, p_status: status })
+    if (error) { toast('Action impossible', 'error'); console.error(error.message); return }
+    toast(status === 'contacte' ? 'Marqué comme contacté ✉️'
+        : status === 'accepte'  ? 'Accepté — mis en avant ✅'
+        : status === 'refuse'   ? 'Refusé — supprimé'
+        : 'Statut mis à jour')
+    load()
+  }
+
+  const toggleVisibility = async (v) => {
+    const { error } = await supabase.rpc('admin_set_venue_visibility', { p_id: v.id, p_visible: v.status !== 'active' })
+    if (error) { toast('Action impossible', 'error'); console.error(error.message); return }
+    load()
+  }
+
   const onSaved = () => { setEditing(null); load() }
 
   if (editing !== null) {
     return <VenueForm venue={editing} onSaved={onSaved} onCancel={() => setEditing(null)} />
   }
 
+  const counts = {
+    a_contacter: venues.filter(v => v.prospect_status === 'a_contacter').length,
+    contacte:    venues.filter(v => v.prospect_status === 'contacte').length,
+    accepte:     venues.filter(v => v.prospect_status === 'accepte').length,
+  }
+  const fmtDate = ts => ts ? new Date(ts).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) : null
+
+  const editFrom = v => setEditing({
+    id: v.id, name: v.name || '', type: v.type || 'club', city: v.city || '',
+    address: v.address || '', description: v.description || '', website: v.website || '',
+    phone: v.phone || '', photo_url: v.photo_url || '', featured: !!v.featured,
+    lat: v.lat ?? '', lng: v.lng ?? '',
+  })
+
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 18 }}>
+      {/* compteurs du dossier (temps réel) */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+        {[
+          { k: 'a_contacter', l: 'À contacter', c: '#FBBF24' },
+          { k: 'contacte',    l: 'Contactés',   c: '#60A5FA' },
+          { k: 'accepte',     l: 'Acceptés',    c: '#4ade80' },
+        ].map(s => (
+          <div key={s.k} style={{ flex: 1, textAlign: 'center', padding: '10px 8px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.5rem', fontWeight: 700, color: s.c }}>{counts[s.k]}</p>
+            <p style={{ fontSize: 9.5, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)' }}>{s.l}</p>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 14 }}>
         <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>
-          {venues.length} lieu{venues.length > 1 ? 'x' : ''}
+          {venues.length} lieu{venues.length > 1 ? 'x' : ''} au dossier
         </span>
         <button
           onClick={() => setEditing({ ...EMPTY })}
@@ -79,50 +140,76 @@ export default function VenuesAdmin() {
         <div style={{ textAlign: 'center', padding: '60px 0' }}>
           <MapPin size={38} strokeWidth={1} style={{ color: 'rgba(201,168,76,0.3)', margin: '0 auto 12px' }} />
           <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.5rem', color: 'rgba(255,255,255,0.3)' }}>
-            Aucun lieu pour l'instant
+            Aucun lieu au dossier
           </p>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {venues.map(v => (
+          {venues.map(v => {
+            const ps = PROSPECT[v.prospect_status] || PROSPECT.a_contacter
+            return (
             <div key={v.id} style={{
-              display: 'flex', alignItems: 'center', gap: 12,
               background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
               borderRadius: 14, padding: '12px 16px',
             }}>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <p style={{ fontSize: 14, fontWeight: 500, color: '#F0EDE8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.name}</p>
-                  {v.featured && <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 99, background: 'rgba(201,168,76,0.15)', border: '1px solid rgba(201,168,76,0.3)', color: '#C9A84C', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Partenaire</span>}
-                </div>
-                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>
-                  {TYPE_LABELS[v.type] || v.type}{v.city ? ` · ${v.city}` : ''}
-                </p>
+              {/* ligne titre + badges */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                <p style={{ fontSize: 14, fontWeight: 500, color: '#F0EDE8' }}>{v.name}</p>
+                <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 99, background: ps.bg, border: `1px solid ${ps.bd}`, color: ps.color, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{ps.label}</span>
+                {v.featured && <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 99, background: 'rgba(201,168,76,0.15)', border: '1px solid rgba(201,168,76,0.3)', color: '#C9A84C', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Partenaire</span>}
+                {v.status === 'active' && <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 99, background: 'rgba(74,222,128,0.12)', border: '1px solid rgba(74,222,128,0.3)', color: '#4ade80', letterSpacing: '0.06em', textTransform: 'uppercase' }}>En ligne</span>}
+                <span style={{ marginLeft: 'auto', fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>
+                  {TYPE_LABELS[v.type] || v.type}{v.city ? ` · ${v.city}` : ''}{v.contacted_at ? ` · contacté le ${fmtDate(v.contacted_at)}` : ''}
+                </span>
               </div>
-              <button
-                onClick={() => setEditing({
-                  id: v.id, name: v.name || '', type: v.type || 'club', city: v.city || '',
-                  address: v.address || '', description: v.description || '', website: v.website || '',
-                  phone: v.phone || '', photo_url: v.photo_url || '', featured: !!v.featured,
-                  lat: v.lat ?? '', lng: v.lng ?? '',
-                })}
-                style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 11px', borderRadius: 10, background: 'transparent', border: '1px solid rgba(201,168,76,0.25)', color: 'rgba(201,168,76,0.7)', fontSize: 12, cursor: 'pointer' }}
-              >
-                <Pencil size={12} strokeWidth={1.6} /> Modifier
-              </button>
-              <button
-                onClick={() => remove(v)}
-                style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 11px', borderRadius: 10, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.3)', color: '#EF4444', fontSize: 12, cursor: 'pointer' }}
-              >
-                <Trash2 size={12} strokeWidth={1.6} /> Supprimer
-              </button>
+
+              {/* actions pipeline */}
+              <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+                {v.prospect_status === 'a_contacter' && (
+                  <button onClick={() => setProspect(v, 'contacte')} style={pillBtn('#60A5FA')}>
+                    <Send size={12} strokeWidth={1.8} /> Mail envoyé
+                  </button>
+                )}
+                {v.prospect_status === 'contacte' && (<>
+                  <button onClick={() => setProspect(v, 'accepte')} style={pillBtn('#4ade80')}>
+                    <Check size={13} strokeWidth={2} /> Accepté
+                  </button>
+                  <button onClick={() => setProspect(v, 'refuse')} style={pillBtn('#EF4444')}>
+                    <X size={13} strokeWidth={2} /> Refusé
+                  </button>
+                </>)}
+                {v.prospect_status === 'accepte' && (
+                  <button onClick={() => toggleVisibility(v)} style={pillBtn('#C9A84C')}>
+                    {v.status === 'active' ? <><EyeOff size={12} strokeWidth={1.8} /> Masquer du site</> : <><Eye size={12} strokeWidth={1.8} /> Publier</>}
+                  </button>
+                )}
+                <button onClick={() => editFrom(v)} style={pillBtn('rgba(201,168,76,0.75)')}>
+                  <Pencil size={12} strokeWidth={1.6} /> Modifier
+                </button>
+                <button onClick={() => remove(v)} style={pillBtn('#EF4444')}>
+                  <Trash2 size={12} strokeWidth={1.6} /> Supprimer
+                </button>
+              </div>
             </div>
-          ))}
+          )})}
         </div>
       )}
     </div>
   )
 }
+
+const PROSPECT = {
+  a_contacter: { label: 'À contacter', color: '#FBBF24', bg: 'rgba(251,191,36,0.12)', bd: 'rgba(251,191,36,0.35)' },
+  contacte:    { label: 'Contacté',    color: '#60A5FA', bg: 'rgba(96,165,250,0.12)', bd: 'rgba(96,165,250,0.35)' },
+  accepte:     { label: 'Accepté',     color: '#4ade80', bg: 'rgba(74,222,128,0.12)', bd: 'rgba(74,222,128,0.35)' },
+  refuse:      { label: 'Refusé',      color: '#EF4444', bg: 'rgba(239,68,68,0.12)',  bd: 'rgba(239,68,68,0.35)' },
+}
+
+const pillBtn = (color) => ({
+  display: 'flex', alignItems: 'center', gap: 5, padding: '7px 11px', borderRadius: 10,
+  background: 'transparent', border: `1px solid ${color}`, color,
+  fontSize: 12, cursor: 'pointer', opacity: 0.92,
+})
 
 const inputStyle = {
   width: '100%', boxSizing: 'border-box', background: 'rgba(0,0,0,0.4)',
