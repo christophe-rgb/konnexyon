@@ -104,16 +104,16 @@ export default function Settings() {
   return (
     <div className="max-w-lg mx-auto pb-nav animate-fade-in" style={{ animationFillMode: 'both' }}>
 
-      {/* header */}
+      {/* header — barre noire pleine largeur, contenu centré */}
       <header
-        className="sticky top-0 z-10 flex items-center justify-between px-5 py-4"
+        className="sticky top-0 z-10"
         style={{
-          background: 'rgba(5,5,5,0.92)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          borderBottom: '1px solid rgba(212,175,55,0.22)',
+          background: '#050505',
+          borderBottom: '1px solid rgba(212,175,55,0.28)',
+          width: '100vw', marginLeft: 'calc(50% - 50vw)',
         }}
       >
+       <div className="max-w-lg mx-auto flex items-center justify-between px-5 py-4">
         <h1 style={{
           fontFamily: 'Cormorant, serif',
           fontSize: '1.8rem',
@@ -134,6 +134,7 @@ export default function Settings() {
         }}>
           <SettingsIcon size={16} strokeWidth={1.5} style={{ color: 'rgba(201,168,76,1)' }} />
         </div>
+       </div>
       </header>
 
       <div style={{ padding: '20px' }}>

@@ -107,15 +107,15 @@ export default function Matches() {
 
       {/* header */}
       <header
-        className="sticky top-0 z-10 flex items-center justify-between px-1 py-4 mb-2 animate-fade-in"
+        className="sticky top-0 z-10 mb-2 animate-fade-in"
         style={{
-          background: 'rgba(5,5,5,0.92)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          borderBottom: '1px solid rgba(212,175,55,0.22)',
+          background: '#050505',
+          borderBottom: '1px solid rgba(212,175,55,0.28)',
+          width: '100vw', marginLeft: 'calc(50% - 50vw)',
           animationFillMode: 'both',
         }}
       >
+       <div className="max-w-lg mx-auto flex items-center justify-between px-5 py-4">
         <div>
           <h1 style={{
             fontFamily: 'Cormorant, serif',
@@ -145,6 +145,7 @@ export default function Matches() {
             <Zap size={16} strokeWidth={1.5} style={{ color: 'rgba(201,168,76,1)' }} />
           </div>
         </div>
+       </div>
       </header>
 
       {view === 'map' ? (

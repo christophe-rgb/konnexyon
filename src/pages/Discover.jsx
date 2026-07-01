@@ -132,10 +132,8 @@ export default function Discover() {
       <header
         className="flex items-center justify-between px-4 py-3 animate-fade-in"
         style={{
-          background: 'rgba(5,5,5,0.92)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          borderBottom: '1px solid rgba(212,175,55,0.22)',
+          background: '#050505',
+          borderBottom: '1px solid rgba(212,175,55,0.28)',
           animationFillMode: 'both',
         }}
       >
