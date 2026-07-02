@@ -186,6 +186,8 @@ language sql security definer set search_path = public as $$
 $$;
 grant execute on function public.admin_bot_threads() to authenticated;
 
+-- (le type de retour change : setof messages → table déchiffrée) → drop d'abord
+drop function if exists public.admin_bot_messages(uuid);
 create or replace function public.admin_bot_messages(p_match_id uuid)
 returns table (
   id uuid, match_id uuid, sender_id uuid, content text,
