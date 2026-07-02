@@ -4,15 +4,15 @@ import { safeGet, safeSet } from '../lib/storage'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
 
-const BAR_COUNT = 7 // barres du vumètre
+// hauteurs de repos des barres du vumètre (donne un relief « table de mixage »)
+const BARS = [0.45, 0.75, 1, 0.6, 0.9, 0.5, 0.7]
 
-// Lecteur de musique de fond, style « club » : vumètre réactif au son.
+// Lecteur de musique de fond, style « club » : vumètre doré animé + halo pulsé.
 // - Démarre au 1er geste utilisateur (contourne le blocage autoplay), une fois
 //   le visiteur CONNECTÉ. Piste + position mémorisées PAR COMPTE (chacun reprend
 //   exactement à son point d'arrêt).
-// - Vumètre : les barres réagissent au son réel via l'AnalyserNode Web Audio.
-//   Si l'analyse échoue (CORS, navigateur), on bascule sur des barres animées en
-//   CSS — le SON n'est jamais compromis.
+// - Le vumètre est purement visuel (CSS) : il ne touche jamais au flux audio,
+//   donc le son n'est jamais compromis.
 export default function MusicPlayer() {
   const user = useAuthStore(s => s.user)
   const uid  = user?.id
@@ -22,18 +22,9 @@ export default function MusicPlayer() {
   const [playing, setPlaying] = useState(false)
   const [closed,  setClosed]  = useState(true) // fermé tant qu'on ne sait pas qui est connecté
   const [ready,   setReady]   = useState(false)
-  const [reactive, setReactive] = useState(false) // vumètre piloté par l'analyse audio réelle
-  const [corsFailed, setCorsFailed] = useState(false) // CORS bloqué → son sans Web Audio
   const audioRef = useRef(null)
   const resumeRef   = useRef({ idx: 0, pos: 0, applied: true })
   const lastSaveRef = useRef(0)
-
-  // ── Web Audio (vumètre réactif) ──────────────────────────────
-  const ctxRef      = useRef(null)
-  const analyserRef = useRef(null)
-  const srcRef      = useRef(null)
-  const rafRef      = useRef(0)
-  const barRefs     = useRef([])
 
   // charge la playlist : d'abord les pistes gérées en admin (get_music),
   // sinon repli sur le fichier statique public/music/playlist.json.
@@ -99,17 +90,6 @@ export default function MusicPlayer() {
     r.applied = true
   }
 
-  // Si le chargement échoue avec CORS (crossOrigin), on retire crossOrigin (via
-  // l'état → React relit l'attribut et recharge) : le SON prime sur le vumètre,
-  // qui basculera en mode CSS.
-  const onAudioError = () => {
-    if (!corsFailed && audioRef.current?.crossOrigin === 'anonymous') setCorsFailed(true)
-  }
-  // après retrait de crossOrigin, on relance la lecture
-  useEffect(() => {
-    if (corsFailed) audioRef.current?.play().then(() => setPlaying(true)).catch(() => {})
-  }, [corsFailed])
-
   // sauvegarde aussi à la fermeture / passage en arrière-plan
   useEffect(() => {
     const save = () => { const a = audioRef.current; if (a) persist(idx, a.currentTime) }
@@ -147,58 +127,6 @@ export default function MusicPlayer() {
     if (playing) audioRef.current?.play().catch(() => {})
   }, [idx]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Vumètre : construit le graphe Web Audio (une seule fois) ──
-  const buildGraph = () => {
-    if (srcRef.current) return true
-    const a = audioRef.current
-    const AC = window.AudioContext || window.webkitAudioContext
-    // Ne router l'audio dans Web Audio QUE si CORS est OK (sinon le son serait
-    // coupé par le navigateur pour une source cross-origin non autorisée).
-    if (!a || !AC || corsFailed || a.crossOrigin !== 'anonymous') return false
-    try {
-      const ctx = new AC()
-      const src = ctx.createMediaElementSource(a)
-      const an  = ctx.createAnalyser()
-      an.fftSize = 64
-      an.smoothingTimeConstant = 0.82
-      src.connect(an)
-      an.connect(ctx.destination)
-      ctxRef.current = ctx; srcRef.current = src; analyserRef.current = an
-      return true
-    } catch { return false }
-  }
-
-  // ── Vumètre : anime les barres au rythme du son ──────────────
-  useEffect(() => {
-    if (!playing) {
-      cancelAnimationFrame(rafRef.current)
-      barRefs.current.forEach(el => { if (el) el.style.transform = 'scaleY(0.18)' })
-      return
-    }
-    const ok = buildGraph()
-    setReactive(ok)
-    if (!ok) return
-    ctxRef.current?.resume?.().catch(() => {})
-    const an = analyserRef.current
-    const data = new Uint8Array(an.frequencyBinCount)
-    const usable = Math.floor(an.frequencyBinCount * 0.7) // on ignore l'aigu souvent vide
-    const draw = () => {
-      an.getByteFrequencyData(data)
-      for (let i = 0; i < BAR_COUNT; i++) {
-        const s = Math.floor((i / BAR_COUNT) * usable)
-        const e = Math.floor(((i + 1) / BAR_COUNT) * usable)
-        let sum = 0
-        for (let j = s; j < e; j++) sum += data[j]
-        const avg = sum / Math.max(1, e - s) / 255
-        const el = barRefs.current[i]
-        if (el) el.style.transform = `scaleY(${Math.min(1, 0.12 + avg * 1.05).toFixed(3)})`
-      }
-      rafRef.current = requestAnimationFrame(draw)
-    }
-    draw()
-    return () => cancelAnimationFrame(rafRef.current)
-  }, [playing]) // eslint-disable-line react-hooks/exhaustive-deps
-
   if (!ready || !uid || closed || tracks.length === 0) return null
   const track = tracks[idx] || tracks[0]
 
@@ -228,16 +156,14 @@ export default function MusicPlayer() {
   return (
     <>
       <style>{`
-        @keyframes kx-eq   { 0%,100% { transform: scaleY(0.22) } 50% { transform: scaleY(1) } }
+        @keyframes kx-eq   { 0% { transform: scaleY(0.28) } 100% { transform: scaleY(1) } }
         @keyframes kx-glow { 0%,100% { box-shadow: 0 0 16px rgba(212,175,55,.28), 0 8px 26px rgba(0,0,0,.5) }
                              50%      { box-shadow: 0 0 34px rgba(212,175,55,.62), 0 8px 26px rgba(0,0,0,.55) } }
       `}</style>
       <audio
         ref={audioRef}
         src={track.src}
-        crossOrigin={corsFailed ? undefined : 'anonymous'}
         onEnded={next}
-        onError={onAudioError}
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
         onTimeUpdate={onTimeUpdate}
@@ -267,22 +193,19 @@ export default function MusicPlayer() {
           {playing ? <Pause size={16} strokeWidth={2.5} /> : <Play size={16} strokeWidth={2.5} />}
         </button>
 
-        {/* Vumètre */}
+        {/* Vumètre (visuel, ambiance club) */}
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2.5, height: 22, flexShrink: 0 }} aria-hidden="true">
-          {Array.from({ length: BAR_COUNT }).map((_, i) => (
+          {BARS.map((h, i) => (
             <span
               key={i}
-              ref={el => { barRefs.current[i] = el }}
               style={{
                 width: 3.5, height: '100%', borderRadius: 2,
                 background: 'linear-gradient(180deg,#F7E39A 0%,#E7C766 45%,#C9A84C 100%)',
                 transformOrigin: 'bottom',
-                ...(reactive
-                  ? { animation: 'none' }
-                  : {
-                      transform: playing ? undefined : 'scaleY(0.18)',
-                      animation: playing ? `kx-eq ${(0.6 + i * 0.13).toFixed(2)}s ease-in-out ${(i * 0.07).toFixed(2)}s infinite` : 'none',
-                    }),
+                transform: `scaleY(${playing ? h : 0.18})`,
+                animation: playing
+                  ? `kx-eq ${(0.42 + (i % 3) * 0.16 + h * 0.18).toFixed(2)}s ease-in-out ${(i * 0.06).toFixed(2)}s infinite alternate`
+                  : 'none',
                 boxShadow: playing ? '0 0 6px rgba(212,175,55,0.45)' : 'none',
               }}
             />

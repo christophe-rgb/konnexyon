@@ -181,8 +181,10 @@ export default function App() {
 
       {showNav && <Navbar />}
 
-      {/* Musique de fond (chansons hébergées, démarre au 1er geste) */}
-      <MusicPlayer />
+      {/* Musique de fond (chansons hébergées, démarre au 1er geste).
+          Isolé dans une ErrorBoundary : une erreur du lecteur ne doit jamais
+          faire planter tout le site. */}
+      <ErrorBoundary><MusicPlayer /></ErrorBoundary>
 
       {/* Dock de chat global (fenêtres façon Messenger) */}
       {user && profile?.email_1_confirmed && <ChatDock />}
