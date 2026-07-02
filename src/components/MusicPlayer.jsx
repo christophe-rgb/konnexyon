@@ -4,8 +4,8 @@ import { safeGet, safeSet } from '../lib/storage'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
 
-// hauteurs de repos des barres du vumètre (donne un relief « table de mixage »)
-const BARS = [0.45, 0.75, 1, 0.6, 0.9, 0.5, 0.7]
+// hauteurs de repos des barres du vumètre (profil « table de mixage » nerveux)
+const BARS = [0.4, 0.7, 1, 0.55, 0.85, 0.45, 0.95, 0.6, 0.8, 0.5, 1, 0.65, 0.9, 0.42, 0.75, 0.58]
 
 // Lecteur de musique de fond, style « club » : vumètre doré animé + halo pulsé.
 // - Démarre au 1er geste utilisateur (contourne le blocage autoplay), une fois
@@ -156,9 +156,9 @@ export default function MusicPlayer() {
   return (
     <>
       <style>{`
-        @keyframes kx-eq   { 0% { transform: scaleY(0.28) } 100% { transform: scaleY(1) } }
-        @keyframes kx-glow { 0%,100% { box-shadow: 0 0 16px rgba(212,175,55,.28), 0 8px 26px rgba(0,0,0,.5) }
-                             50%      { box-shadow: 0 0 34px rgba(212,175,55,.62), 0 8px 26px rgba(0,0,0,.55) } }
+        @keyframes kx-eq       { 0% { transform: scaleY(0.22) } 100% { transform: scaleY(1) } }
+        @keyframes kx-bandglow { 0%,100% { box-shadow: 0 -4px 22px rgba(212,175,55,.14) }
+                                 50%      { box-shadow: 0 -4px 30px rgba(212,175,55,.30) } }
       `}</style>
       <audio
         ref={audioRef}
@@ -170,61 +170,70 @@ export default function MusicPlayer() {
         onLoadedMetadata={onLoadedMetadata}
         preload="auto"
       />
+      {/* Bande musique pleine largeur (au-dessus de la barre de navigation) */}
       <div style={{
-        position: 'fixed', left: 12, bottom: 'calc(env(safe-area-inset-bottom, 0px) + 84px)',
-        zIndex: 900, display: 'flex', alignItems: 'center', gap: 11,
-        padding: '8px 14px 8px 8px', borderRadius: 999,
-        background: 'linear-gradient(135deg, rgba(26,20,8,0.92), rgba(9,9,9,0.94))',
+        position: 'fixed', left: 0, right: 0,
+        bottom: 'calc(env(safe-area-inset-bottom, 0px) + 66px)',
+        zIndex: 900, display: 'flex', alignItems: 'center', gap: 12,
+        height: 52, padding: '0 14px',
+        background: 'linear-gradient(180deg, rgba(16,13,7,0.96), rgba(8,8,8,0.97))',
         backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
-        border: '1px solid rgba(212,175,55,0.55)',
-        boxShadow: playing ? undefined : '0 8px 26px rgba(0,0,0,0.5)',
-        animation: playing ? 'kx-glow 2.4s ease-in-out infinite' : 'none',
-        maxWidth: 300,
+        borderTop: '1px solid rgba(212,175,55,0.5)',
+        boxShadow: '0 -4px 22px rgba(0,0,0,0.4)',
+        animation: playing ? 'kx-bandglow 2.6s ease-in-out infinite' : 'none',
       }}>
-        {/* Lecture / pause — pastille dorée lumineuse */}
-        <button onClick={toggle} aria-label={playing ? 'Pause' : 'Lecture'} style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-          width: 38, height: 38, borderRadius: '50%', cursor: 'pointer', padding: 0,
-          background: playing ? 'linear-gradient(135deg,#F7E39A,#C9A84C)' : 'rgba(212,175,55,0.14)',
-          border: '1px solid rgba(212,175,55,0.65)',
-          color: playing ? '#1A1206' : '#F4D875',
-          boxShadow: playing ? '0 0 14px rgba(212,175,55,0.5)' : 'none',
-        }}>
-          {playing ? <Pause size={16} strokeWidth={2.5} /> : <Play size={16} strokeWidth={2.5} />}
-        </button>
-
-        {/* Vumètre (visuel, ambiance club) */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2.5, height: 22, flexShrink: 0 }} aria-hidden="true">
+        {/* ── GAUCHE : vumètre nerveux ── */}
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2.5, height: 26, flexShrink: 0 }} aria-hidden="true">
           {BARS.map((h, i) => (
             <span
               key={i}
               style={{
                 width: 3.5, height: '100%', borderRadius: 2,
-                background: 'linear-gradient(180deg,#F7E39A 0%,#E7C766 45%,#C9A84C 100%)',
+                background: 'linear-gradient(180deg,#FBEBB0 0%,#F0D276 40%,#C9A84C 100%)',
                 transformOrigin: 'bottom',
-                transform: `scaleY(${playing ? h : 0.18})`,
+                transform: `scaleY(${playing ? h : 0.16})`,
                 animation: playing
-                  ? `kx-eq ${(0.42 + (i % 3) * 0.16 + h * 0.18).toFixed(2)}s ease-in-out ${(i * 0.06).toFixed(2)}s infinite alternate`
+                  ? `kx-eq ${(0.24 + (i % 4) * 0.06 + h * 0.12).toFixed(2)}s ease-in-out ${(i * 0.035).toFixed(2)}s infinite alternate`
                   : 'none',
-                boxShadow: playing ? '0 0 6px rgba(212,175,55,0.45)' : 'none',
+                boxShadow: playing ? '0 0 7px rgba(212,175,55,0.5)' : 'none',
               }}
             />
           ))}
         </div>
 
-        {/* Titre */}
-        <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-          <span style={{ fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(212,175,55,0.72)', fontFamily: 'Inter, system-ui, sans-serif', lineHeight: 1.3 }}>
-            En lecture
-          </span>
-          <span style={{
-            fontSize: 12.5, color: '#F0EDE8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-            maxWidth: 104, fontFamily: 'Inter, system-ui, sans-serif',
-          }}>{track.title || 'Konnexyon'}</span>
-        </div>
+        {/* ── CENTRE : espace libre pour la suite ── */}
+        <div style={{ flex: 1 }} />
 
-        <button onClick={next} aria-label="Suivant" style={btn}><SkipForward size={15} /></button>
-        <button onClick={close} aria-label="Couper la musique" style={{ ...btn, width: 24, color: 'rgba(240,237,232,0.45)' }}><X size={13} /></button>
+        {/* ── DROITE : titre + play + fermer ── */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, textAlign: 'right' }}>
+            <span style={{ fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(212,175,55,0.72)', fontFamily: 'Inter, system-ui, sans-serif', lineHeight: 1.3 }}>
+              En lecture
+            </span>
+            <span style={{
+              fontSize: 13, color: '#F0EDE8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+              maxWidth: 160, fontFamily: 'Inter, system-ui, sans-serif',
+            }}>{track.title || 'Konnexyon'}</span>
+          </div>
+
+          {/* Lecture / pause — pastille dorée lumineuse */}
+          <button onClick={toggle} aria-label={playing ? 'Pause' : 'Lecture'} style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+            width: 38, height: 38, borderRadius: '50%', cursor: 'pointer', padding: 0,
+            background: playing ? 'linear-gradient(135deg,#F7E39A,#C9A84C)' : 'rgba(212,175,55,0.14)',
+            border: '1px solid rgba(212,175,55,0.65)',
+            color: playing ? '#1A1206' : '#F4D875',
+            boxShadow: playing ? '0 0 14px rgba(212,175,55,0.5)' : 'none',
+          }}>
+            {playing ? <Pause size={16} strokeWidth={2.5} /> : <Play size={16} strokeWidth={2.5} />}
+          </button>
+
+          {/* Suivant */}
+          <button onClick={next} aria-label="Chanson suivante" style={btn}><SkipForward size={16} /></button>
+
+          {/* Fermer */}
+          <button onClick={close} aria-label="Couper la musique" style={{ ...btn, color: 'rgba(240,237,232,0.5)' }}><X size={15} /></button>
+        </div>
       </div>
     </>
   )
