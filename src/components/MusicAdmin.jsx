@@ -31,25 +31,38 @@ export default function MusicAdmin() {
   // ── Upload d'un nouveau morceau
   const pick = () => fileRef.current?.click()
 
-  const upload = async (file) => {
-    if (!file || !user) return
-    if (!file.type.startsWith('audio/')) { toast('Choisissez un fichier audio.', 'error'); return }
-    if (file.size > 25 * 1024 * 1024) { toast('Fichier trop lourd (max 25 Mo).', 'error'); return }
-    setUploading(true)
+  // Upload d'UN fichier (renvoie true si ok). Toast uniquement en cas d'erreur.
+  const uploadOne = async (file) => {
+    if (!file || !user) return false
+    if (!file.type.startsWith('audio/')) { toast(`« ${file.name} » ignoré (pas un audio)`, 'error'); return false }
+    if (file.size > 25 * 1024 * 1024) { toast(`« ${file.name} » trop lourd (max 25 Mo)`, 'error'); return false }
     try {
       const clean = file.name.replace(/[^a-zA-Z0-9]/g, '-')
-      const path  = `${user.id}/${Date.now()}-${clean}`
+      const rand  = Math.random().toString(36).slice(2, 7)
+      const path  = `${user.id}/${Date.now()}-${rand}-${clean}`
       const { error: upErr } = await supabase.storage
         .from('music').upload(path, file, { upsert: true, contentType: file.type })
-      if (upErr) { toast(`Erreur upload : ${upErr.message}`, 'error'); return }
+      if (upErr) { toast(`Erreur upload « ${file.name} » : ${upErr.message}`, 'error'); return false }
       const { data: { publicUrl } } = supabase.storage.from('music').getPublicUrl(path)
       const title = file.name.replace(/\.[^.]+$/, '') || 'Sans titre'
       const { error: rpcErr } = await supabase.rpc('admin_add_music', { p_title: title, p_url: publicUrl })
-      if (rpcErr) { toast(`Erreur : ${rpcErr.message}`, 'error'); return }
-      toast('Chanson ajoutée ✓')
-      await load()
-    } catch (e) {
-      toast('Erreur inattendue lors de l\'upload', 'error')
+      if (rpcErr) { toast(`Erreur « ${file.name} » : ${rpcErr.message}`, 'error'); return false }
+      return true
+    } catch {
+      toast(`Erreur inattendue sur « ${file.name} »`, 'error')
+      return false
+    }
+  }
+
+  // Upload de PLUSIEURS fichiers d'un coup.
+  const upload = async (fileList) => {
+    const files = Array.from(fileList || [])
+    if (!files.length || !user) return
+    setUploading(true)
+    let ok = 0
+    try {
+      for (const f of files) { if (await uploadOne(f)) ok++ }
+      if (ok > 0) { toast(ok > 1 ? `${ok} chansons ajoutées ✓` : 'Chanson ajoutée ✓'); await load() }
     } finally {
       setUploading(false)
     }
@@ -138,8 +151,8 @@ export default function MusicAdmin() {
       </div>
       <input
         ref={fileRef}
-        type="file" accept="audio/*" style={{ display: 'none' }}
-        onChange={e => { const f = e.target.files?.[0]; e.target.value = ''; upload(f) }}
+        type="file" accept="audio/*" multiple style={{ display: 'none' }}
+        onChange={e => { const fs = e.target.files; e.target.value = ''; upload(fs) }}
       />
 
       {loading ? (
