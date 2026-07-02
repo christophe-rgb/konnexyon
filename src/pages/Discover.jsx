@@ -36,6 +36,7 @@ export default function Discover() {
   const [loading,    setLoading]    = useState(true)
   const [likedIds,   setLikedIds]   = useState(new Set())
   const [myMapPos,   setMyMapPos]   = useState(null)
+  const [venues,     setVenues]     = useState([])
   const [showFreeBanner, setShowFreeBanner] = useState(true)
 
   // Carte : on garde TOUS les couples, y compris ceux déjà contactés (marqués
@@ -75,6 +76,17 @@ export default function Discover() {
     const urlView = searchParams.get('view')
     if (urlView) setView(urlView)
   }, [searchParams])
+
+  // Lieux partenaires pour le calque carte (chargés une seule fois).
+  useEffect(() => {
+    if (demoMode) return
+    let isMounted = true
+    supabase.rpc('get_venues').then(({ data, error }) => {
+      if (error) { console.error('get_venues:', error.message); return }
+      if (isMounted) setVenues(data || [])
+    })
+    return () => { isMounted = false }
+  }, [demoMode])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -332,7 +344,7 @@ export default function Discover() {
               Chargement de la carte…
             </div>
           }>
-            <MapView profiles={mapProfiles} onSelect={setSelected} myProfile={myMapPos} />
+            <MapView profiles={mapProfiles} onSelect={setSelected} myProfile={myMapPos} venues={venues} />
           </Suspense>
           {selected && (
             <div className="absolute bottom-4 left-4 right-4 max-w-sm mx-auto z-[1000] animate-fade-in-up" style={{ animationFillMode: 'both' }}>

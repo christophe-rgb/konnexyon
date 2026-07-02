@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { buildVenueIcon, buildVenuePopup, venueZIndex } from '../lib/venuePin'
 
 // Échappe le texte injecté dans le HTML des marqueurs (anti-XSS)
 function escapeHtml(str) {
@@ -16,10 +17,11 @@ function safeUrl(url) {
   return escapeHtml(s)
 }
 
-export default function MapView({ profiles, onSelect, myProfile }) {
+export default function MapView({ profiles, onSelect, myProfile, venues = [] }) {
   const containerRef = useRef(null)
   const mapRef       = useRef(null)
   const markersRef   = useRef([])
+  const venueMarkersRef = useRef([])
   const myMarkerRef  = useRef(null)
   const hasCenteredRef = useRef(false)
 
@@ -113,6 +115,25 @@ export default function MapView({ profiles, onSelect, myProfile }) {
       )
     }
   }, [profiles, onSelect, myProfile])
+
+  // Calque distinct des lieux (couches par-dessus les couples) : épingles-médaillons
+  // dont la taille dépend de la formule, avec logo + halo « flash » événement.
+  useEffect(() => {
+    if (!mapRef.current) return
+    venueMarkersRef.current.forEach(m => m.remove())
+    venueMarkersRef.current = []
+
+    const valid = (venues || []).filter(v => v.lng != null && v.lat != null)
+    valid.forEach(v => {
+      const marker = L.marker([v.lat, v.lng], {
+        icon: buildVenueIcon(v),
+        zIndexOffset: venueZIndex(v),
+      })
+        .bindPopup(buildVenuePopup(v))
+        .addTo(mapRef.current)
+      venueMarkersRef.current.push(marker)
+    })
+  }, [venues])
 
   return <div ref={containerRef} className="w-full h-full" />
 }

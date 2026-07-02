@@ -1,8 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { useAuthStore } from '../store/auth'
 import { confirm } from './ConfirmDialog'
 import { toast } from './Toast'
-import { Plus, Pencil, Trash2, MapPin, ArrowLeft, Send, Check, X, Eye, EyeOff } from 'lucide-react'
+import { Plus, Pencil, Trash2, MapPin, ArrowLeft, Send, Check, X, Eye, EyeOff, Camera, Zap } from 'lucide-react'
+
+const TIERS = [
+  { value: 'gratuit',   label: 'Gratuit' },
+  { value: 'essentiel', label: 'Essentiel' },
+  { value: 'premium',   label: 'Premium' },
+]
 
 const TYPES = [
   { value: 'club',    label: 'Club' },
@@ -20,9 +27,12 @@ const EMPTY = {
 
 // Onglet admin "Lieux" : liste + formulaire création/édition des lieux partenaires.
 export default function VenuesAdmin() {
+  const user = useAuthStore(s => s.user)
   const [venues,  setVenues]  = useState([])
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(null) // objet form ou null (= liste)
+  const [busyId,  setBusyId]  = useState(null)  // upload logo en cours
+  const fileRefs = useRef({})
 
   // Dossier complet (tous les lieux, y compris masqués/prospects).
   const load = async () => {
@@ -76,6 +86,49 @@ export default function VenuesAdmin() {
   const toggleVisibility = async (v) => {
     const { error } = await supabase.rpc('admin_set_venue_visibility', { p_id: v.id, p_visible: v.status !== 'active' })
     if (error) { toast('Action impossible', 'error'); console.error(error.message); return }
+    load()
+  }
+
+  // ── Logo du lieu : upload dans le bucket avatars (dossier admin), puis RPC.
+  const pickLogo = (id) => fileRefs.current[id]?.click()
+  const uploadLogo = async (v, file) => {
+    if (!file || !user) return
+    if (!file.type.startsWith('image/')) { toast('Choisissez une image.', 'error'); return }
+    if (file.size > 8 * 1024 * 1024) { toast('Image trop lourde (max 8 Mo).', 'error'); return }
+    setBusyId(v.id)
+    try {
+      const ext  = (file.name.split('.').pop() || 'jpg').toLowerCase()
+      const path = `${user.id}/venue-${v.id}.${ext}`
+      const { error: upErr } = await supabase.storage
+        .from('avatars').upload(path, file, { upsert: true, contentType: file.type })
+      if (upErr) { toast(`Erreur upload : ${upErr.message}`, 'error'); return }
+      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
+      const url = `${publicUrl}?t=${Date.now()}`
+      const { error: rpcErr } = await supabase.rpc('admin_set_venue_photo', { p_id: v.id, p_url: url })
+      if (rpcErr) { toast(`Erreur : ${rpcErr.message}`, 'error'); return }
+      setVenues(prev => prev.map(x => x.id === v.id ? { ...x, photo_url: url } : x))
+      toast(`Logo de ${v.name} mis à jour ✓`)
+    } catch (e) {
+      toast('Erreur inattendue lors de l\'upload', 'error')
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  // ── Formule (tier) → pilote la taille de l'épingle sur la carte.
+  const setTier = async (v, tier) => {
+    if (v.tier === tier) return
+    const { error } = await supabase.rpc('admin_set_venue_tier', { p_id: v.id, p_tier: tier })
+    if (error) { toast('Action impossible', 'error'); console.error(error.message); return }
+    toast(`Formule : ${tier}`)
+    load()
+  }
+
+  // ── Coup de projecteur « événement » (flash) : N jours ou arrêt.
+  const setEvent = async (v, days) => {
+    const { error } = await supabase.rpc('admin_set_venue_event', { p_id: v.id, p_days: days })
+    if (error) { toast('Action impossible', 'error'); console.error(error.message); return }
+    toast(days > 0 ? `Flash événement activé (${days} j) ⚡` : 'Flash arrêté')
     load()
   }
 
@@ -189,6 +242,77 @@ export default function VenuesAdmin() {
                 <button onClick={() => remove(v)} style={pillBtn('#EF4444')}>
                   <Trash2 size={12} strokeWidth={1.6} /> Supprimer
                 </button>
+              </div>
+
+              {/* logo · formule · événement (pilotent l'épingle sur la carte) */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.06)', flexWrap: 'wrap' }}>
+                {/* logo rond cliquable */}
+                <button
+                  onClick={() => pickLogo(v.id)}
+                  disabled={busyId === v.id}
+                  aria-label={`Changer le logo de ${v.name}`}
+                  style={{
+                    position: 'relative', width: 48, height: 48, borderRadius: '50%', overflow: 'hidden', flexShrink: 0,
+                    cursor: busyId === v.id ? 'default' : 'pointer', padding: 0,
+                    background: '#2a2620', border: '1px solid rgba(201,168,76,0.3)',
+                  }}
+                >
+                  {v.photo_url
+                    ? <img src={v.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(201,168,76,0.7)', fontFamily: 'Cormorant, serif', fontSize: 20 }}>{v.name?.[0] || '∞'}</div>}
+                  <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.35)', opacity: busyId === v.id ? 1 : 0.001 }}>
+                    {busyId === v.id
+                      ? <div style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'rotateX 0.7s linear infinite' }} />
+                      : <Camera size={15} color="#fff" />}
+                  </div>
+                </button>
+                <input
+                  ref={el => (fileRefs.current[v.id] = el)}
+                  type="file" accept="image/*" style={{ display: 'none' }}
+                  onChange={e => { const f = e.target.files?.[0]; e.target.value = ''; uploadLogo(v, f) }}
+                />
+
+                {/* segments formule */}
+                <div style={{ display: 'flex' }}>
+                  {TIERS.map((t, i) => {
+                    const active = (v.tier || 'gratuit') === t.value
+                    return (
+                      <button
+                        key={t.value}
+                        onClick={() => setTier(v, t.value)}
+                        style={{
+                          padding: '6px 11px', fontSize: 11.5, cursor: 'pointer', letterSpacing: '0.03em',
+                          borderTopLeftRadius: i === 0 ? 9 : 0, borderBottomLeftRadius: i === 0 ? 9 : 0,
+                          borderTopRightRadius: i === TIERS.length - 1 ? 9 : 0, borderBottomRightRadius: i === TIERS.length - 1 ? 9 : 0,
+                          border: '1px solid ' + (active ? 'rgba(201,168,76,0.6)' : 'rgba(255,255,255,0.12)'),
+                          borderLeftWidth: i === 0 ? 1 : 0,
+                          background: active ? 'linear-gradient(135deg, #B8891F, #F4D875, #B8891F)' : 'transparent',
+                          color: active ? '#050505' : 'rgba(255,255,255,0.55)',
+                          fontWeight: active ? 700 : 500,
+                        }}
+                      >{t.label}</button>
+                    )
+                  })}
+                </div>
+
+                {/* événement flash */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 'auto' }}>
+                  {(() => {
+                    const flash = v.event_until && new Date(v.event_until) > new Date()
+                    return flash ? (
+                      <>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#F4D875' }}>
+                          <Zap size={12} strokeWidth={2} /> actif jusqu'au {fmtDate(v.event_until)}
+                        </span>
+                        <button onClick={() => setEvent(v, 0)} style={pillBtn('rgba(255,255,255,0.5)')}>Stop</button>
+                      </>
+                    ) : (
+                      <button onClick={() => setEvent(v, 7)} style={pillBtn('#F4D875')}>
+                        <Zap size={12} strokeWidth={1.8} /> Flash 7 j
+                      </button>
+                    )
+                  })()}
+                </div>
               </div>
             </div>
           )})}
