@@ -83,13 +83,13 @@ export default function Navbar() {
         style={{
           maxWidth: mActive ? 720 : 384,
           transition: 'max-width 0.35s ease',
-          background: 'rgba(253,250,246,0.94)',
+          background: 'linear-gradient(135deg, rgba(22,18,9,0.95), rgba(9,9,9,0.97))',
           backdropFilter: 'blur(28px)',
           WebkitBackdropFilter: 'blur(28px)',
-          border: '1px solid rgba(201,168,76,0.2)',
+          border: '1px solid rgba(201,168,76,0.45)',
           borderRadius: '999px',
           padding: '6px 8px',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 0 0 1px rgba(201,168,76,0.1), inset 0 1px 0 rgba(201,168,76,0.15)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(201,168,76,0.14), inset 0 1px 0 rgba(201,168,76,0.12)',
         }}
       >
         {/* ── GAUCHE : vumètre (masqué sur très petits écrans) ── */}
@@ -117,7 +117,7 @@ export default function Navbar() {
                       color: '#050505',
                       transform: 'scale(1.06)',
                     } : {
-                      color: 'rgba(28,24,20,0.9)',
+                      color: 'rgba(240,237,232,0.82)',
                       transform: 'scale(1)',
                     }),
                   }}
@@ -151,7 +151,7 @@ export default function Navbar() {
                 En lecture
               </span>
               <span style={{
-                fontSize: 11, color: '#2E2612', fontWeight: 500,
+                fontSize: 11, color: '#F0EDE8', fontWeight: 500,
                 maxWidth: 130, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
               }}>{mTitle}</span>
             </div>
@@ -183,5 +183,5 @@ export default function Navbar() {
 const ctrlBtn = {
   display: 'flex', alignItems: 'center', justifyContent: 'center',
   width: 30, height: 30, borderRadius: '50%', flexShrink: 0, padding: 0,
-  background: 'transparent', border: 'none', cursor: 'pointer', color: '#A07830',
+  background: 'transparent', border: 'none', cursor: 'pointer', color: '#E8CC7A',
 }
