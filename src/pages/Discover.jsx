@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo, lazy, Suspense } from 'react'
+import { useEffect, useState, useCallback, useMemo, useRef, lazy, Suspense } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { SlidersHorizontal, Compass, Zap, Layers2, LayoutGrid, Map, Bookmark, MapPin, Check, Unlink } from 'lucide-react'
 import { supabase } from '../lib/supabase'
@@ -91,7 +91,13 @@ export default function Discover() {
     return () => { isMounted = false }
   }, [demoMode])
 
+  // Anti-course : au montage, un 1er chargement part avec la distance par
+  // défaut (50), puis le profil synchronise « peu importe » (0) → 2e chargement.
+  // Si la réponse du 1er arrive APRÈS le 2e, elle écrasait la bonne (→ liste
+  // vide). On numérote chaque chargement et on n'applique QUE le plus récent.
+  const loadSeq = useRef(0)
   const load = useCallback(async () => {
+    const seq = ++loadSeq.current
     setLoading(true)
     try {
       if (demoMode) {
@@ -100,12 +106,13 @@ export default function Discover() {
         // filtre d'égalité stricte ici viderait la liste à tort.
         if (filters.seeking?.length > 0)   results = results.filter(p => filters.seeking.some(s => p.seeking?.includes(s)))
         if (filters.distance > 0)          results = results.filter(p => p.distance_km <= filters.distance)
-        setProfiles(results)
+        if (seq === loadSeq.current) setProfiles(results)
         return
       }
       // "Peu importe" (0) = rayon très large, pas 500 km
       const radius = filters.distance > 0 ? filters.distance : 20000
       const { data, error } = await supabase.rpc('get_nearby_compatible_profiles', { radius_km: radius })
+      if (seq !== loadSeq.current) return // réponse périmée : ignorée
       if (error) {
         console.error('RPC error:', error)
         toast('Impossible de charger les profils — ' + (error.message || 'réessayez'), 'error')
@@ -115,7 +122,7 @@ export default function Discover() {
       if (filters.seeking?.length > 0)   results = results.filter(p => filters.seeking.some(s => p.seeking?.includes(s)))
       setProfiles(results)
     } finally {
-      setLoading(false)
+      if (seq === loadSeq.current) setLoading(false)
     }
   }, [filters, demoMode])
 
