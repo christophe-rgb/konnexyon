@@ -12,6 +12,7 @@ import MatchModal   from './components/MatchModal'
 import AgeGate      from './components/AgeGate'
 import CookieBanner from './components/CookieBanner'
 import ChatDock     from './components/ChatDock'
+import MusicPlayer  from './components/MusicPlayer'
 
 const Home           = lazy(() => import('./pages/Home'))
 const Login          = lazy(() => import('./pages/Login'))
@@ -179,6 +180,9 @@ export default function App() {
       <CookieBanner />
 
       {showNav && <Navbar />}
+
+      {/* Musique de fond (chansons hébergées, démarre au 1er geste) */}
+      <MusicPlayer />
 
       {/* Dock de chat global (fenêtres façon Messenger) */}
       {user && profile?.email_1_confirmed && <ChatDock />}
