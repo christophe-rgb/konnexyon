@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
@@ -44,6 +44,7 @@ const LIMITS_OPTIONS = [
 
 export default function Onboarding() {
   const user         = useAuthStore(s => s.user)
+  const profile      = useAuthStore(s => s.profile)
   const fetchProfile = useAuthStore(s => s.fetchProfile)
   const setProfile   = useAuthStore(s => s.setProfile)
   const navigate     = useNavigate()
@@ -69,6 +70,34 @@ export default function Onboarding() {
     max_distance_km: 50,
     visibility:     'public',
   })
+
+  // Compte DÉJÀ inscrit → ne pas refaire l'onboarding (sinon la validation
+  // réécrit le profil avec les valeurs par défaut et efface les réglages,
+  // ex. distance « peu importe »). On renvoie vers la découverte.
+  useEffect(() => {
+    if (profile?.email_1_confirmed && profile?.age_confirmed_at) {
+      navigate('/discover', { replace: true })
+    }
+  }, [profile?.email_1_confirmed, profile?.age_confirmed_at, navigate])
+
+  // Pré-remplir le formulaire depuis le profil existant (au lieu de repartir
+  // des valeurs par défaut). `?? d.x` garde 0 (« peu importe ») intact.
+  useEffect(() => {
+    if (!profile) return
+    setData(d => ({
+      ...d,
+      couple_name:      profile.couple_name      ?? d.couple_name,
+      bio:              profile.bio              ?? d.bio,
+      orientation_lui:  profile.orientation_lui  ?? d.orientation_lui,
+      orientation_elle: profile.orientation_elle ?? d.orientation_elle,
+      looking_for:      profile.looking_for      ?? d.looking_for,
+      seeking:          profile.seeking          ?? d.seeking,
+      availabilities:   profile.availabilities   ?? d.availabilities,
+      limits:           profile.limits           ?? d.limits,
+      max_distance_km:  profile.max_distance_km  ?? d.max_distance_km,
+      visibility:       profile.visibility       ?? d.visibility,
+    }))
+  }, [profile?.id])
 
   const set      = (k, v) => setData(d => ({ ...d, [k]: v }))
   const toggleArr = (k, v) => {
