@@ -152,7 +152,7 @@ export default function MusicAdmin() {
       <input
         ref={fileRef}
         type="file" accept="audio/*" multiple style={{ display: 'none' }}
-        onChange={e => { const fs = e.target.files; e.target.value = ''; upload(fs) }}
+        onChange={e => { const fs = Array.from(e.target.files || []); e.target.value = ''; upload(fs) }}
       />
 
       {loading ? (
