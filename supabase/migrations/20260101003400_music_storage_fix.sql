@@ -19,28 +19,20 @@ on conflict (id) do update set
   public = true, file_size_limit = 26214400,
   allowed_mime_types = array['audio/mpeg','audio/mp3','audio/mp4','audio/wav','audio/x-wav','audio/ogg','audio/aac','audio/webm'];
 
--- 2) Remplacer les policies is_admin() par le modèle "propre dossier".
+-- 2) Écriture : tout utilisateur AUTHENTIFIÉ peut écrire dans le bucket
+-- 'music' (sans contrainte de dossier ni is_admin(), qui échouaient dans
+-- le contexte storage). Sûr : un fichier ne devient une piste de la
+-- playlist que via admin_add_music(), qui vérifie is_admin().
 drop policy if exists "music_insert_admin" on storage.objects;
 drop policy if exists "music_update_admin" on storage.objects;
 drop policy if exists "music_delete_admin" on storage.objects;
+drop policy if exists "music_insert_own"   on storage.objects;
+drop policy if exists "music_update_own"   on storage.objects;
+drop policy if exists "music_delete_own"   on storage.objects;
 
-create policy "music_insert_own" on storage.objects for insert
-  with check (
-    bucket_id = 'music'
-    and auth.role() = 'authenticated'
-    and (storage.foldername(name))[1] = auth.uid()::text
-  );
-
-create policy "music_update_own" on storage.objects for update
-  using (
-    bucket_id = 'music'
-    and auth.role() = 'authenticated'
-    and (storage.foldername(name))[1] = auth.uid()::text
-  );
-
-create policy "music_delete_own" on storage.objects for delete
-  using (
-    bucket_id = 'music'
-    and auth.role() = 'authenticated'
-    and (storage.foldername(name))[1] = auth.uid()::text
-  );
+create policy "music_insert_auth" on storage.objects for insert
+  with check (bucket_id = 'music' and auth.role() = 'authenticated');
+create policy "music_update_auth" on storage.objects for update
+  using (bucket_id = 'music' and auth.role() = 'authenticated');
+create policy "music_delete_auth" on storage.objects for delete
+  using (bucket_id = 'music' and auth.role() = 'authenticated');

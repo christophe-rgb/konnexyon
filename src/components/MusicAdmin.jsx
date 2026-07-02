@@ -34,14 +34,20 @@ export default function MusicAdmin() {
   // Upload d'UN fichier (renvoie true si ok). Toast uniquement en cas d'erreur.
   const uploadOne = async (file) => {
     if (!file || !user) return false
-    if (!file.type.startsWith('audio/')) { toast(`« ${file.name} » ignoré (pas un audio)`, 'error'); return false }
-    if (file.size > 25 * 1024 * 1024) { toast(`« ${file.name} » trop lourd (max 25 Mo)`, 'error'); return false }
+    // Accepte par type MIME OU par extension (certains fichiers arrivent
+    // sans type lisible selon le navigateur).
+    const isAudio = (file.type || '').startsWith('audio/')
+      || /\.(mp3|wav|m4a|aac|ogg|oga|flac|mp4|webm|wma|aiff?)$/i.test(file.name)
+    if (!isAudio) { toast(`« ${file.name} » ignoré (pas un fichier audio)`, 'error'); return false }
+    if (file.size > 50 * 1024 * 1024) {
+      toast(`« ${file.name} » trop lourd (${Math.round(file.size / 1048576)} Mo, max 50 Mo)`, 'error'); return false
+    }
     try {
       const clean = file.name.replace(/[^a-zA-Z0-9]/g, '-')
       const rand  = Math.random().toString(36).slice(2, 7)
       const path  = `${user.id}/${Date.now()}-${rand}-${clean}`
       const { error: upErr } = await supabase.storage
-        .from('music').upload(path, file, { upsert: true, contentType: file.type })
+        .from('music').upload(path, file, { upsert: true, contentType: file.type || 'audio/mpeg' })
       if (upErr) { toast(`Erreur upload « ${file.name} » : ${upErr.message}`, 'error'); return false }
       const { data: { publicUrl } } = supabase.storage.from('music').getPublicUrl(path)
       const title = file.name.replace(/\.[^.]+$/, '') || 'Sans titre'
