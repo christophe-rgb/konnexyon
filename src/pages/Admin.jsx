@@ -99,7 +99,7 @@ export default function Admin() {
 
   return (
     <div style={{ background: '#0A0A0A', minHeight: '100dvh', width: '100vw', marginLeft: 'calc(50% - 50vw)' }}>
-    <div style={{ maxWidth: 720, margin: '0 auto', padding: '24px 16px 80px' }}>
+    <div style={{ maxWidth: 720, margin: '0 auto', padding: '24px 16px calc(env(safe-area-inset-bottom, 0px) + 110px)' }}>
 
       {/* header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28 }}>

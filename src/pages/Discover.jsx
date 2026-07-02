@@ -181,7 +181,9 @@ export default function Discover() {
   }, [mapProfiles, gridFilter])
 
   return (
-    <div className="h-dvh flex flex-col pb-nav">
+    // Vue carte = plein cadre (la barre flotte par-dessus) ; les autres vues
+    // réservent l'espace de la barre avec pb-nav.
+    <div className={`h-dvh flex flex-col ${view === 'map' ? '' : 'pb-nav'}`}>
 
       {/* ── toolbar ── */}
       <header

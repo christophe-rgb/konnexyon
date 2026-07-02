@@ -193,7 +193,9 @@ export default function App() {
         <MatchModal match={newMatch} onClose={() => setNewMatch(null)} />
       )}
 
-      <div className={showNav ? 'pb-20' : ''} style={{ position: 'relative', zIndex: 1 }}>
+      {/* Pas de padding ici : chaque page gère son espace bas (pb-nav = 6rem).
+          Évite le double padding qui créait une grande bande vide sous la barre. */}
+      <div style={{ position: 'relative', zIndex: 1 }}>
         <ErrorBoundary>
         <Suspense fallback={<PageLoader />}>
           <Routes>

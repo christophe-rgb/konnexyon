@@ -1,4 +1,4 @@
-const CACHE = 'konnexyon-v3'
+const CACHE = 'konnexyon-v4'
 const STATIC = ['/', '/index.html']
 
 self.addEventListener('install', e => {
