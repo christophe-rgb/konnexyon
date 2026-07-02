@@ -45,13 +45,22 @@ export default function Matches() {
       const enriched = await Promise.all(data.map(async m => {
         const otherId = m.couple_a === profile.id ? m.couple_b : m.couple_a
 
-        const { data: msg } = await supabase
-          .from('messages')
-          .select('content, photo_url, created_at')
-          .eq('match_id', m.id)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .single()
+        // Dernier message DÉCHIFFRÉ (RPC serveur) ; repli direct si la migration
+        // de chiffrement n'est pas encore appliquée.
+        let msg = null
+        const { data: lm, error: lmErr } = await supabase.rpc('get_last_message', { p_match_id: m.id })
+        if (!lmErr) {
+          msg = (lm && lm[0]) || null
+        } else if (lmErr.code === 'PGRST202') {
+          const r = await supabase
+            .from('messages')
+            .select('content, photo_url, created_at')
+            .eq('match_id', m.id)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single()
+          msg = r.data
+        }
 
         return {
           ...m,

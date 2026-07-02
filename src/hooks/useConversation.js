@@ -27,6 +27,25 @@ export function useConversation(matchId) {
   const channelRef   = useRef(null)
   const isMountedRef = useRef(true)
 
+  // Récupère une page de messages DÉCHIFFRÉS via la RPC serveur (get_messages).
+  // Repli sur la lecture directe si la RPC n'existe pas encore (migration de
+  // chiffrement non appliquée) — le contenu est alors encore en clair, lisible.
+  const fetchMessages = async (before) => {
+    const { data, error } = await supabase.rpc('get_messages', {
+      p_match_id: matchId, p_before: before ?? null, p_limit: PAGE_SIZE,
+    })
+    if (!error) return data || []
+    if (error.code === 'PGRST202') {
+      let q = supabase.from('messages').select('*').eq('match_id', matchId)
+        .or(`deleted_for.is.null,deleted_for.not.cs.{${profile.id}}`)
+        .order('created_at', { ascending: false }).limit(PAGE_SIZE)
+      if (before) q = q.lt('created_at', before)
+      const r = await q
+      return r.data || []
+    }
+    return []
+  }
+
   // ─── Initialisation ───────────────────────────────────────────────────────
   useEffect(() => {
     if (!matchId || !profile) return
@@ -59,19 +78,12 @@ export function useConversation(matchId) {
         .from('profiles').select('id, couple_name, avatar_url').eq('id', otherId).single()
       if (isMounted()) setOther(p)
 
-      // Charger les messages uniquement si participant confirmé
-      const { data, count } = await supabase
-        .from('messages')
-        .select('*', { count: 'exact' })
-        .eq('match_id', matchId)
-        .or(`deleted_for.is.null,deleted_for.not.cs.{${profile.id}}`)
-        .order('created_at', { ascending: false })
-        .limit(PAGE_SIZE)
-
+      // Charger les messages DÉCHIFFRÉS (uniquement si participant confirmé)
+      const rows = await fetchMessages(null)
       if (!isMounted()) return
-      const page = (data || []).reverse()
+      const page = rows.slice().reverse()
       if (page.length > 0) oldestRef.current = page[0].created_at
-      setHasMore((count || 0) > page.length)
+      setHasMore(rows.length === PAGE_SIZE)
       setMessages(page)
       setLoading(false)
 
@@ -87,12 +99,16 @@ export function useConversation(matchId) {
         .on('postgres_changes', {
           event: 'INSERT', schema: 'public', table: 'messages',
           filter: `match_id=eq.${matchId}`,
-        }, payload => {
+        }, async payload => {
           if (!isMountedRef.current) return
-          setMessages(ms =>
-            ms.some(x => x.id === payload.new.id) ? ms : [...ms, payload.new]
-          )
-          if (payload.new.sender_id !== profile.id) markRead()
+          // Le fil temps réel ne transporte que le contenu chiffré : on récupère
+          // la version déchiffrée (repli sur payload si la RPC n'existe pas encore).
+          let msg = payload.new
+          const { data, error } = await supabase.rpc('get_message', { p_id: payload.new.id })
+          if (!error && data && data[0]) msg = data[0]
+          if (!isMountedRef.current) return
+          setMessages(ms => ms.some(x => x.id === msg.id) ? ms : [...ms, msg])
+          if (msg.sender_id !== profile.id) markRead()
         })
         .subscribe()
       channelRef.current = channel
@@ -118,18 +134,10 @@ export function useConversation(matchId) {
     if (loadingMore || !hasMore) return
     setLoadingMore(true)
 
-    const { data, count } = await supabase
-      .from('messages')
-      .select('*', { count: 'exact' })
-      .eq('match_id', matchId)
-      .or(`deleted_for.is.null,deleted_for.not.cs.{${profile.id}}`)
-      .lt('created_at', oldestRef.current)
-      .order('created_at', { ascending: false })
-      .limit(PAGE_SIZE)
-
-    const older = (data || []).reverse()
+    const rows = await fetchMessages(oldestRef.current)
+    const older = rows.slice().reverse()
     if (older.length > 0) oldestRef.current = older[0].created_at
-    setHasMore(older.length === PAGE_SIZE)
+    setHasMore(rows.length === PAGE_SIZE)
     setMessages(ms => {
       const deduped = older.filter(m => !ms.some(x => x.id === m.id))
       return [...deduped, ...ms]
