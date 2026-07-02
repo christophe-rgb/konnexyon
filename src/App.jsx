@@ -13,6 +13,7 @@ import AgeGate      from './components/AgeGate'
 import CookieBanner from './components/CookieBanner'
 import ChatDock     from './components/ChatDock'
 import MusicPlayer  from './components/MusicPlayer'
+import SmoothScroll from './components/SmoothScroll'
 
 const Home           = lazy(() => import('./pages/Home'))
 const Login          = lazy(() => import('./pages/Login'))
@@ -175,6 +176,7 @@ export default function App() {
         Sortie
       </button>
 
+      <SmoothScroll />
       <ToastContainer />
       <ConfirmDialogHost />
       <CookieBanner />

@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuthStore } from '../store/auth'
 import XLogo from '../components/XLogo'
+import Reveal from '../components/Reveal'
 
 export default function Home() {
   const { user, profile, loading } = useAuthStore()
@@ -127,7 +128,7 @@ export default function Home() {
             { icon: '∞', title: 'Connexions réelles', desc: 'Swipez, connectez, échangez. Un système de matching pensé pour les couples libertins.' },
             { icon: '🎉', title: '100% gratuit', desc: 'Likes illimités, messagerie, matchs — tout est offert, sans abonnement.' },
           ].map((f, i) => (
-            <div key={i} style={{
+            <Reveal key={i} delay={i * 0.07} style={{
               padding: '22px 24px', borderRadius: 18,
               display: 'flex', gap: 18, alignItems: 'flex-start',
               background: 'rgba(255,255,255,0.035)', border: '1px solid rgba(201,168,76,0.18)',
@@ -142,7 +143,7 @@ export default function Home() {
                 <p style={{ fontSize: 15, fontWeight: 500, color: '#F0EDE8', marginBottom: 6 }}>{f.title}</p>
                 <p style={{ fontSize: 13, color: 'rgba(240,237,232,0.6)', lineHeight: 1.6 }}>{f.desc}</p>
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </section>
