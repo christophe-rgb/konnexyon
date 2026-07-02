@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
-import { validateImageFile } from '../lib/upload'
+import { validateImageFile, toJpegUpload } from '../lib/upload'
 import { resolveOnboardingLocation } from '../lib/geo'
 import { toast } from '../components/Toast'
 
@@ -188,9 +188,10 @@ export default function Onboarding() {
     }
     // Upload photo si choisie
     if (photoFile) {
-      const ext  = photoFile.name.split('.').pop().toLowerCase()
+      const up   = (await toJpegUpload(photoFile)) || photoFile
+      const ext  = up.type === 'image/jpeg' ? 'jpg' : (photoFile.name.split('.').pop() || 'jpg').toLowerCase()
       const path = `${uid}/avatar.${ext}`
-      const { error: upErr } = await supabase.storage.from('avatars').upload(path, photoFile, { upsert: true, contentType: photoFile.type })
+      const { error: upErr } = await supabase.storage.from('avatars').upload(path, up, { upsert: true, contentType: up.type })
       if (!upErr) {
         const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
         const urlWithCache = `${publicUrl}?t=${Date.now()}`

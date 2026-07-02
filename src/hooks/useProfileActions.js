@@ -2,7 +2,7 @@ import { useState, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
-import { validateImageFile, validateImageMagicBytes } from '../lib/upload'
+import { validateImageFile, validateImageMagicBytes, toJpegUpload } from '../lib/upload'
 import { toast } from '../components/Toast'
 import { confirm } from '../components/ConfirmDialog'
 
@@ -94,12 +94,19 @@ export function useProfileActions(uid) {
   const uploadAvatar = async (file) => {
     const check = validateImageFile(file)
     if (!check.ok) { toast(check.error, 'error'); return }
-    const magic = await validateImageMagicBytes(file)
-    if (!magic.ok) { toast(magic.error, 'error'); return }
     try {
-      const ext  = file.name.split('.').pop().toLowerCase()
+      // Convertit en JPEG (corrige HEIC iPhone + réduit le poids). Si le
+      // navigateur ne sait pas décoder, on retombe sur le fichier d'origine
+      // après contrôle des magic bytes.
+      let upload = await toJpegUpload(file)
+      if (!upload) {
+        const magic = await validateImageMagicBytes(file)
+        if (!magic.ok) { toast(magic.error, 'error'); return }
+        upload = file
+      }
+      const ext  = upload.type === 'image/jpeg' ? 'jpg' : (file.name.split('.').pop() || 'jpg').toLowerCase()
       const path = `${myProfile.id}/avatar.${ext}`
-      const { error: upErr } = await supabase.storage.from('avatars').upload(path, file, { upsert: true, contentType: file.type })
+      const { error: upErr } = await supabase.storage.from('avatars').upload(path, upload, { upsert: true, contentType: upload.type })
       if (upErr) { toast(`Erreur upload : ${upErr.message}`); return }
       const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
       const urlWithCache = `${publicUrl}?t=${Date.now()}`
