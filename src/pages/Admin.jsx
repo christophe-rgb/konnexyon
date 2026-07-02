@@ -8,6 +8,7 @@ import BotInbox from '../components/BotInbox'
 import BotPhotos from '../components/BotPhotos'
 import VenuesAdmin from '../components/VenuesAdmin'
 import VenueLeads from '../components/VenueLeads'
+import MusicAdmin from '../components/MusicAdmin'
 
 export default function Admin() {
   const user     = useAuthStore(s => s.user)
@@ -113,7 +114,7 @@ export default function Admin() {
 
       {/* onglets */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-        {[{ k: 'reports', l: 'Signalements' }, { k: 'bots', l: 'Boîte des bots' }, { k: 'botphotos', l: 'Photos des bots' }, { k: 'venues', l: 'Lieux' }, { k: 'leads', l: 'Réponses' }].map(t => (
+        {[{ k: 'reports', l: 'Signalements' }, { k: 'bots', l: 'Boîte des bots' }, { k: 'botphotos', l: 'Photos des bots' }, { k: 'venues', l: 'Lieux' }, { k: 'leads', l: 'Réponses' }, { k: 'music', l: 'Musique' }].map(t => (
           <button key={t.k} onClick={() => setTab(t.k)} style={{
             padding: '7px 16px', borderRadius: 99, fontSize: 12, cursor: 'pointer',
             border: tab === t.k ? '1px solid rgba(201,168,76,0.6)' : '1px solid rgba(255,255,255,0.08)',
@@ -124,7 +125,7 @@ export default function Admin() {
         ))}
       </div>
 
-      {tab === 'leads' ? <VenueLeads /> : tab === 'venues' ? <VenuesAdmin /> : tab === 'botphotos' ? <BotPhotos /> : tab === 'bots' ? <BotInbox /> : (<>
+      {tab === 'music' ? <MusicAdmin /> : tab === 'leads' ? <VenueLeads /> : tab === 'venues' ? <VenuesAdmin /> : tab === 'botphotos' ? <BotPhotos /> : tab === 'bots' ? <BotInbox /> : (<>
 
       {/* stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 24 }}>

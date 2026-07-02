@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Music2, Pause, Play, SkipForward, X } from 'lucide-react'
 import { safeGet, safeSet } from '../lib/storage'
+import { supabase } from '../lib/supabase'
 
 // Lecteur de musique de fond (chansons hébergées dans public/music/).
 // Les navigateurs bloquent l'autoplay avec son : on démarre donc au TOUT
@@ -14,12 +15,24 @@ export default function MusicPlayer() {
   const [closed,  setClosed]  = useState(() => safeGet('music_off') === '1')
   const audioRef = useRef(null)
 
-  // charge la playlist (public/music/playlist.json : [{title, src}])
+  // charge la playlist : d'abord les pistes gérées en admin (get_music),
+  // sinon repli sur le fichier statique public/music/playlist.json.
   useEffect(() => {
-    fetch('/music/playlist.json')
-      .then(r => (r.ok ? r.json() : []))
-      .then(d => setTracks(Array.isArray(d) ? d.filter(t => t && t.src) : []))
-      .catch(() => {})
+    let cancelled = false
+    const fromJson = () =>
+      fetch('/music/playlist.json')
+        .then(r => (r.ok ? r.json() : []))
+        .then(d => { if (!cancelled) setTracks(Array.isArray(d) ? d.filter(t => t && t.src) : []) })
+        .catch(() => {})
+    supabase.rpc('get_music')
+      .then(({ data, error }) => {
+        if (cancelled) return
+        const list = (!error && Array.isArray(data)) ? data.filter(t => t && t.url) : []
+        if (list.length > 0) setTracks(list.map(t => ({ title: t.title, src: t.url })))
+        else fromJson()
+      })
+      .catch(() => { if (!cancelled) fromJson() })
+    return () => { cancelled = true }
   }, [])
 
   // démarre au 1er geste utilisateur (contourne le blocage autoplay)
