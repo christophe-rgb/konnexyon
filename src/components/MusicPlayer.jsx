@@ -106,26 +106,30 @@ export default function MusicPlayer() {
     }
   }, [idx, uid]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // démarre au 1er geste utilisateur (contourne le blocage autoplay)
+  // Démarre la lecture une fois prêt. On tente d'abord IMMÉDIATEMENT (le clic
+  // de connexion est une activation utilisateur récente et suffit souvent) ;
+  // si le navigateur bloque encore, on démarre au tout premier geste suivant.
   useEffect(() => {
     if (!ready || closed || tracks.length === 0) return
     let done = false
-    const start = () => {
+    const arm = () => {
+      window.addEventListener('pointerdown', start)
+      window.addEventListener('keydown', start)
+      window.addEventListener('touchstart', start)
+    }
+    const disarm = () => {
+      window.removeEventListener('pointerdown', start)
+      window.removeEventListener('keydown', start)
+      window.removeEventListener('touchstart', start)
+    }
+    function start() {
       if (done) return
       done = true
-      audioRef.current?.play().then(() => setPlaying(true)).catch(() => {})
-      window.removeEventListener('pointerdown', start)
-      window.removeEventListener('keydown', start)
-      window.removeEventListener('touchstart', start)
+      audioRef.current?.play().then(() => { setPlaying(true); disarm() }).catch(() => { done = false })
     }
-    window.addEventListener('pointerdown', start, { once: false })
-    window.addEventListener('keydown', start)
-    window.addEventListener('touchstart', start)
-    return () => {
-      window.removeEventListener('pointerdown', start)
-      window.removeEventListener('keydown', start)
-      window.removeEventListener('touchstart', start)
-    }
+    // tentative immédiate (activation récente : ouverture de session)
+    audioRef.current?.play().then(() => setPlaying(true)).catch(() => arm())
+    return disarm
   }, [ready, closed, tracks])
 
   // quand la piste change, enchaîne la lecture si on écoutait déjà
