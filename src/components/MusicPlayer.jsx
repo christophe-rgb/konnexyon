@@ -2,25 +2,29 @@ import { useEffect, useRef, useState } from 'react'
 import { Music2, Pause, Play, SkipForward, X } from 'lucide-react'
 import { safeGet, safeSet } from '../lib/storage'
 import { supabase } from '../lib/supabase'
+import { useAuthStore } from '../store/auth'
 
 // Lecteur de musique de fond (chansons hébergées dans le bucket 'music').
-// Les navigateurs bloquent l'autoplay avec son : on démarre donc au TOUT
-// premier geste de l'utilisateur (clic/tap/touche). Les pistes s'enchaînent
-// l'une après l'autre (pas de boucle sur une seule) puis reprennent au début
-// de la playlist. La piste + la position sont mémorisées (localStorage) : au
-// retour, la lecture reprend EXACTEMENT où le visiteur s'était arrêté. La
-// préférence « coupé » est aussi mémorisée pour ne pas relancer à chaque visite.
+// - Les navigateurs bloquent l'autoplay avec son : on démarre au TOUT premier
+//   geste de l'utilisateur (clic/tap/touche).
+// - Les pistes s'enchaînent l'une après l'autre (pas de boucle sur une seule)
+//   puis reprennent au début de la playlist.
+// - On ATTEND que le visiteur soit CONNECTÉ : la piste + la position sont
+//   mémorisées PAR COMPTE (localStorage, clé suffixée par l'id utilisateur).
+//   Ainsi chaque personne reprend EXACTEMENT à son propre point d'arrêt, même
+//   si un autre compte a écouté sur le même appareil.
 export default function MusicPlayer() {
-  const startIdx = Math.max(0, Number(safeGet('music_idx')) || 0)
-  const startPos = Math.max(0, Number(safeGet('music_pos')) || 0)
+  const user = useAuthStore(s => s.user)
+  const uid  = user?.id
 
   const [tracks,  setTracks]  = useState([])
-  const [idx,     setIdx]     = useState(startIdx)
+  const [idx,     setIdx]     = useState(0)
   const [playing, setPlaying] = useState(false)
-  const [closed,  setClosed]  = useState(() => safeGet('music_off') === '1')
+  const [closed,  setClosed]  = useState(true) // fermé tant qu'on ne sait pas qui est connecté
+  const [ready,   setReady]   = useState(false)
   const audioRef = useRef(null)
   // position de reprise à appliquer UNE seule fois, sur la piste sauvegardée
-  const resumeRef   = useRef({ idx: startIdx, pos: startPos, applied: false })
+  const resumeRef   = useRef({ idx: 0, pos: 0, applied: true })
   const lastSaveRef = useRef(0) // throttle des écritures localStorage
 
   // charge la playlist : d'abord les pistes gérées en admin (get_music),
@@ -43,16 +47,31 @@ export default function MusicPlayer() {
     return () => { cancelled = true }
   }, [])
 
+  // ── ATTENDRE LA CONNEXION ─────────────────────────────────────
+  // Dès que l'utilisateur est connu, on charge SA piste + SA position.
+  // Tant qu'aucun compte n'est connecté, le lecteur reste inactif.
+  useEffect(() => {
+    if (!uid) { setReady(false); setClosed(true); setPlaying(false); return }
+    const savedIdx = Math.max(0, Number(safeGet(`music_idx:${uid}`)) || 0)
+    const savedPos = Math.max(0, Number(safeGet(`music_pos:${uid}`)) || 0)
+    resumeRef.current = { idx: savedIdx, pos: savedPos, applied: false }
+    lastSaveRef.current = 0
+    setIdx(savedIdx)
+    setClosed(safeGet(`music_off:${uid}`) === '1')
+    setReady(true)
+  }, [uid])
+
   // borne l'index quand la playlist est connue (playlist raccourcie entre 2 visites)
   useEffect(() => {
     if (tracks.length === 0) return
     setIdx(i => (i < tracks.length ? i : 0))
   }, [tracks])
 
-  // mémorise la piste + la position (reprise exacte à la prochaine visite)
+  // mémorise la piste + la position PAR COMPTE (reprise exacte à la prochaine visite)
   const persist = (i, pos) => {
-    safeSet('music_idx', String(i))
-    safeSet('music_pos', String(Math.max(0, Math.floor(pos || 0))))
+    if (!uid) return
+    safeSet(`music_idx:${uid}`, String(i))
+    safeSet(`music_pos:${uid}`, String(Math.max(0, Math.floor(pos || 0))))
   }
 
   // sauvegarde throttlée pendant la lecture (toutes les ~3 s)
@@ -85,11 +104,11 @@ export default function MusicPlayer() {
       window.removeEventListener('pagehide', save)
       document.removeEventListener('visibilitychange', save)
     }
-  }, [idx])
+  }, [idx, uid]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // démarre au 1er geste utilisateur (contourne le blocage autoplay)
   useEffect(() => {
-    if (closed || tracks.length === 0) return
+    if (!ready || closed || tracks.length === 0) return
     let done = false
     const start = () => {
       if (done) return
@@ -107,14 +126,14 @@ export default function MusicPlayer() {
       window.removeEventListener('keydown', start)
       window.removeEventListener('touchstart', start)
     }
-  }, [closed, tracks])
+  }, [ready, closed, tracks])
 
   // quand la piste change, enchaîne la lecture si on écoutait déjà
   useEffect(() => {
     if (playing) audioRef.current?.play().catch(() => {})
   }, [idx]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (closed || tracks.length === 0) return null
+  if (!ready || !uid || closed || tracks.length === 0) return null
   const track = tracks[idx] || tracks[0]
 
   // piste SUIVANTE (enchaînement), puis retour au début de la playlist
@@ -138,7 +157,7 @@ export default function MusicPlayer() {
     a?.pause()
     setPlaying(false)
     setClosed(true)
-    safeSet('music_off', '1')
+    if (uid) safeSet(`music_off:${uid}`, '1')
   }
 
   return (
