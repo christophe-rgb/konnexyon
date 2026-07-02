@@ -69,8 +69,23 @@
     <script type="module" src="/src/main.jsx"></script>
     <script>
       if ('serviceWorker' in navigator) {
+        // Recharge UNE fois quand un nouveau service worker prend le contrôle
+        // (nouveau déploiement) : les onglets ouverts reçoivent la MAJ sans
+        // rechargement manuel. Le garde-fou évite toute boucle de rechargement.
+        let refreshing = false
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (refreshing) return
+          refreshing = true
+          window.location.reload()
+        })
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').catch(() => {})
+          navigator.serviceWorker.register('/sw.js').then(reg => {
+            reg.update()
+            // vérifie une nouvelle version quand l'onglet redevient actif
+            document.addEventListener('visibilitychange', () => {
+              if (document.visibilityState === 'visible') reg.update()
+            })
+          }).catch(() => {})
         })
       }
     </script>
