@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Compass, Zap, MessageCircle, User, Map, Play, Pause, SkipForward, X } from 'lucide-react'
+import { Compass, Zap, MessageCircle, User, Map, Play, Pause, SkipForward, X, Music2 } from 'lucide-react'
 import { useAuthStore } from '../store/auth'
 import { useMusic } from '../store/music'
 import { supabase } from '../lib/supabase'
@@ -46,12 +46,14 @@ export default function Navbar() {
   const [unread, setUnread] = useState(0)
 
   // état du lecteur de musique (poussé par MusicPlayer)
-  const mActive  = useMusic(s => s.active)
-  const mPlaying = useMusic(s => s.playing)
-  const mTitle   = useMusic(s => s.title)
-  const mToggle  = useMusic(s => s.toggle)
-  const mNext    = useMusic(s => s.next)
-  const mClose   = useMusic(s => s.close)
+  const mActive    = useMusic(s => s.active)
+  const mAvailable = useMusic(s => s.available)
+  const mPlaying   = useMusic(s => s.playing)
+  const mTitle     = useMusic(s => s.title)
+  const mToggle    = useMusic(s => s.toggle)
+  const mNext      = useMusic(s => s.next)
+  const mClose     = useMusic(s => s.close)
+  const mReopen    = useMusic(s => s.reopen)
 
   useEffect(() => {
     if (!profile || demoMode) return
@@ -174,6 +176,22 @@ export default function Navbar() {
               <X size={15} />
             </button>
           </div>
+        )}
+
+        {/* Lecteur fermé mais des pistes existent → bouton pour le rouvrir */}
+        {!mActive && mAvailable && (
+          <button
+            onClick={mReopen}
+            aria-label="Relancer la musique"
+            title="Relancer la musique"
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+              width: 34, height: 34, borderRadius: '50%', cursor: 'pointer', padding: 0, marginRight: 2,
+              background: 'rgba(201,168,76,0.14)', border: '1px solid rgba(201,168,76,0.45)', color: '#E8CC7A',
+            }}
+          >
+            <Music2 size={16} strokeWidth={2} />
+          </button>
         )}
       </div>
     </nav>

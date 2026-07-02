@@ -195,25 +195,36 @@ export default function MusicPlayer() {
     setClosed(true)
     if (uid) safeSet(`music_off:${uid}`, '1')
   }
+  // rouvre le lecteur après une fermeture (relance la lecture dans le geste)
+  const reopen = () => {
+    if (uid) safeSet(`music_off:${uid}`, '0')
+    wantPlayRef.current = true
+    setClosed(false)
+    setupAnalyser()
+    ctxRef.current?.resume?.().catch(() => {})
+    audioRef.current?.play().then(() => setPlaying(true)).catch(() => {})
+  }
 
   // enregistre des contrôles stables qui lisent toujours la dernière version
   const hRef = useRef({})
-  hRef.current = { toggle, next, close }
+  hRef.current = { toggle, next, close, reopen }
   useEffect(() => {
     useMusic.setState({
       toggle: () => hRef.current.toggle(),
       next:   () => hRef.current.next(),
       close:  () => hRef.current.close(),
+      reopen: () => hRef.current.reopen(),
     })
   }, [])
 
   // pousse l'état d'affichage vers le store (lu par la Navbar)
+  const available = !!(ready && uid && tracks.length > 0)
   useEffect(() => {
-    useMusic.setState({ active, playing, title: track?.title || 'Konnexyon' })
-  }, [active, playing, track?.title])
+    useMusic.setState({ active, available, playing, title: track?.title || 'Konnexyon' })
+  }, [active, available, playing, track?.title])
 
   // au démontage (logout…), désactive proprement
-  useEffect(() => () => useMusic.setState({ active: false, playing: false }), [])
+  useEffect(() => () => useMusic.setState({ active: false, available: false, playing: false }), [])
 
   if (!active) return null
   return (
