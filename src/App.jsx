@@ -14,6 +14,7 @@ import CookieBanner from './components/CookieBanner'
 import ChatDock     from './components/ChatDock'
 import MusicPlayer  from './components/MusicPlayer'
 import SmoothScroll from './components/SmoothScroll'
+import PageTransition from './components/PageTransition'
 
 const Home           = lazy(() => import('./pages/Home'))
 const Login          = lazy(() => import('./pages/Login'))
@@ -200,6 +201,7 @@ export default function App() {
       <div style={{ position: 'relative', zIndex: 1 }}>
         <ErrorBoundary>
         <Suspense fallback={<PageLoader />}>
+          <PageTransition>
           <Routes>
             <Route path="/"                  element={<Home />} />
             <Route path="/login"             element={<Login />} />
@@ -248,6 +250,7 @@ export default function App() {
             } />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </PageTransition>
         </Suspense>
         </ErrorBoundary>
       </div>
