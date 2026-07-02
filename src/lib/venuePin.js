@@ -40,16 +40,23 @@ export function isVenueFlash(venue) {
 }
 
 // Médaillon central selon la formule : rond doré avec logo ou initiale.
+// Avec logo : fond blanc + logo ENTIER (contain) → net et non rogné (mieux
+// pour un logo/texte qu'un `cover` qui zoome et coupe).
 function medallion(venue, size, ringWidth) {
   const initial = escapeHtml(venue.name?.[0]?.toUpperCase() || '∞')
   const logo = safeUrl(venue.photo_url)
-  const inner = logo
-    ? `<img src="${logo}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
-    : `<span style="font-family:Cormorant,serif;font-weight:700;color:${INK};font-size:${Math.round(size * 0.42)}px;line-height:1;">${initial}</span>`
+  if (logo) {
+    const pad = Math.max(2, Math.round(size * 0.08))
+    return `<div style="width:${size}px;height:${size}px;border-radius:50%;box-sizing:border-box;
+      background:#fff;border:${ringWidth}px solid #fff;overflow:hidden;display:flex;align-items:center;justify-content:center;
+      box-shadow:0 0 14px rgba(212,175,55,0.55),0 3px 8px rgba(0,0,0,0.35);">
+      <img src="${logo}" alt="" style="width:100%;height:100%;object-fit:contain;padding:${pad}px;box-sizing:border-box;" /></div>`
+  }
   return `<div style="width:${size}px;height:${size}px;border-radius:50%;box-sizing:border-box;
     background:linear-gradient(135deg,${GOLD_DARK},${GOLD_LIGHT},${GOLD_DARK});
     border:${ringWidth}px solid #fff;overflow:hidden;display:flex;align-items:center;justify-content:center;
-    box-shadow:0 0 14px rgba(212,175,55,0.55),0 3px 8px rgba(0,0,0,0.35);">${inner}</div>`
+    box-shadow:0 0 14px rgba(212,175,55,0.55),0 3px 8px rgba(0,0,0,0.35);">
+    <span style="font-family:Cormorant,serif;font-weight:700;color:${INK};font-size:${Math.round(size * 0.42)}px;line-height:1;">${initial}</span></div>`
 }
 
 // Halo « flash » : anneaux dorés pulsants + éclair, superposés à l'épingle.
@@ -72,8 +79,8 @@ export function buildVenueIcon(venue) {
   let icon
 
   if (tier === 'premium') {
-    // Grand médaillon (~80px) : anneau or épais + halo, logo rond, badge + nom.
-    const size = 80
+    // Grand médaillon (~88px) : anneau or épais + halo, logo rond, badge + nom.
+    const size = 88
     const name = escapeHtml(venue.name || '')
     const halo = `<span style="position:absolute;top:50%;left:50%;width:${size + 26}px;height:${size + 26}px;
       margin:-${(size + 26) / 2}px 0 0 -${(size + 26) / 2}px;border-radius:50%;pointer-events:none;
