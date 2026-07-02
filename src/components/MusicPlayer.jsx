@@ -3,17 +3,25 @@ import { Music2, Pause, Play, SkipForward, X } from 'lucide-react'
 import { safeGet, safeSet } from '../lib/storage'
 import { supabase } from '../lib/supabase'
 
-// Lecteur de musique de fond (chansons hébergées dans public/music/).
+// Lecteur de musique de fond (chansons hébergées dans le bucket 'music').
 // Les navigateurs bloquent l'autoplay avec son : on démarre donc au TOUT
-// premier geste de l'utilisateur (clic/tap/touche). Boucle sur la playlist,
-// bouton lecture/pause + suivant + fermer. La préférence « coupé » est
-// mémorisée (localStorage) pour ne pas relancer à chaque visite.
+// premier geste de l'utilisateur (clic/tap/touche). Les pistes s'enchaînent
+// l'une après l'autre (pas de boucle sur une seule) puis reprennent au début
+// de la playlist. La piste + la position sont mémorisées (localStorage) : au
+// retour, la lecture reprend EXACTEMENT où le visiteur s'était arrêté. La
+// préférence « coupé » est aussi mémorisée pour ne pas relancer à chaque visite.
 export default function MusicPlayer() {
+  const startIdx = Math.max(0, Number(safeGet('music_idx')) || 0)
+  const startPos = Math.max(0, Number(safeGet('music_pos')) || 0)
+
   const [tracks,  setTracks]  = useState([])
-  const [idx,     setIdx]     = useState(0)
+  const [idx,     setIdx]     = useState(startIdx)
   const [playing, setPlaying] = useState(false)
   const [closed,  setClosed]  = useState(() => safeGet('music_off') === '1')
   const audioRef = useRef(null)
+  // position de reprise à appliquer UNE seule fois, sur la piste sauvegardée
+  const resumeRef   = useRef({ idx: startIdx, pos: startPos, applied: false })
+  const lastSaveRef = useRef(0) // throttle des écritures localStorage
 
   // charge la playlist : d'abord les pistes gérées en admin (get_music),
   // sinon repli sur le fichier statique public/music/playlist.json.
@@ -34,6 +42,50 @@ export default function MusicPlayer() {
       .catch(() => { if (!cancelled) fromJson() })
     return () => { cancelled = true }
   }, [])
+
+  // borne l'index quand la playlist est connue (playlist raccourcie entre 2 visites)
+  useEffect(() => {
+    if (tracks.length === 0) return
+    setIdx(i => (i < tracks.length ? i : 0))
+  }, [tracks])
+
+  // mémorise la piste + la position (reprise exacte à la prochaine visite)
+  const persist = (i, pos) => {
+    safeSet('music_idx', String(i))
+    safeSet('music_pos', String(Math.max(0, Math.floor(pos || 0))))
+  }
+
+  // sauvegarde throttlée pendant la lecture (toutes les ~3 s)
+  const onTimeUpdate = () => {
+    const a = audioRef.current
+    if (!a) return
+    if (Math.abs(a.currentTime - lastSaveRef.current) >= 3) {
+      lastSaveRef.current = a.currentTime
+      persist(idx, a.currentTime)
+    }
+  }
+
+  // applique la position de reprise une seule fois, quand la piste est prête
+  const onLoadedMetadata = () => {
+    const a = audioRef.current
+    if (!a) return
+    const r = resumeRef.current
+    if (!r.applied && idx === r.idx && r.pos > 0 && r.pos < a.duration - 1) {
+      a.currentTime = r.pos
+    }
+    r.applied = true
+  }
+
+  // sauvegarde aussi à la fermeture / passage en arrière-plan (position exacte)
+  useEffect(() => {
+    const save = () => { const a = audioRef.current; if (a) persist(idx, a.currentTime) }
+    window.addEventListener('pagehide', save)
+    document.addEventListener('visibilitychange', save)
+    return () => {
+      window.removeEventListener('pagehide', save)
+      document.removeEventListener('visibilitychange', save)
+    }
+  }, [idx])
 
   // démarre au 1er geste utilisateur (contourne le blocage autoplay)
   useEffect(() => {
@@ -64,7 +116,15 @@ export default function MusicPlayer() {
 
   if (closed || tracks.length === 0) return null
   const track = tracks[idx] || tracks[0]
-  const next  = () => setIdx(i => (i + 1) % tracks.length)
+
+  // piste SUIVANTE (enchaînement), puis retour au début de la playlist
+  const next = () => setIdx(i => {
+    const n = (i + 1) % tracks.length
+    resumeRef.current.applied = true // ne pas ré-appliquer la reprise sur la piste suivante
+    lastSaveRef.current = 0
+    persist(n, 0)                     // la nouvelle piste démarre au début
+    return n
+  })
 
   const toggle = () => {
     const a = audioRef.current
@@ -73,7 +133,9 @@ export default function MusicPlayer() {
     else a.play().then(() => setPlaying(true)).catch(() => {})
   }
   const close = () => {
-    audioRef.current?.pause()
+    const a = audioRef.current
+    if (a) persist(idx, a.currentTime) // conserve la position même si on coupe
+    a?.pause()
     setPlaying(false)
     setClosed(true)
     safeSet('music_off', '1')
@@ -87,6 +149,8 @@ export default function MusicPlayer() {
         onEnded={next}
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
+        onTimeUpdate={onTimeUpdate}
+        onLoadedMetadata={onLoadedMetadata}
         preload="auto"
       />
       <div style={{
