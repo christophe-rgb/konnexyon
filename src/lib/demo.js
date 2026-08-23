@@ -153,3 +153,24 @@ export const DEMO_MESSAGES = {
   ],
   'match-2': [],
 }
+
+// ─── Mot du jour (mode démo) ──────────────────────────────────
+
+export const DEMO_WORD = {
+  id: 'demo-word-1',
+  word: 'Seuil',
+  publish_date: '2026-08-23',
+}
+
+export const DEMO_RESPONSES = [
+  { id: 'demo-r-1', user_id: 'demo-2', pseudo: 'Marc & Julie',    line: 'On a hésité si longtemps devant la porte que la nuit est passée derrière nous.' },
+  { id: 'demo-r-2', user_id: 'demo-3', pseudo: 'Camille & Théo',  line: 'Le paillasson dit bienvenue à des gens qui ne viennent plus.' },
+  { id: 'demo-r-3', user_id: 'demo-4', pseudo: 'Inès & Rachid',   line: 'J’ai posé mes clés sur la table sans savoir si je repartais.' },
+  { id: 'demo-r-4', user_id: 'demo-5', pseudo: 'Louise & Pierre', line: 'Il faut deux courages : celui d’entrer, et celui de rester.' },
+]
+
+export const DEMO_CARNET = [
+  { id: 'demo-c-1', word: 'Marée',    publish_date: '2026-08-22', line: 'Elle revient toujours, c’est bien ça le problème.' },
+  { id: 'demo-c-2', word: 'Insomnie', publish_date: '2026-08-21', line: 'À trois heures, la maison respire sans moi.' },
+  { id: 'demo-c-3', word: 'Presque',  publish_date: '2026-08-20', line: 'Le plus long des mots, quand on le dit à voix basse.' },
+]
