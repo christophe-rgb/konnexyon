@@ -20,6 +20,8 @@ const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
 const ConfirmPartner = lazy(() => import('./pages/ConfirmPartner'))
 const Onboarding     = lazy(() => import('./pages/Onboarding'))
 const Discover       = lazy(() => import('./pages/Discover'))
+const MotDuJour      = lazy(() => import('./pages/MotDuJour'))
+const Carnet         = lazy(() => import('./pages/Carnet'))
 const Matches        = lazy(() => import('./pages/Matches'))
 const Messages       = lazy(() => import('./pages/Messages'))
 const Conversation   = lazy(() => import('./pages/Conversation'))
@@ -208,6 +210,12 @@ export default function App() {
               <RequireAuth><Onboarding /></RequireAuth>
             } />
 
+            <Route path="/mot-du-jour" element={
+              <RequireAuth><RequireProfile><MotDuJour /></RequireProfile></RequireAuth>
+            } />
+            <Route path="/carnet" element={
+              <RequireAuth><RequireProfile><Carnet /></RequireProfile></RequireAuth>
+            } />
             <Route path="/discover" element={
               <RequireAuth><RequireProfile><Discover /></RequireProfile></RequireAuth>
             } />

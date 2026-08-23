@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
 import { DEMO_PROFILES } from '../lib/demo'
-import { MapPin, Camera, Flag, Ban, Settings, Trash2 } from 'lucide-react'
+import { MapPin, Camera, Flag, Ban, Settings, Trash2, BookOpen } from 'lucide-react'
 import XLogo from '../components/XLogo'
 import { confirm } from '../components/ConfirmDialog'
 import EditProfileForm from '../components/EditProfileForm'
@@ -223,6 +223,22 @@ export default function Profile() {
               onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.25)'; e.currentTarget.style.background = 'transparent'; }}
             >
               Modifier mon profil
+            </button>
+            <button className="erb-btn"
+              onClick={() => navigate('/carnet')}
+              aria-label="Mon carnet"
+              style={{
+                width: 48, height: 48, borderRadius: '14px', flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: 'rgba(245,240,232,0.85)',
+                border: '1px solid rgba(201,168,76,0.25)',
+                color: 'rgba(28,24,20,0.9)',
+                cursor: 'pointer', transition: 'all 0.2s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.color = '#C9A84C'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.45)'; }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'rgba(28,24,20,0.9)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.25)'; }}
+            >
+              <BookOpen size={17} strokeWidth={1.5} />
             </button>
             <button className="erb-btn"
               onClick={() => navigate('/settings')}

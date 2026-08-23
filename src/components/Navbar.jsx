@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Compass, Zap, MessageCircle, User, Map } from 'lucide-react'
+import { Compass, Zap, MessageCircle, User, Feather } from 'lucide-react'
 import { useAuthStore } from '../store/auth'
 import { supabase } from '../lib/supabase'
 import { useEffect, useState } from 'react'
@@ -12,10 +12,10 @@ const tabs = [
     match: loc => loc.pathname === '/discover' && !loc.search.includes('view=map'),
   },
   {
-    to: '/discover?view=map',
-    icon: Map,
-    label: 'Carte',
-    match: loc => loc.pathname === '/discover' && loc.search.includes('view=map'),
+    to: '/mot-du-jour',
+    icon: Feather,
+    label: 'Mot du jour',
+    match: loc => loc.pathname.startsWith('/mot-du-jour') || loc.pathname.startsWith('/carnet'),
   },
   {
     to: '/matches',
