@@ -4,14 +4,22 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg:       '#FDFAF6',
-        surface:  '#F5F0E8',
-        surface2: '#EDE7DB',
+        // Charte Konnexyon — site de rencontre par l'écriture
+        encre:    '#0B0B0B',
+        ivoire:   '#F2EEE6',
+        or:       '#C9A84C',
+        graphite: '#343334',
+        brume:    '#A8A39A',
+
+        // alias historiques, repointés sur la charte
+        bg:       '#F2EEE6',
+        surface:  '#EAE5DB',
+        surface2: '#E1DBD0',
         gold:     '#C9A84C',
         'gold-light': '#E8CC7A',
         'gold-dark':  '#A07830',
-        text:     '#1C1814',
-        muted:    '#8A7F74',
+        text:     '#0B0B0B',
+        muted:    '#A8A39A',
       },
       fontFamily: {
         serif: ['Cormorant', 'serif'],

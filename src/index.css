@@ -5,6 +5,13 @@
 
 /* ── Variables globales ─────────────────────────── */
 :root {
+  /* ── Charte Konnexyon ── */
+  --encre:    #0B0B0B;
+  --ivoire:   #F2EEE6;
+  --or:       #C9A84C;
+  --graphite: #343334;
+  --brume:    #A8A39A;
+
   --gold:          #E8CC7A;
   --gold-light:    #F5E0A0;
   --gold-dark:     #C9A84C;
@@ -32,8 +39,8 @@
   }
 
   body {
-    background-color: #FDFAF6;
-    color: #1C1814;
+    background-color: var(--ivoire);
+    color: var(--encre);
     font-family: 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -83,6 +90,64 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
     animation: shimmer 4s ease infinite;
+  }
+
+  /* ── Boutons de la charte : ÉCRIRE · LIRE · CONTINUER ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 13px 26px;
+    border-radius: 3px;
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all var(--dur-mid) var(--ease-out);
+  }
+  .btn:disabled { cursor: not-allowed; opacity: 0.4; }
+
+  /* action claire — sur fond encre */
+  .btn-ecrire {
+    background: var(--ivoire);
+    color: var(--encre);
+    border: 1px solid rgba(11,11,11,0.12);
+  }
+  .btn-ecrire:hover:not(:disabled) { background: #fff; box-shadow: 0 4px 18px rgba(0,0,0,0.28); }
+
+  /* action sombre — sur fond ivoire */
+  .btn-lire {
+    background: var(--encre);
+    color: var(--ivoire);
+    border: 1px solid var(--encre);
+  }
+  .btn-lire:hover:not(:disabled) { background: var(--graphite); border-color: var(--graphite); }
+
+  /* action principale — l'or ne sert qu'à ça */
+  .btn-continuer {
+    background: var(--or);
+    color: var(--encre);
+    border: 1px solid var(--or);
+    box-shadow: var(--gold-glow-sm);
+  }
+  .btn-continuer:hover:not(:disabled) { background: #D8B95E; box-shadow: var(--gold-glow); }
+
+  /* ── Surfaces ── */
+  /* la page de papier : carte ivoire posée sur l'encre */
+  .paper {
+    background: var(--ivoire);
+    color: var(--encre);
+    border-radius: 4px;
+    box-shadow: 0 18px 50px rgba(0,0,0,0.45);
+  }
+  /* la surface encre : bloc sombre posé sur l'ivoire */
+  .ink {
+    background: var(--encre);
+    color: var(--ivoire);
+    border-radius: 4px;
   }
 
   /* ── Bouton or premium — motif X connexion en filigrane ── */
