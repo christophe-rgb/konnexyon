@@ -1,10 +1,22 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import XLogo from './XLogo'
-import { Compass, Unlink } from 'lucide-react'
+import { Compass, Unlink, Feather } from 'lucide-react'
 
 const THRESHOLD = 70
 
-export default function SwipeStack({ profiles, onLike, onPass }) {
+/**
+ * Pile de swipe.
+ *
+ * variant 'profile' — carte photo, utilisée par Découverte.
+ * variant 'word'    — carte mot + ligne, utilisée par Mot du jour.
+ *
+ * Le contrat est le même dans les deux cas : chaque item porte un `id`,
+ * et c'est cet id qui remonte à onLike / onPass. Côté Mot du jour, l'id
+ * de l'item est celui de l'auteur de la ligne, pas celui de la réponse.
+ */
+export default function SwipeStack({ profiles, onLike, onPass, variant = 'profile', counterLabel }) {
+  const isWord  = variant === 'word'
+  const cardBg  = isWord ? '#0D0D0D' : '#EDE7DB'
   const [index,  setIndex]  = useState(0)
   const [drag,   setDrag]   = useState({ x: 0, y: 0 })
   const [flying, setFlying] = useState(null) // 'left' | 'right' | null
@@ -56,7 +68,7 @@ export default function SwipeStack({ profiles, onLike, onPass }) {
   const handleLike = () => { if (!flying) triggerFly('right') }
   const handlePass = () => { if (!flying) triggerFly('left')  }
 
-  if (!current) return <EmptySwipe />
+  if (!current) return <EmptySwipe isWord={isWord} />
 
   const dx  = flying === 'right' ? 700 : flying === 'left' ? -700 : drag.x
   const dy  = flying ? 0 : drag.y * 0.25
@@ -73,15 +85,15 @@ export default function SwipeStack({ profiles, onLike, onPass }) {
 
         {/* carte 3 */}
         {nextnext && (
-          <div style={{ position: 'absolute', inset: 0, borderRadius: 24, overflow: 'hidden', transform: 'scale(0.88) translateY(16px)', transformOrigin: 'bottom center', border: '1px solid rgba(201,168,76,0.1)', background: '#EDE7DB' }}>
-            <CardPhoto profile={nextnext} />
+          <div style={{ position: 'absolute', inset: 0, borderRadius: 24, overflow: 'hidden', transform: 'scale(0.88) translateY(16px)', transformOrigin: 'bottom center', border: '1px solid rgba(201,168,76,0.1)', background: cardBg }}>
+            <Card item={nextnext} isWord={isWord} />
           </div>
         )}
 
         {/* carte 2 */}
         {next && (
-          <div style={{ position: 'absolute', inset: 0, borderRadius: 24, overflow: 'hidden', transform: 'scale(0.94) translateY(8px)', transformOrigin: 'bottom center', border: '1px solid rgba(201,168,76,0.1)', background: '#EDE7DB' }}>
-            <CardPhoto profile={next} />
+          <div style={{ position: 'absolute', inset: 0, borderRadius: 24, overflow: 'hidden', transform: 'scale(0.94) translateY(8px)', transformOrigin: 'bottom center', border: '1px solid rgba(201,168,76,0.1)', background: cardBg }}>
+            <Card item={next} isWord={isWord} />
           </div>
         )}
 
@@ -104,13 +116,15 @@ export default function SwipeStack({ profiles, onLike, onPass }) {
             touchAction: 'none',
             border: '1px solid rgba(201,168,76,0.25)',
             boxShadow: '0 16px 48px rgba(0,0,0,0.18), 0 0 0 1px rgba(201,168,76,0.15)',
-            background: '#F0EBE2',
+            background: isWord ? cardBg : '#F0EBE2',
           }}
         >
-          <CardPhoto profile={current} />
+          <Card item={current} isWord={isWord} />
 
-          {/* overlay gradient */}
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.35) 55%, transparent 100%)', pointerEvents: 'none' }} />
+          {/* overlay gradient — la carte mot est déjà sombre, elle n'en a pas besoin */}
+          {!isWord && (
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.35) 55%, transparent 100%)', pointerEvents: 'none' }} />
+          )}
 
           {/* label CONNEXION */}
           <div style={{
@@ -148,7 +162,8 @@ export default function SwipeStack({ profiles, onLike, onPass }) {
             </div>
           </div>
 
-          {/* infos bas de carte */}
+          {/* infos bas de carte — profil uniquement, la carte mot est autoportante */}
+          {!isWord && (
           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '24px 22px', pointerEvents: 'none' }}>
             <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '2rem', fontWeight: 600, color: '#fff', marginBottom: 4, lineHeight: 1.1 }}>
               {current.couple_name}
@@ -173,12 +188,13 @@ export default function SwipeStack({ profiles, onLike, onPass }) {
               </div>
             )}
           </div>
+          )}
         </div>
       </div>
 
       {/* compteur */}
       <p style={{ fontSize: 11, letterSpacing: '0.14em', color: 'rgba(201,168,76,1)', textTransform: 'uppercase' }}>
-        {profiles.length - index} connexion{profiles.length - index > 1 ? 's' : ''} restante{profiles.length - index > 1 ? 's' : ''}
+        {counterLabel ?? `${profiles.length - index} connexion${profiles.length - index > 1 ? 's' : ''} restante${profiles.length - index > 1 ? 's' : ''}`}
       </p>
 
       {/* boutons action */}
@@ -191,6 +207,58 @@ export default function SwipeStack({ profiles, onLike, onPass }) {
           <XLogo size={32} />
         </ActionBtn>
       </div>
+    </div>
+  )
+}
+
+function Card({ item, isWord }) {
+  return isWord ? <CardWord item={item} /> : <CardPhoto profile={item} />
+}
+
+// Carte Mot du jour : le mot en grand, la ligne d'un autre membre, son pseudo.
+// L'item porte son propre `word` — toutes les lignes du jour répondent au même
+// mot, la page le recopie dans chaque item plutôt que de le faire traverser
+// SwipeStack en prop.
+function CardWord({ item }) {
+  return (
+    <div style={{
+      width: '100%', height: '100%',
+      display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center',
+      gap: 26, padding: '36px 28px', textAlign: 'center',
+      background: 'radial-gradient(ellipse at 50% 28%, rgba(201,168,76,0.10), transparent 62%), #0D0D0D',
+    }}>
+      {/* le mot */}
+      <h2 className="shine-text" style={{
+        fontFamily: 'Cormorant, serif',
+        fontSize: 'clamp(2.4rem, 11vw, 3.6rem)',
+        fontWeight: 600, lineHeight: 1.05,
+        letterSpacing: '0.02em',
+      }}>
+        {item.word}
+      </h2>
+
+      <div style={{ width: 46, height: 1, background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.55), transparent)' }} />
+
+      {/* la ligne écrite par un autre membre */}
+      <p style={{
+        fontFamily: 'Cormorant, serif',
+        fontSize: 'clamp(1.15rem, 4.6vw, 1.5rem)',
+        fontStyle: 'italic',
+        lineHeight: 1.55,
+        color: 'rgba(245,240,232,0.94)',
+        maxWidth: 300,
+      }}>
+        {item.line}
+      </p>
+
+      {/* son pseudo */}
+      <p style={{
+        fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase',
+        color: 'rgba(201,168,76,0.85)', marginTop: 2,
+      }}>
+        {item.pseudo}
+      </p>
     </div>
   )
 }
@@ -234,17 +302,20 @@ function ActionBtn({ onClick, children, aria, gold }) {
   )
 }
 
-function EmptySwipe() {
+function EmptySwipe({ isWord }) {
+  const Icon = isWord ? Feather : Compass
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20, padding: '0 32px', textAlign: 'center' }}>
       <div style={{ width: 72, height: 72, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle, rgba(201,168,76,0.1), transparent)', border: '1px solid rgba(201,168,76,0.1)' }}>
-        <Compass size={28} strokeWidth={1} style={{ color: 'rgba(201,168,76,1)' }} />
+        <Icon size={28} strokeWidth={1} style={{ color: 'rgba(201,168,76,1)' }} />
       </div>
-      <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.5rem', color: 'rgba(28,24,20,0.9)' }}>
-        Plus de connexions à proximité
+      <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.5rem', color: isWord ? 'rgba(245,240,232,0.92)' : 'rgba(28,24,20,0.9)' }}>
+        {isWord ? 'Vous avez lu toutes les lignes du jour' : 'Plus de connexions à proximité'}
       </p>
-      <p style={{ fontSize: 13, color: 'rgba(28,24,20,0.9)', lineHeight: 1.6 }}>
-        Élargissez la distance ou modifiez vos filtres.
+      <p style={{ fontSize: 13, color: isWord ? 'rgba(245,240,232,0.55)' : 'rgba(28,24,20,0.9)', lineHeight: 1.6 }}>
+        {isWord
+          ? 'Revenez demain : un nouveau mot, de nouvelles lignes.'
+          : 'Élargissez la distance ou modifiez vos filtres.'}
       </p>
     </div>
   )
