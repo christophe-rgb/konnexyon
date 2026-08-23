@@ -21,6 +21,8 @@ const ConfirmPartner = lazy(() => import('./pages/ConfirmPartner'))
 const Onboarding     = lazy(() => import('./pages/Onboarding'))
 const Discover       = lazy(() => import('./pages/Discover'))
 const MotDuJour      = lazy(() => import('./pages/MotDuJour'))
+const Lire           = lazy(() => import('./pages/Lire'))
+const Personne       = lazy(() => import('./pages/Personne'))
 const Carnet         = lazy(() => import('./pages/Carnet'))
 const Matches        = lazy(() => import('./pages/Matches'))
 const Messages       = lazy(() => import('./pages/Messages'))
@@ -210,6 +212,12 @@ export default function App() {
               <RequireAuth><Onboarding /></RequireAuth>
             } />
 
+            <Route path="/lire" element={
+              <RequireAuth><RequireProfile><Lire /></RequireProfile></RequireAuth>
+            } />
+            <Route path="/personne/:id" element={
+              <RequireAuth><RequireProfile><Personne /></RequireProfile></RequireAuth>
+            } />
             <Route path="/mot-du-jour" element={
               <RequireAuth><RequireProfile><MotDuJour /></RequireProfile></RequireAuth>
             } />

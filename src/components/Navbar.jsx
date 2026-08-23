@@ -1,25 +1,26 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Compass, Zap, MessageCircle, User, Feather } from 'lucide-react'
+import { BookOpen, Heart, MessageCircle, User, Feather } from 'lucide-react'
 import { useAuthStore } from '../store/auth'
 import { supabase } from '../lib/supabase'
 import { useEffect, useState } from 'react'
 
 const tabs = [
   {
-    to: '/discover',
-    icon: Compass,
-    label: 'Explorer',
-    match: loc => loc.pathname === '/discover' && !loc.search.includes('view=map'),
+    to: '/lire',
+    icon: BookOpen,
+    label: 'Lire',
+    match: loc => loc.pathname.startsWith('/lire') || loc.pathname.startsWith('/personne'),
   },
   {
     to: '/mot-du-jour',
     icon: Feather,
-    label: 'Le mot',
+    label: 'Écrire',
     match: loc => loc.pathname.startsWith('/mot-du-jour') || loc.pathname.startsWith('/carnet'),
   },
   {
+    // « intrigué » dans la charte : le cœur, pas l'éclair
     to: '/matches',
-    icon: Zap,
+    icon: Heart,
     label: 'Connexions',
     match: loc => loc.pathname.startsWith('/matches'),
   },
@@ -71,7 +72,7 @@ export default function Navbar() {
       <ul
         className="flex justify-around items-center w-full max-w-sm pointer-events-auto"
         style={{
-          background: 'rgba(253,250,246,0.94)',
+          background: 'rgba(242,238,230,0.94)',
           backdropFilter: 'blur(28px)',
           WebkitBackdropFilter: 'blur(28px)',
           border: '1px solid rgba(201,168,76,0.2)',
@@ -93,10 +94,10 @@ export default function Navbar() {
                   ...(isActive ? {
                     background: 'linear-gradient(135deg, #A07830 0%, #C9A84C 40%, #E8CC7A 70%, #C9A84C 100%)',
                     boxShadow: '0 2px 12px rgba(201,168,76,0.2)',
-                    color: '#050505',
+                    color: '#0B0B0B',
                     transform: 'scale(1.06)',
                   } : {
-                    color: 'rgba(28,24,20,0.9)',
+                    color: 'rgba(11,11,11,0.75)',
                     transform: 'scale(1)',
                   }),
                 }}
