@@ -24,6 +24,9 @@ export const DEMO_PROFILE = {
   email_2: null,
   email_2_confirmed: false,
   distance_km: 0,
+  // RequireProfile exige age_confirmed_at : sans lui le mode démo
+  // rebondit sur l'onboarding au lieu d'ouvrir l'app
+  age_confirmed_at: '2026-01-01T00:00:00.000Z',
 }
 
 export const DEMO_PROFILES = [

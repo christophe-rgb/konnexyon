@@ -14,7 +14,7 @@ const tabs = [
   {
     to: '/mot-du-jour',
     icon: Feather,
-    label: 'Mot du jour',
+    label: 'Le mot',
     match: loc => loc.pathname.startsWith('/mot-du-jour') || loc.pathname.startsWith('/carnet'),
   },
   {

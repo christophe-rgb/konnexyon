@@ -124,7 +124,7 @@ export default function MotDuJour() {
         /* ── 2. découvrir les lignes des autres ── */
         <section className="flex-1 flex flex-col animate-fade-in" style={{ animationFillMode: 'both' }}>
 
-          <MyLine word={word.word} line={myLine} />
+          <MyLine line={myLine} />
 
           {left === 0 && (
             <p role="status" className="mx-5 mb-1" style={{
@@ -169,20 +169,19 @@ function WordHero({ word }) {
   )
 }
 
-function MyLine({ word, line }) {
+// Le mot est repris sur chaque carte de la pile : inutile de le redire ici,
+// on ne rappelle que la ligne du membre. Le retrait droit dégage le bouton
+// panique, fixé en haut à droite de l'app.
+function MyLine({ line }) {
   return (
-    <div className="px-6 pt-2 pb-4" style={{ textAlign: 'center' }}>
-      <h1 className="shine-text" style={{
-        fontFamily: 'Cormorant, serif',
-        fontSize: 'clamp(1.9rem, 8vw, 2.6rem)',
-        fontWeight: 600, lineHeight: 1.05,
-      }}>
-        {word}
-      </h1>
+    <div style={{ textAlign: 'center', padding: '2px 48px 16px' }}>
+      <p style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.55)', marginBottom: 6 }}>
+        Votre ligne
+      </p>
       <p style={{
         fontFamily: 'Cormorant, serif', fontStyle: 'italic',
-        fontSize: '1.05rem', lineHeight: 1.5, marginTop: 8,
-        color: 'rgba(245,240,232,0.6)',
+        fontSize: '1.05rem', lineHeight: 1.5,
+        color: 'rgba(245,240,232,0.62)',
       }}>
         « {line} »
       </p>

@@ -17,6 +17,12 @@ const THRESHOLD = 70
 export default function SwipeStack({ profiles, onLike, onPass, variant = 'profile', counterLabel }) {
   const isWord  = variant === 'word'
   const cardBg  = isWord ? '#0D0D0D' : '#EDE7DB'
+  // La page Mot du jour rappelle la ligne du membre au-dessus de la pile :
+  // la carte doit rendre ces ~80px, sinon le compteur et les deux boutons
+  // d'action finissent sous la barre de navigation.
+  const stackHeight = isWord
+    ? 'min(430px, calc(100dvh - 400px))'
+    : 'min(520px, calc(100dvh - 320px))'
   const [index,  setIndex]  = useState(0)
   const [drag,   setDrag]   = useState({ x: 0, y: 0 })
   const [flying, setFlying] = useState(null) // 'left' | 'right' | null
@@ -81,7 +87,7 @@ export default function SwipeStack({ profiles, onLike, onPass, variant = 'profil
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', padding: '8px 16px 16px', gap: 14, overflow: 'hidden' }}>
 
       {/* stack */}
-      <div style={{ position: 'relative', width: '100%', maxWidth: 400, height: 'min(520px, calc(100dvh - 320px))', flexShrink: 0 }}>
+      <div style={{ position: 'relative', width: '100%', maxWidth: 400, height: stackHeight, flexShrink: 0 }}>
 
         {/* carte 3 */}
         {nextnext && (
