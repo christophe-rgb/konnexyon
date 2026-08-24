@@ -7,6 +7,8 @@ import { toast } from '../components/Toast'
 import { confirm } from '../components/ConfirmDialog'
 import ReportModal from '../components/ReportModal'
 import { PROFILE_PROMPTS, PROMPT_LABELS, formatIdentity } from '../lib/prompts'
+import { useConnections } from '../hooks/useConnections'
+import { compatibilityLabel } from '../lib/compatibility'
 import { Quill } from '../components/Logo'
 
 /**
@@ -18,6 +20,7 @@ export default function Personne() {
   const navigate = useNavigate()
   const me       = useAuthStore(s => s.profile)
   const demoMode = useAuthStore(s => s.demoMode)
+  const { connect } = useConnections()
 
   const [page,     setPage]     = useState(null)
   const [loading,  setLoading]  = useState(true)
@@ -61,18 +64,11 @@ export default function Personne() {
   // conversation, sinon on envoie l'intérêt et on le dit sans détour.
   const ecrire = async () => {
     if (matchId) { navigate(`/messages/${matchId}`); return }
-    if (demoMode) { toast('Votre intérêt est parti ✓'); return }
     if (writing) return
     setWriting(true)
     try {
-      const { error } = await supabase.from('likes').insert({ from_id: me.id, to_id: id })
-      if (error?.code === '42501') {
-        toast('Quota de connexions atteint pour aujourd’hui.', 'error'); return
-      }
-      if (error && error.code !== '23505') {
-        toast(`Erreur ${error.code} : ${error.message}`, 'error'); return
-      }
-      toast(`Votre intérêt est parti. Vous pourrez écrire dès que ${page?.display_name} répondra.`)
+      const ok = await connect(id)
+      if (ok) toast(`Votre intérêt est parti. Vous pourrez écrire dès que ${page?.display_name} répondra.`)
     } finally {
       setWriting(false)
     }
@@ -162,6 +158,29 @@ export default function Personne() {
           {formatIdentity(page) && (
             <p style={{ fontSize: 13, color: 'rgba(11,11,11,0.5)', marginTop: 9 }}>
               {formatIdentity(page)}
+            </p>
+          )}
+
+          {page.compatibility != null ? (
+            <div style={{ marginTop: 20 }}>
+              <div className="flex items-baseline justify-between" style={{ gap: 12, marginBottom: 7 }}>
+                <span style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(11,11,11,0.42)' }}>
+                  Compatibilité intellectuelle
+                </span>
+                <span style={{ fontFamily: 'Cormorant, serif', fontSize: '1.3rem', color: 'var(--or)' }}>
+                  {page.compatibility} %
+                </span>
+              </div>
+              <div style={{ height: 2, background: 'rgba(11,11,11,0.1)', borderRadius: 2, overflow: 'hidden' }}>
+                <div style={{ width: `${page.compatibility}%`, height: '100%', background: 'var(--or)' }} />
+              </div>
+              <p style={{ fontSize: 11, color: 'rgba(11,11,11,0.45)', marginTop: 7 }}>
+                {compatibilityLabel(page.compatibility)}
+              </p>
+            </div>
+          ) : (
+            <p style={{ fontSize: 11, color: 'rgba(11,11,11,0.4)', lineHeight: 1.6, marginTop: 20 }}>
+              Taux indisponible : l’un de vous deux n’a pas assez répondu au questionnaire.
             </p>
           )}
 
@@ -277,4 +296,5 @@ const DEMO_PAGE = {
     { slug: 'ce_que_je_cherche',      answer: 'Pas forcément quelqu’un. Une conversation qui donne envie d’en avoir une deuxième.' },
   ],
   last_line: 'On a hésité si longtemps devant la porte que la nuit est passée derrière nous.',
+  compatibility: 88,
 }

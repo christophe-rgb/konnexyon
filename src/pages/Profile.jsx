@@ -1,400 +1,294 @@
-import { useEffect, useState, useRef } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useEffect, useState, useMemo } from 'react'
+import { useParams, useNavigate, Navigate } from 'react-router-dom'
+import { BookOpen, Settings as SettingsIcon } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
-import { DEMO_PROFILES } from '../lib/demo'
-import { MapPin, Camera, Flag, Ban, Settings, Trash2, BookOpen } from 'lucide-react'
-import XLogo from '../components/XLogo'
-import { confirm } from '../components/ConfirmDialog'
-import EditProfileForm from '../components/EditProfileForm'
-import ReportModal from '../components/ReportModal'
-import { useProfileActions } from '../hooks/useProfileActions'
-import { SEEKING_LABELS } from '../data/labels'
+import { toast } from '../components/Toast'
+import TraitQuestionnaire from '../components/TraitQuestionnaire'
+import { PROFILE_PROMPTS, MAX_ANSWER_LENGTH, formatIdentity } from '../lib/prompts'
+import { sanitizeTraits, answeredCount, TOTAL_TRAITS } from '../lib/compatibility'
+import { Quill } from '../components/Logo'
 
-const LIMITS_LABELS = {
-  pas_photo:             'Aucune photo partagée sans accord mutuel préalable',
-  discretion:            'Discrétion absolue — identité et vie privée protégées',
-  pas_contact_hors_site: 'Pas de contact hors site avant rencontre',
-  preservatif:           'Préservatif obligatoire',
-  pas_penetration:       'Pas de pénétration',
-}
-
-const ORIENTATION_LABELS = {
-  hetero: 'Hétéro',
-  bi:     'Bi',
-}
-
+/**
+ * Mon profil.
+ *
+ * Trois blocs qui s'enregistrent séparément : qui je suis, ce que
+ * j'écris, et le questionnaire de compatibilité. La page de quelqu'un
+ * d'autre, c'est /personne/:id — on y renvoie.
+ */
 export default function Profile() {
-  const { id }       = useParams()
-  const myProfile    = useAuthStore(s => s.profile)
-  const user         = useAuthStore(s => s.user)
-  const navigate     = useNavigate()
-  const demoMode     = useAuthStore(s => s.demoMode)
+  const { id }   = useParams()
+  const navigate = useNavigate()
+  const me       = useAuthStore(s => s.profile)
+  const demoMode = useAuthStore(s => s.demoMode)
+  const fetchProfile = useAuthStore(s => s.fetchProfile)
 
-  const isOwn = !id || id === user?.id || (!!myProfile && id === myProfile.id)
-  const uid   = isOwn ? myProfile?.id : id
-
-  const [profile,    setProfile]    = useState(isOwn ? myProfile : null)
-  const [editing,    setEditing]    = useState(false)
-  const [form,       setForm]       = useState({})
-  const [showReport, setShowReport] = useState(false)
-  const fileRef = useRef(null)
-
-  const {
-    liked, liking, matched, saving,
-    checkLike, checkMatch,
-    handleConnect, block, report,
-    uploadAvatar, deleteAvatar, save,
-  } = useProfileActions(uid)
+  const [identite, setIdentite] = useState({ display_name: '', age: '', city: '' })
+  const [answers,  setAnswers]  = useState({})
+  const [traits,   setTraits]   = useState({})
+  const [loading,  setLoading]  = useState(true)
+  const [saving,   setSaving]   = useState(null)   // 'identite' | 'answers' | 'traits'
 
   useEffect(() => {
-    if (!uid) return
-    if (isOwn) {
-      setProfile(myProfile)
-      setForm({
-        couple_name:      myProfile?.couple_name || '',
-        bio:              myProfile?.bio || '',
-        orientation_lui:  myProfile?.orientation_lui || 'hetero',
-        orientation_elle: myProfile?.orientation_elle || 'hetero',
-        seeking:          myProfile?.seeking || [],
-        limits:           myProfile?.limits || [],
-        availabilities:   myProfile?.availabilities || [],
-      })
-    } else if (demoMode) {
-      const demo = DEMO_PROFILES.find(p => p.id === uid)
-      if (demo) setProfile(demo)
-    } else {
-      let isMounted = true
-      const loadOtherProfile = async () => {
-        const { data } = await supabase.from('profiles').select('*').eq('id', uid).single()
-        if (isMounted) setProfile(data)
-      }
-      loadOtherProfile()
-      checkLike()
-      checkMatch()
-      return () => { isMounted = false }
-    }
-  }, [uid, myProfile, checkLike, checkMatch, demoMode, isOwn])
+    if (!me?.id) return
+    setIdentite({
+      display_name: me.display_name || '',
+      age:          me.age ?? '',
+      city:         me.city || '',
+    })
+  }, [me?.id, me?.display_name, me?.age, me?.city])
 
-  if (!profile) return (
-    <div className="flex items-center justify-center h-dvh" role="status" aria-label="Chargement…">
-      <div style={{ width: 24, height: 24, border: '2px solid rgba(201,168,76,0.4)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'rotateX 0.8s linear infinite' }} />
-    </div>
-  )
+  useEffect(() => {
+    let alive = true
+    ;(async () => {
+      try {
+        if (demoMode || !me?.id) return
+        const [{ data: rows }, { data: mesTraits }] = await Promise.all([
+          supabase.from('profile_answers').select('slug, answer').eq('user_id', me.id),
+          supabase.rpc('my_traits'),
+        ])
+        if (!alive) return
+        setAnswers(Object.fromEntries((rows || []).map(r => [r.slug, r.answer])))
+        setTraits(sanitizeTraits(mesTraits))
+      } finally {
+        if (alive) setLoading(false)
+      }
+    })()
+    return () => { alive = false }
+  }, [me?.id, demoMode])
+
+  const remplies = useMemo(() => answeredCount(traits), [traits])
+
+  // la page d'un autre membre a la sienne
+  if (id && me?.id && id !== me.id) return <Navigate to={`/personne/${id}`} replace />
+  if (!me) return <Ecran><Spinner /></Ecran>
+
+  const enregistrerIdentite = async () => {
+    const nom = identite.display_name.trim()
+    if (nom.length < 1) { toast('Un prénom, même court.', 'error'); return }
+    const age = identite.age === '' ? null : Number(identite.age)
+    if (age !== null && (!Number.isInteger(age) || age < 18 || age > 120)) {
+      toast('L’âge doit être un nombre entre 18 et 120.', 'error'); return
+    }
+    setSaving('identite')
+    try {
+      if (demoMode) { toast('Enregistré ✓'); return }
+      const { error } = await supabase.from('profiles')
+        .update({ display_name: nom, age, city: identite.city.trim() || null })
+        .eq('id', me.id)
+      if (error) { toast(`Erreur : ${error.message}`, 'error'); return }
+      await fetchProfile(me.id)
+      toast('Enregistré ✓')
+    } finally { setSaving(null) }
+  }
+
+  const enregistrerAnswers = async () => {
+    setSaving('answers')
+    try {
+      if (demoMode) { toast('Enregistré ✓'); return }
+      const rangees = PROFILE_PROMPTS
+        .map(p => ({ user_id: me.id, slug: p.slug, answer: (answers[p.slug] || '').trim() }))
+        .filter(r => r.answer.length > 0)
+
+      // une réponse effacée doit disparaître, l'upsert ne la supprimerait pas
+      const vides = PROFILE_PROMPTS
+        .map(p => p.slug)
+        .filter(slug => !(answers[slug] || '').trim())
+
+      if (vides.length) {
+        await supabase.from('profile_answers').delete().eq('user_id', me.id).in('slug', vides)
+      }
+      if (rangees.length) {
+        const { error } = await supabase.from('profile_answers')
+          .upsert(rangees, { onConflict: 'user_id,slug' })
+        if (error) { toast(`Erreur : ${error.message}`, 'error'); return }
+      }
+      toast('Enregistré ✓')
+    } finally { setSaving(null) }
+  }
+
+  const enregistrerTraits = async () => {
+    setSaving('traits')
+    try {
+      if (demoMode) { toast('Enregistré ✓'); return }
+      const { error } = await supabase.from('profile_traits')
+        .upsert({ user_id: me.id, traits: sanitizeTraits(traits) }, { onConflict: 'user_id' })
+      if (error) { toast(`Erreur : ${error.message}`, 'error'); return }
+      toast('Enregistré ✓')
+    } finally { setSaving(null) }
+  }
 
   return (
-    <div className="max-w-lg mx-auto pb-nav animate-fade-in" style={{ animationFillMode: 'both' }}>
+    <Ecran>
+      <div style={{ maxWidth: 620, margin: '0 auto', padding: '24px clamp(18px, 5vw, 30px) 40px' }}>
 
-      {/* hero photo */}
-      <div
-        style={{ position: 'relative', width: '100%', aspectRatio: '4/3', overflow: 'hidden', cursor: isOwn ? 'pointer' : 'default' }}
-        onClick={() => isOwn && fileRef.current?.click()}
-      >
-        {profile.avatar_url ? (
-          <img
-            src={profile.avatar_url}
-            alt={`Photo de ${profile.couple_name}`}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }}
-          />
-        ) : (
-          <div style={{
-            width: '100%', height: '100%',
-            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            background: 'linear-gradient(145deg, #F0EBE2 0%, #EDE7DB 100%)',
-          }}>
-            <span style={{
-              fontFamily: 'Cormorant, serif', fontSize: '96px', fontWeight: 300,
-              background: 'linear-gradient(135deg, #A07830, #C9A84C, #E8CC7A)',
-              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-              opacity: 0.4,
+        {/* ── identité ── */}
+        <header className="flex items-start justify-between" style={{ gap: 16 }}>
+          <div style={{ minWidth: 0 }}>
+            <h1 style={{
+              fontFamily: 'Cormorant, serif', fontWeight: 500,
+              fontSize: 'clamp(2rem, 8vw, 2.8rem)', lineHeight: 1.05,
+              letterSpacing: '0.05em', textTransform: 'uppercase',
             }}>
-              {profile.couple_name?.[0] ?? '∞'}
-            </span>
-          </div>
-        )}
-
-        {/* gradient overlay */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'linear-gradient(to top, rgba(253,250,246,1) 0%, rgba(253,250,246,0.3) 50%, transparent 100%)',
-        }} />
-
-        {/* upload / delete buttons (own profile) */}
-        {isOwn && (
-          <>
-            <button className="erb-btn"
-              onClick={() => fileRef.current?.click()}
-              aria-label="Changer la photo"
-              style={{
-                position: 'absolute', bottom: '16px', right: '16px',
-                width: 40, height: 40, borderRadius: '12px',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: 'linear-gradient(135deg, #A07830, #C9A84C)',
-                border: 'none', cursor: 'pointer',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
-              }}
-            >
-              <Camera size={16} strokeWidth={2} color="#050505" />
-            </button>
-            {profile?.avatar_url && (
-              <button className="erb-btn"
-                onClick={deleteAvatar}
-                aria-label="Supprimer la photo"
-                style={{
-                  position: 'absolute', bottom: '16px', right: '64px',
-                  width: 40, height: 40, borderRadius: '12px',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: 'rgba(239,68,68,0.15)',
-                  border: '1px solid rgba(239,68,68,0.4)',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
-                }}
-              >
-                <Trash2 size={15} strokeWidth={2} color="#f87171" />
-              </button>
+              {me.display_name || 'Sans nom'}
+            </h1>
+            {formatIdentity(me) && (
+              <p style={{ fontSize: 13, color: 'rgba(242,238,230,0.5)', marginTop: 8 }}>
+                {formatIdentity(me)}
+              </p>
             )}
-            <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }}
-              onChange={async e => {
-                const file = e.target.files[0]
-                e.target.value = ''
-                if (!file) return
-                const ok = await confirm({
-                  title: 'Photo de profil',
-                  message: 'Les photos dénudées ou explicites sont interdites sur Konnexyon.\nChoisissez une photo de visage ou en tenue.\n\nContinuer ?',
-                  confirmLabel: 'Continuer',
-                })
-                if (!ok) return
-                uploadAvatar(file)
-              }} />
+          </div>
+
+          <div className="flex" style={{ gap: 8, flexShrink: 0 }}>
+            <IconBtn onClick={() => navigate('/carnet')}   aria="Mon carnet"><BookOpen size={17} strokeWidth={1.5} /></IconBtn>
+            <IconBtn onClick={() => navigate('/settings')} aria="Réglages"><SettingsIcon size={17} strokeWidth={1.5} /></IconBtn>
+          </div>
+        </header>
+
+        {loading ? <Spinner /> : (
+          <>
+            <Bloc titre="Qui je suis" onSave={enregistrerIdentite} saving={saving === 'identite'}>
+              <Champ label="Prénom" value={identite.display_name}
+                     onChange={v => setIdentite(f => ({ ...f, display_name: v.slice(0, 40) }))}
+                     placeholder="Marion" />
+              <div className="flex" style={{ gap: 12 }}>
+                <Champ label="Âge" value={identite.age} type="number"
+                       onChange={v => setIdentite(f => ({ ...f, age: v }))}
+                       placeholder="37" />
+                <Champ label="Où" value={identite.city}
+                       onChange={v => setIdentite(f => ({ ...f, city: v.slice(0, 60) }))}
+                       placeholder="quelque part entre Paris et ailleurs" />
+              </div>
+            </Bloc>
+
+            <Bloc titre="Ce que j’écris"
+                  intro="Ces quatre réponses sont votre profil. Il n’y a rien d’autre à remplir."
+                  onSave={enregistrerAnswers} saving={saving === 'answers'}>
+              {PROFILE_PROMPTS.map(p => (
+                <div key={p.slug}>
+                  <label htmlFor={p.slug} style={etiquette}>{p.label}</label>
+                  <textarea
+                    id={p.slug}
+                    rows={3}
+                    value={answers[p.slug] || ''}
+                    maxLength={MAX_ANSWER_LENGTH}
+                    onChange={e => setAnswers(a => ({ ...a, [p.slug]: e.target.value.slice(0, MAX_ANSWER_LENGTH) }))}
+                    placeholder={p.placeholder}
+                    style={champStyle}
+                  />
+                  <p style={{ fontSize: 10, color: 'rgba(242,238,230,0.3)', textAlign: 'right', marginTop: 4 }}>
+                    {(answers[p.slug] || '').length} / {MAX_ANSWER_LENGTH}
+                  </p>
+                </div>
+              ))}
+            </Bloc>
+
+            <Bloc titre="Compatibilité"
+                  intro={`${remplies} question${remplies > 1 ? 's' : ''} sur ${TOTAL_TRAITS} — plus vous répondez, plus le taux affiché en face des autres a du sens.`}
+                  onSave={enregistrerTraits} saving={saving === 'traits'}>
+              <Jauge rempli={remplies} total={TOTAL_TRAITS} />
+              <div style={{ marginTop: 24 }}>
+                <TraitQuestionnaire
+                  traits={traits}
+                  tone="encre"
+                  onChange={(slug, v) => setTraits(t => ({ ...t, [slug]: v }))}
+                />
+              </div>
+            </Bloc>
           </>
         )}
-
-        {/* badge distance */}
-        {profile.distance_km && (
-          <div style={{
-            position: 'absolute', top: '16px', right: '16px',
-            display: 'flex', alignItems: 'center', gap: '5px',
-            padding: '5px 10px', borderRadius: '99px',
-            background: 'rgba(245,240,232,0.9)', backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(28,24,20,0.15)',
-          }}>
-            <MapPin size={10} strokeWidth={2} style={{ color: 'rgba(201,168,76,1)' }} />
-            <span style={{ fontSize: '11px', color: 'rgba(28,24,20,0.9)', fontWeight: 500 }}>
-              ~{profile.distance_km} km
-            </span>
-          </div>
-        )}
       </div>
+    </Ecran>
+  )
+}
 
-      <div style={{ padding: '0 20px 24px' }}>
-
-        {/* nom + orientation */}
-        <div className="animate-fade-in-up delay-100" style={{ animationFillMode: 'both', marginTop: '20px', marginBottom: '20px' }}>
-          <h1 style={{ fontFamily: 'Cormorant, serif', fontSize: '2.4rem', fontWeight: 600, color: '#1C1814', lineHeight: 1.1, marginBottom: '6px' }}>
-            {profile.couple_name}
-          </h1>
-          {(profile.orientation_lui || profile.orientation_elle) && (
-            <p style={{ fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)' }}>
-              Lui · {ORIENTATION_LABELS[profile.orientation_lui] || profile.orientation_lui || '—'}
-              {' '}/ Elle · {ORIENTATION_LABELS[profile.orientation_elle] || profile.orientation_elle || '—'}
-            </p>
-          )}
-          {profile.bio && (
-            <p style={{ fontSize: '14px', color: 'rgba(28,24,20,0.9)', lineHeight: 1.7, marginTop: '12px' }}>
-              {profile.bio}
-            </p>
-          )}
-        </div>
-
-        {/* boutons own profile */}
-        {isOwn && !editing && (
-          <div className="flex gap-2 animate-fade-in-up delay-200" style={{ animationFillMode: 'both', marginBottom: '24px' }}>
-            <button className="erb-btn"
-              onClick={() => setEditing(true)}
-              style={{
-                flex: 1, padding: '13px', borderRadius: '14px',
-                background: 'rgba(245,240,232,0.85)',
-                border: '1px solid rgba(201,168,76,0.25)',
-                color: 'rgba(201,168,76,1)',
-                fontSize: '13px', letterSpacing: '0.08em',
-                cursor: 'pointer', transition: 'all 0.2s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.5)'; e.currentTarget.style.background = 'rgba(201,168,76,0.08)'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.25)'; e.currentTarget.style.background = 'transparent'; }}
-            >
-              Modifier mon profil
-            </button>
-            <button className="erb-btn"
-              onClick={() => navigate('/carnet')}
-              aria-label="Mon carnet"
-              style={{
-                width: 48, height: 48, borderRadius: '14px', flexShrink: 0,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: 'rgba(245,240,232,0.85)',
-                border: '1px solid rgba(201,168,76,0.25)',
-                color: 'rgba(28,24,20,0.9)',
-                cursor: 'pointer', transition: 'all 0.2s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.color = '#C9A84C'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.45)'; }}
-              onMouseLeave={e => { e.currentTarget.style.color = 'rgba(28,24,20,0.9)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.25)'; }}
-            >
-              <BookOpen size={17} strokeWidth={1.5} />
-            </button>
-            <button className="erb-btn"
-              onClick={() => navigate('/settings')}
-              aria-label="Paramètres"
-              style={{
-                width: 48, height: 48, borderRadius: '14px', flexShrink: 0,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: 'rgba(245,240,232,0.85)',
-                border: '1px solid rgba(201,168,76,0.25)',
-                color: 'rgba(28,24,20,0.9)',
-                cursor: 'pointer', transition: 'all 0.2s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.color = '#C9A84C'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.45)'; }}
-              onMouseLeave={e => { e.currentTarget.style.color = 'rgba(28,24,20,0.9)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.25)'; }}
-            >
-              <Settings size={17} strokeWidth={1.5} />
-            </button>
-          </div>
-        )}
-
-        {/* formulaire édition */}
-        {isOwn && editing && (
-          <div className="animate-fade-in" style={{ animationFillMode: 'both', marginBottom: '24px' }}>
-            <EditProfileForm
-              form={form}
-              setForm={setForm}
-              onSave={() => save(form, { setEditing })}
-              onCancel={() => setEditing(false)}
-              saving={saving}
-            />
-          </div>
-        )}
-
-        {/* sections info */}
-        {!editing && (
-          <div className="flex flex-col gap-5">
-            {profile.seeking?.length > 0 && (
-              <Section title="Ce qu'ils cherchent">
-                <TagList items={profile.seeking} map={SEEKING_LABELS} />
-              </Section>
-            )}
-            {profile.limits?.length > 0 && (
-              <Section title="Non négociable">
-                <TagList items={profile.limits} map={LIMITS_LABELS} gold />
-              </Section>
-            )}
-
-            {/* actions profil externe */}
-            {!isOwn && (
-              <div className="flex flex-col gap-3 pt-2">
-                {matched ? (
-                  <div style={{
-                    textAlign: 'center', padding: '16px',
-                    background: 'rgba(201,168,76,0.1)',
-                    border: '1px solid rgba(201,168,76,0.25)',
-                    borderRadius: '16px',
-                  }}>
-                    <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.3rem', color: '#C9A84C', letterSpacing: '0.05em' }}>
-                      ∞ Connexion mutuelle ∞
-                    </p>
-                    <p style={{ fontSize: '11px', color: 'rgba(201,168,76,1)', marginTop: '4px', letterSpacing: '0.08em' }}>
-                      Vous êtes connectés
-                    </p>
-                  </div>
-                ) : (
-                  <button
-                    onClick={handleConnect}
-                    disabled={liking}
-                    className="btn-gold"
-                    style={{
-                      width: '100%', padding: '16px', borderRadius: '14px', border: 'none',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                      fontSize: '13px', letterSpacing: '0.12em',
-                      cursor: liking ? 'default' : 'pointer',
-                      opacity: liking ? 0.75 : 1,
-                    }}
-                  >
-                    {liking ? (
-                      <span style={{ width: 16, height: 16, border: '2px solid rgba(0,0,0,0.25)', borderTopColor: '#050505', borderRadius: '50%', display: 'inline-block', animation: 'rotateX 0.7s linear infinite' }} />
-                    ) : liked ? (
-                      <><XLogo size={26} /> Connexion envoyée — retirer</>
-                    ) : (
-                      <><XLogo size={26} /> Se connecter</>
-                    )}
-                  </button>
-                )}
-
-                <div className="flex gap-2">
-                  <button className="erb-btn"
-                    onClick={() => setShowReport(true)}
-                    style={{
-                      flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-                      padding: '12px', borderRadius: '12px',
-                      background: 'transparent', border: '1px solid rgba(201,168,76,0.25)',
-                      color: 'rgba(28,24,20,0.9)', fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s',
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.color = '#1C1814'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.45)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.color = 'rgba(28,24,20,0.9)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.25)'; }}
-                  >
-                    <Flag size={13} strokeWidth={1.5} /> Signaler
-                  </button>
-                  <button className="erb-btn"
-                    onClick={block}
-                    style={{
-                      flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-                      padding: '12px', borderRadius: '12px',
-                      background: 'transparent', border: '1px solid rgba(239,68,68,0.15)',
-                      color: 'rgba(239,68,68,0.45)', fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s',
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.color = 'rgba(239,68,68,0.8)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.35)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.color = 'rgba(239,68,68,0.45)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.15)'; }}
-                  >
-                    <Ban size={13} strokeWidth={1.5} /> Bloquer
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {showReport && (
-        <ReportModal
-          onClose={() => setShowReport(false)}
-          onSubmit={report}
-        />
+function Bloc({ titre, intro, children, onSave, saving }) {
+  return (
+    <section style={{ marginTop: 42 }}>
+      <div className="separator-gold" style={{ marginBottom: 22 }} />
+      <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '1.7rem', fontWeight: 500 }}>{titre}</h2>
+      {intro && (
+        <p style={{ fontSize: 12, color: 'rgba(242,238,230,0.45)', lineHeight: 1.65, marginTop: 8 }}>
+          {intro}
+        </p>
       )}
+      <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        {children}
+      </div>
+      <button onClick={onSave} disabled={saving} className="btn btn-continuer" style={{ marginTop: 22 }}>
+        {saving ? 'Enregistrement…' : 'Enregistrer'}
+      </button>
+    </section>
+  )
+}
+
+function Jauge({ rempli, total }) {
+  return (
+    <div style={{ height: 2, background: 'rgba(242,238,230,0.12)', borderRadius: 2, overflow: 'hidden' }}>
+      <div style={{
+        width: `${Math.round((rempli / total) * 100)}%`, height: '100%',
+        background: 'var(--or)', transition: 'width var(--dur-mid) var(--ease-out)',
+      }} />
     </div>
   )
 }
 
-function Section({ title, children }) {
+function Champ({ label, value, onChange, placeholder, type = 'text' }) {
   return (
-    <div className="animate-fade-in-up delay-200" style={{ animationFillMode: 'both' }}>
-      <p style={{ fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)', marginBottom: '10px' }}>
-        {title}
-      </p>
+    <div style={{ flex: 1, minWidth: 0 }}>
+      <label style={etiquette}>{label}</label>
+      <input
+        type={type}
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        placeholder={placeholder}
+        style={{ ...champStyle, fontFamily: 'Inter, sans-serif', fontSize: 14 }}
+      />
+    </div>
+  )
+}
+
+function IconBtn({ onClick, aria, children }) {
+  return (
+    <button onClick={onClick} aria-label={aria} style={{
+      width: 38, height: 38, borderRadius: 3,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      background: 'transparent', border: '1px solid rgba(242,238,230,0.16)',
+      color: 'rgba(242,238,230,0.75)', cursor: 'pointer',
+    }}>
+      {children}
+    </button>
+  )
+}
+
+function Ecran({ children }) {
+  return (
+    <div className="pb-nav" style={{ minHeight: '100dvh', background: 'var(--encre)', color: 'var(--ivoire)' }}>
       {children}
     </div>
   )
 }
 
-function TagList({ items, map, gold = false }) {
+function Spinner() {
   return (
-    <div className="flex flex-wrap gap-2">
-      {items.map(v => (
-        <span key={v} style={{
-          fontSize: '12px', padding: '5px 13px', borderRadius: '99px',
-          border: gold ? '1px solid rgba(201,168,76,0.25)' : '1px solid rgba(28,24,20,0.2)',
-          color: gold ? 'rgba(201,168,76,1)' : 'rgba(28,24,20,0.9)',
-          background: gold ? 'rgba(201,168,76,0.28)' : 'rgba(28,24,20,0.07)',
-          letterSpacing: '0.04em',
-        }}>
-          {map[v] || v}
-        </span>
-      ))}
+    <div className="flex justify-center" style={{ padding: '70px 0' }} role="status" aria-label="Chargement…">
+      <div className="w-7 h-7 rounded-full animate-spin"
+           style={{ border: '2px solid rgba(201,168,76,0.22)', borderTopColor: 'var(--or)' }} />
     </div>
   )
+}
+
+const etiquette = {
+  display: 'block', fontSize: 10, letterSpacing: '0.18em',
+  textTransform: 'uppercase', color: 'rgba(201,168,76,0.75)', marginBottom: 7,
+}
+
+const champStyle = {
+  width: '100%', resize: 'none',
+  background: 'rgba(242,238,230,0.04)',
+  border: '1px solid rgba(201,168,76,0.2)',
+  borderRadius: 3, padding: '12px 14px',
+  color: 'rgba(242,238,230,0.95)',
+  fontFamily: 'Cormorant, serif', fontSize: '1.1rem', lineHeight: 1.6,
+  outline: 'none',
 }

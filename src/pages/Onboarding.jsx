@@ -1,740 +1,310 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
-import { validateImageFile } from '../lib/upload'
 import { toast } from '../components/Toast'
+import TraitQuestionnaire from '../components/TraitQuestionnaire'
+import { PROFILE_PROMPTS, MAX_ANSWER_LENGTH } from '../lib/prompts'
+import { TRAIT_SECTIONS, sanitizeTraits, answeredCount, TOTAL_TRAITS } from '../lib/compatibility'
+import { Quill, Wordmark } from '../components/Logo'
 
-// Version du texte de consentement — incrémenter si le texte change
-const CONSENT_VERSION = 'v1.0'
+const CONSENT_VERSION = 'v2.0-ecriture'
 
-const STEPS = [
-  { key: 'consentement',   label: 'Consentement',      icon: '◉' },
-  { key: 'profil',         label: 'Votre couple',      icon: '∞' },
-  { key: 'photo',          label: 'Votre photo',        icon: '◈' },
-  { key: 'cherche',        label: 'Vos désirs',         icon: '◈' },
-  { key: 'disponibilites', label: 'Disponibilités',     icon: '◷' },
-  { key: 'limites',        label: 'Vos limites',        icon: '◉' },
-  { key: 'distance',       label: 'Distance',           icon: '◎' },
-  { key: 'visibilite',     label: 'Visibilité',         icon: '◌' },
-]
+// on n'oblige pas à tout remplir, mais on n'ouvre pas la porte sur un
+// profil vide : ce sont les autres qui liraient du blanc
+const MIN_ANSWERS = 2
+const MIN_TRAITS  = 8
 
-const SEEKING_OPTIONS = [
-  { value: 'decouverte',                label: 'Découverte · curieux',          desc: 'Explorer en toute douceur' },
-  { value: 'rencontres_occasionnelles', label: 'Rencontres occasionnelles',     desc: 'Des rencontres sensuelles sans engagement' },
-  { value: 'echangisme',                label: 'Échangisme · soirées',          desc: 'Échanges et soirées entre couples' },
-  { value: 'expert',                    label: 'Expert',                        desc: 'Pratiques intenses entre adultes consentants' },
-]
-
-const AVAIL_OPTIONS = [
-  { value: 'semaine',      label: 'En semaine' },
-  { value: 'weekend',      label: 'Le week-end' },
-  { value: 'rdv',          label: 'Sur rendez-vous' },
-  { value: 'spontanement', label: 'Spontanément' },
-]
-
-const LIMITS_OPTIONS = [
-  { value: 'pas_photo',             label: 'Aucune photo partagée sans accord mutuel préalable' },
-  { value: 'discretion',            label: 'Discrétion absolue — identité et vie privée protégées' },
-  { value: 'pas_contact_hors_site', label: 'Pas de contact hors site avant rencontre' },
-  { value: 'preservatif',           label: 'Préservatif obligatoire' },
-  { value: 'pas_penetration',       label: 'Pas de pénétration' },
-]
+const ETAPES = ['Le principe', 'Qui vous êtes', 'Ce que vous écrivez', 'Ce qui vous ressemble']
 
 export default function Onboarding() {
-  const user         = useAuthStore(s => s.user)
-  const fetchProfile = useAuthStore(s => s.fetchProfile)
-  const setProfile   = useAuthStore(s => s.setProfile)
   const navigate     = useNavigate()
+  const user         = useAuthStore(s => s.user)
+  const setProfile   = useAuthStore(s => s.setProfile)
+  const fetchProfile = useAuthStore(s => s.fetchProfile)
 
-  const [step,      setStep]      = useState(0)
-  const [direction, setDirection] = useState('forward')
-  const [saving,    setSaving]    = useState(false)
-  const [photoFile, setPhotoFile] = useState(null)
-  const [photoPreview, setPhotoPreview] = useState(null)
-  const fileRef = useRef(null)
-  // Consentement RGPD Art. 9 — données sensibles (orientation, pratiques)
-  const [consentChecked, setConsentChecked] = useState(false)
-  const [consentTimestamp, setConsentTimestamp] = useState(null)
-  const [data,   setData]   = useState({
-    couple_name:    '',
-    bio:            '',
-    orientation_lui:  'hetero',
-    orientation_elle: 'hetero',
-    looking_for:    ['couple'],
-    seeking:        [],
-    availabilities: [],
-    limits:         [],
-    max_distance_km: 50,
-    visibility:     'public',
-  })
+  const [step,     setStep]     = useState(0)
+  const [accepte,  setAccepte]  = useState(false)
+  const [identite, setIdentite] = useState({ display_name: '', age: '', city: '' })
+  const [answers,  setAnswers]  = useState({})
+  const [traits,   setTraits]   = useState({})
+  const [saving,   setSaving]   = useState(false)
+  const [erreur,   setErreur]   = useState('')
 
-  const set      = (k, v) => setData(d => ({ ...d, [k]: v }))
-  const toggleArr = (k, v) => {
-    const arr = data[k]
-    set(k, arr.includes(v) ? arr.filter(x => x !== v) : [...arr, v])
-  }
-  const [stepError, setStepError] = useState('')
+  const remplies = answeredCount(traits)
+  const ecrites  = PROFILE_PROMPTS.filter(p => (answers[p.slug] || '').trim()).length
 
-  const next = () => {
-    setStepError('')
-    // Étape 0 = consentement RGPD Art. 9 — blocage si non coché
-    if (step === 0 && !consentChecked) {
-      setStepError('Vous devez accepter explicitement le traitement de vos données sensibles pour continuer.')
-      return
-    }
-    // Étape 0 → enregistre le timestamp de consentement
-    if (step === 0 && consentChecked && !consentTimestamp) {
-      setConsentTimestamp(new Date().toISOString())
-    }
-    // Étape 1 = profil
-    if (step === 1 && data.couple_name.trim().length < 2) {
-      setStepError('Le pseudo du couple doit comporter au moins 2 caractères.')
-      return
-    }
-    setDirection('forward')
-    setStep(s => Math.min(s + 1, STEPS.length - 1))
-  }
-  const prev = () => {
-    setDirection('back')
-    setStep(s => Math.max(s - 1, 0))
+  const peutAvancer = () => {
+    if (step === 0) return accepte
+    if (step === 1) return identite.display_name.trim().length >= 1 && ageValide(identite.age)
+    if (step === 2) return ecrites >= MIN_ANSWERS
+    return remplies >= MIN_TRAITS
   }
 
-  const finish = async () => {
+  const suivant = () => {
+    setErreur('')
+    if (!peutAvancer()) { setErreur(messageBlocage(step, ecrites, remplies)); return }
+    if (step < ETAPES.length - 1) { setStep(s => s + 1); return }
+    terminer()
+  }
+
+  const terminer = async () => {
     setSaving(true)
-    setStepError('')
+    setErreur('')
+    try {
+      const uid   = user?.id    || (await supabase.auth.getUser()).data.user?.id
+      const email = user?.email || (await supabase.auth.getUser()).data.user?.email
+      if (!uid) { setErreur('Session expirée. Reconnectez-vous.'); return }
 
-    // Récupère le user Supabase directement (cas où le store n'est pas encore hydraté)
-    const uid   = user?.id   || (await supabase.auth.getUser()).data.user?.id
-    const email = user?.email || (await supabase.auth.getUser()).data.user?.email
-    if (!uid) {
-      setStepError('Session expirée. Veuillez vous reconnecter.')
-      setSaving(false)
-      return
-    }
-
-    let locationSql = null
-    if (navigator.geolocation) {
-      await new Promise(resolve => {
-        navigator.geolocation.getCurrentPosition(pos => {
-          locationSql = `SRID=4326;POINT(${pos.coords.longitude} ${pos.coords.latitude})`
-          resolve()
-        }, resolve, { timeout: 5000 })
-      })
-    }
-    // Calcule l'enum orientation depuis lui + elle
-    const orientationMap = {
-      'hetero-hetero': 'hetero_hetero',
-      'hetero-bi':     'hetero_bi',
-      'bi-hetero':     'hetero_bi',
-      'bi-bi':         'bi_all',
-    }
-    const orientationKey = `${data.orientation_lui}-${data.orientation_elle}`
-    const orientation = orientationMap[orientationKey] || 'hetero_hetero'
-
-    // eslint-disable-next-line no-unused-vars
-    const { orientation_lui, orientation_elle, ...profileData } = data
-    const now = new Date().toISOString()
-    const payload = {
-      id: uid,
-      email_1: email,
-      ...profileData,
-      orientation,
-      email_1_confirmed: true,
-      age_confirmed_at:  now,
-      consent_given_at:  consentTimestamp || now,
-      consent_version:   CONSENT_VERSION,
-      ...(locationSql ? { location: locationSql, location_updated_at: now } : {}),
-    }
-
-    // Retry 3× avec backoff exponentiel pour résister aux erreurs réseau transitoires
-    let upsertError = null
-    for (let attempt = 0; attempt < 3; attempt++) {
-      if (attempt > 0) await new Promise(r => setTimeout(r, attempt * 1500))
-      const result = await supabase.from('profiles').upsert(payload)
-      upsertError = result.error
-      if (!upsertError) break
-      console.warn(`Onboarding upsert attempt ${attempt + 1} failed:`, upsertError.message)
-    }
-
-    if (upsertError) {
-      console.error('Onboarding upsert failed after 3 attempts:', upsertError)
-      setStepError(
-        'Erreur lors de la sauvegarde. Vérifie ta connexion et réessaie. ' +
-        'Si le problème persiste, contacte-nous : konnexyon@gmail.com'
-      )
-      setSaving(false)
-      return
-    }
-    // Upload photo si choisie
-    if (photoFile) {
-      const ext  = photoFile.name.split('.').pop().toLowerCase()
-      const path = `${uid}/avatar_${Date.now()}.${ext}`
-      const { error: upErr } = await supabase.storage.from('avatars').upload(path, photoFile, { upsert: false, contentType: photoFile.type })
-      if (!upErr) {
-        // Bucket privé → signed URL (10 ans)
-        const { data: signedData } = await supabase.storage
-          .from('avatars')
-          .createSignedUrl(path, 315_360_000)
-        if (signedData?.signedUrl) {
-          await supabase.from('profiles').update({ avatar_url: signedData.signedUrl }).eq('id', uid)
-        }
+      // position approximative, pour la carte de lecture — facultative
+      let locationSql = null
+      if (navigator.geolocation) {
+        await new Promise(resolve => {
+          navigator.geolocation.getCurrentPosition(
+            pos => { locationSql = `SRID=4326;POINT(${pos.coords.longitude} ${pos.coords.latitude})`; resolve() },
+            resolve,
+            { timeout: 5000 },
+          )
+        })
       }
-    }
 
-    // Notif Telegram admin
-    supabase.functions.invoke('notify-new-user', {
-      body: { record: { couple_name: data.couple_name, status: 'actif' } },
-    }).catch(() => {})
+      const now = new Date().toISOString()
+      const payload = {
+        id: uid,
+        email_1: email,
+        display_name: identite.display_name.trim(),
+        age:  identite.age === '' ? null : Number(identite.age),
+        city: identite.city.trim() || null,
+        email_1_confirmed: true,
+        consent_given_at: now,
+        consent_version:  CONSENT_VERSION,
+        ...(locationSql ? { location: locationSql, location_updated_at: now } : {}),
+      }
 
-    // Force le store immédiatement avec orientation calculée
-    setProfile({ id: uid, email_1: email, ...profileData, orientation, email_1_confirmed: true, age_confirmed_at: now })
-    // Refresh en arrière-plan pour synchroniser les données Supabase
-    fetchProfile(uid)
-    const { data: updatedProfile } = await supabase
-      .from('profiles').select('email_2').eq('id', uid).single()
-    if (updatedProfile?.email_2) {
-      supabase.functions.invoke('send-partner-confirmation', {
-        body: { profile_id: uid, email_2: updatedProfile.email_2, app_url: window.location.origin },
+      // trois tentatives espacées : une coupure réseau ne doit pas
+      // renvoyer quelqu'un au début du questionnaire
+      let erreurUpsert = null
+      for (let essai = 0; essai < 3; essai++) {
+        if (essai > 0) await new Promise(r => setTimeout(r, essai * 1200))
+        const { error } = await supabase.from('profiles').upsert(payload)
+        erreurUpsert = error
+        if (!error) break
+      }
+      if (erreurUpsert) {
+        setErreur('Erreur à l’enregistrement. Vérifiez votre connexion et réessayez.')
+        return
+      }
+
+      const rangees = PROFILE_PROMPTS
+        .map(p => ({ user_id: uid, slug: p.slug, answer: (answers[p.slug] || '').trim() }))
+        .filter(r => r.answer.length > 0)
+      if (rangees.length) {
+        await supabase.from('profile_answers').upsert(rangees, { onConflict: 'user_id,slug' })
+      }
+      await supabase.from('profile_traits')
+        .upsert({ user_id: uid, traits: sanitizeTraits(traits) }, { onConflict: 'user_id' })
+
+      supabase.functions.invoke('notify-new-user', {
+        body: { record: { display_name: payload.display_name, status: 'actif' } },
       }).catch(() => {})
-    }
-    navigate('/lire')
-  }
 
-  const currentStep = STEPS[step]
+      setProfile({ ...payload })
+      fetchProfile(uid)
+      navigate('/mot-du-jour')
+    } finally {
+      setSaving(false)
+    }
+  }
 
   return (
-    <div className="min-h-dvh flex flex-col items-center justify-center px-6 py-12 relative overflow-hidden">
+    <div style={{ minHeight: '100dvh', background: 'var(--encre)', color: 'var(--ivoire)' }}>
+      <div style={{ maxWidth: 560, margin: '0 auto', padding: '26px clamp(18px, 5vw, 30px) 48px' }}>
 
-      {/* fond logo filigrane */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-center">
-        <picture>
-          <source srcSet="/logo.webp" type="image/webp" />
-          <img src="/logo.webp" alt="" aria-hidden style={{
-            width: '130vw', maxWidth: 860,
-            opacity: 0.28, filter: 'brightness(0.85) saturate(0.9)',
-            userSelect: 'none', display: 'block',
-          }} />
-        </picture>
-        <div className="absolute inset-0" style={{
-          background: 'radial-gradient(ellipse at center, rgba(253,250,246,0.2) 0%, rgba(253,250,246,0.65) 55%, rgba(253,250,246,0.96) 100%)',
-        }} />
-      </div>
-
-
-
-      <div className="w-full max-w-sm relative z-10">
-
-        {/* header marque */}
-        <div className="flex items-center justify-center gap-2 mb-8 animate-fade-in" style={{ animationFillMode: 'both' }}>
-          <span style={{ color: 'rgba(201,168,76,1)', fontSize: '14px' }}>∞</span>
-          <span style={{ fontFamily: 'Cormorant, serif', fontSize: '1rem', letterSpacing: '0.2em', color: 'rgba(201,168,76,1)', textTransform: 'uppercase' }}>
-            Konnexyon
+        <div className="flex items-center justify-between" style={{ marginBottom: 26 }}>
+          <Wordmark size={17} tone="or" />
+          <span style={{ fontSize: 10, letterSpacing: '0.2em', color: 'rgba(242,238,230,0.4)' }}>
+            {step + 1} / {ETAPES.length}
           </span>
         </div>
 
-        {/* barre de progression avec labels */}
-        <div className="mb-2">
-          <div className="flex gap-1 mb-3">
-            {STEPS.map((s, i) => (
-              <div
-                key={i}
-                className="flex-1 rounded-full transition-all duration-500"
-                style={{
-                  height: '3px',
-                  background: i < step
-                    ? 'linear-gradient(90deg, #A07830, #C9A84C)'
-                    : i === step
-                    ? 'linear-gradient(90deg, #C9A84C, #E8CC7A)'
-                    : 'rgba(28,24,20,0.9)',
-                  boxShadow: i <= step ? '0 0 6px rgba(201,168,76,0.2)' : 'none',
-                }}
-              />
-            ))}
-          </div>
-          <div className="flex justify-between">
-            <span style={{ fontSize: '10px', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)' }}>
-              {currentStep.icon} {currentStep.label}
-            </span>
-            <span style={{ fontSize: '10px', color: 'rgba(28,24,20,0.9)' }}>
-              {step + 1} / {STEPS.length}
-            </span>
-          </div>
+        {/* progression */}
+        <div className="flex" style={{ gap: 5, marginBottom: 34 }}>
+          {ETAPES.map((_, i) => (
+            <div key={i} style={{
+              flex: 1, height: 2, borderRadius: 2,
+              background: i <= step ? 'var(--or)' : 'rgba(242,238,230,0.14)',
+              transition: 'background var(--dur-mid) var(--ease-out)',
+            }} />
+          ))}
         </div>
 
-        {/* contenu step */}
-        <div className={direction === 'back' ? 'animate-fade-in-down mt-6' : 'animate-fade-in-up mt-6'} style={{ animationFillMode: 'both', animationDuration: '350ms' }} key={step}>
-          {step === 0 && (
-            <StepConsentement
-              checked={consentChecked}
-              onChange={v => { setConsentChecked(v); setStepError('') }}
-            />
-          )}
-          {step === 1 && <StepProfil data={data} set={set} toggleArr={toggleArr} />}
-          {step === 2 && (
-            <StepPhoto
-              photoPreview={photoPreview}
-              onFile={file => {
-                const check = validateImageFile(file)
-                if (!check.ok) { toast(check.error, 'error'); return }
-                setPhotoFile(file)
-                setPhotoPreview(URL.createObjectURL(file))
-              }}
-              fileRef={fileRef}
-            />
-          )}
+        <div key={step} className="animate-fade-in-up" style={{ animationFillMode: 'both' }}>
+          <h1 style={{ fontFamily: 'Cormorant, serif', fontSize: 'clamp(1.9rem, 7vw, 2.5rem)', fontWeight: 500, lineHeight: 1.15 }}>
+            {ETAPES[step]}
+          </h1>
+
+          {step === 0 && <EtapePrincipe accepte={accepte} setAccepte={setAccepte} />}
+          {step === 1 && <EtapeIdentite identite={identite} setIdentite={setIdentite} />}
+          {step === 2 && <EtapeEcriture answers={answers} setAnswers={setAnswers} ecrites={ecrites} />}
           {step === 3 && (
-            <StepMulti
-              title="Vos désirs" subtitle="Sélectionnez tout ce qui vous correspond"
-              options={SEEKING_OPTIONS} field="seeking" data={data} toggle={toggleArr}
-            />
+            <div style={{ marginTop: 22 }}>
+              <p style={{ fontSize: 13, color: 'rgba(242,238,230,0.5)', lineHeight: 1.7, marginBottom: 26 }}>
+                Seize questions, aucune bonne réponse. Elles servent à calculer un taux de
+                compatibilité intellectuelle avec les autres — {remplies} sur {TOTAL_TRAITS} remplies,
+                il en faut {MIN_TRAITS} pour continuer.
+              </p>
+              <TraitQuestionnaire
+                traits={traits}
+                tone="encre"
+                sections={TRAIT_SECTIONS}
+                onChange={(slug, v) => setTraits(t => ({ ...t, [slug]: v }))}
+              />
+            </div>
           )}
-          {step === 4 && (
-            <StepMulti
-              title="Vos disponibilités" subtitle="Quand êtes-vous disponibles ?"
-              options={AVAIL_OPTIONS} field="availabilities" data={data} toggle={toggleArr}
-            />
-          )}
-          {step === 5 && (
-            <StepMulti
-              title="Vos limites" subtitle="Ces points seront visibles sur votre profil"
-              options={LIMITS_OPTIONS} field="limits" data={data} toggle={toggleArr}
-            />
-          )}
-          {step === 6 && <StepDistance data={data} set={set} />}
-          {step === 7 && <StepVisibility data={data} set={set} />}
         </div>
 
-        {/* erreur step */}
-        {stepError && (
+        {erreur && (
           <p role="alert" style={{
-            color: '#f87171', fontSize: '13px', marginTop: '12px',
-            background: 'rgba(239,68,68,0.07)',
-            border: '1px solid rgba(239,68,68,0.18)',
-            borderRadius: '10px', padding: '10px 14px',
+            marginTop: 22, padding: '11px 14px', borderRadius: 3,
+            background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.25)',
+            color: 'rgba(248,113,113,0.95)', fontSize: 12, lineHeight: 1.55,
           }}>
-            {stepError}
+            {erreur}
           </p>
         )}
 
-        {/* navigation */}
-        <div className="flex gap-3 mt-8">
+        <div className="flex items-center" style={{ gap: 12, marginTop: 34 }}>
           {step > 0 && (
-            <button className="erb-btn"
-              onClick={prev}
-              style={{
-                flex: 1, padding: '15px', borderRadius: '14px', cursor: 'pointer',
-                background: 'transparent',
-                border: '1px solid rgba(201,168,76,0.25)',
-                color: 'rgba(201,168,76,1)',
-                fontSize: '13px', letterSpacing: '0.08em',
-                transition: 'all 0.2s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.5)'; e.currentTarget.style.background = 'rgba(201,168,76,0.06)'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.25)'; e.currentTarget.style.background = 'transparent'; }}
-            >
-              ← Retour
+            <button onClick={() => { setErreur(''); setStep(s => s - 1) }} className="btn btn-ecrire">
+              <ArrowLeft size={14} strokeWidth={1.7} />
+              Retour
             </button>
           )}
-          {step < STEPS.length - 1 ? (
-            <button
-              onClick={next}
-              className="btn-gold"
-              style={{
-                flex: 1, padding: '15px', borderRadius: '14px', border: 'none',
-                cursor: 'pointer', fontSize: '13px', letterSpacing: '0.1em',
-              }}
-            >
-              Continuer →
-            </button>
-          ) : (
-            <button
-              onClick={finish} disabled={saving}
-              className="btn-gold"
-              style={{
-                flex: 1, padding: '15px', borderRadius: '14px', border: 'none',
-                cursor: saving ? 'default' : 'pointer',
-                fontSize: '13px', letterSpacing: '0.1em',
-                opacity: saving ? 0.75 : 1,
-              }}
-            >
-              {saving ? (
-                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                  <span style={{ width: 14, height: 14, border: '2px solid rgba(0,0,0,0.25)', borderTopColor: '#050505', borderRadius: '50%', display: 'inline-block', animation: 'rotateX 0.7s linear infinite' }} />
-                  Activation…
-                </span>
-              ) : 'Activer ma connexion ∞'}
-            </button>
-          )}
+          <button onClick={suivant} disabled={saving} className="btn btn-continuer" style={{ flex: 1 }}>
+            {saving ? 'Enregistrement…' : step === ETAPES.length - 1 ? 'Entrer' : 'Continuer'}
+            {!saving && <ArrowRight size={14} strokeWidth={1.7} />}
+          </button>
         </div>
       </div>
     </div>
   )
 }
 
-// ─── Consentement RGPD Art. 9 ────────────────────────────────────────────────
-// Données sensibles : orientation sexuelle, pratiques/désirs sexuels
-// Base légale : consentement explicite libre, spécifique, éclairé, univoque
-// Texte versionné via CONSENT_VERSION — à mettre à jour si le texte change
-// ─────────────────────────────────────────────────────────────────────────────
-function StepConsentement({ checked, onChange }) {
+// ─── étapes ───────────────────────────────────────────────────
+
+function EtapePrincipe({ accepte, setAccepte }) {
   return (
-    <div className="flex flex-col gap-5">
-      <div>
-        <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '2rem', fontWeight: 600, color: '#1C1814', marginBottom: '4px' }}>
-          Vos données privées
-        </h2>
-        <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.7)' }}>
-          Avant de continuer, nous avons besoin de votre accord explicite.
-        </p>
-      </div>
+    <div style={{ marginTop: 24 }}>
+      <Quill size={46} tone="or" style={{ marginBottom: 22 }} />
+      <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.3rem', lineHeight: 1.65, color: 'rgba(242,238,230,0.9)' }}>
+        Ici, personne ne verra votre visage. On vous lira.
+      </p>
+      <p style={{ fontSize: 13, lineHeight: 1.85, color: 'rgba(242,238,230,0.5)', marginTop: 16 }}>
+        Chaque jour, un mot. Vous écrivez la ligne qu’il fait remonter, et vous découvrez
+        celles des autres. Votre profil, ce sont vos réponses — il n’y a pas de photo à
+        téléverser, pas de case à cocher sur ce que vous cherchez.
+      </p>
 
-      <div style={{
-        background: 'rgba(245,240,232,0.8)',
-        border: '1px solid rgba(201,168,76,0.2)',
-        borderRadius: '16px',
-        padding: '20px',
-        fontSize: '13px',
-        color: 'rgba(28,24,20,0.85)',
-        lineHeight: '1.7',
-      }}>
-        <p style={{ fontWeight: 600, marginBottom: '10px', color: '#1C1814' }}>
-          Traitement de données à caractère sensible (Art. 9 RGPD)
-        </p>
-        <p style={{ marginBottom: '10px' }}>
-          Pour fonctionner, Konnexyon collecte et traite des informations relatives à votre
-          <strong> orientation sexuelle</strong> et à vos <strong>pratiques intimes</strong>.
-          Ces données sont qualifiées de <strong>sensibles</strong> par le Règlement Général sur la Protection des Données (RGPD).
-        </p>
-        <p style={{ marginBottom: '10px' }}>
-          Ces informations sont utilisées <strong>uniquement</strong> pour vous mettre en relation avec
-          des couples compatibles et ne sont jamais revendues à des tiers.
-        </p>
-        <p>
-          Vous pouvez <strong>retirer ce consentement à tout moment</strong> depuis
-          Paramètres → Confidentialité, ce qui entraînera la suppression de ces données de votre profil.
-        </p>
-      </div>
-
-      {/* Case à cocher — non pré-cochée, action positive requise */}
-      <label
-        htmlFor="consent-checkbox"
-        style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          gap: '14px',
-          cursor: 'pointer',
-          padding: '16px',
-          borderRadius: '14px',
-          border: `1px solid ${checked ? 'rgba(201,168,76,0.5)' : 'rgba(201,168,76,0.2)'}`,
-          background: checked ? 'rgba(201,168,76,0.08)' : 'rgba(245,240,232,0.5)',
-          transition: 'all 0.2s',
-        }}
-      >
+      <label className="flex items-start" style={{ gap: 12, marginTop: 28, cursor: 'pointer' }}>
         <input
-          id="consent-checkbox"
           type="checkbox"
-          checked={checked}
-          onChange={e => onChange(e.target.checked)}
-          style={{
-            marginTop: '2px',
-            width: '18px',
-            height: '18px',
-            accentColor: '#C9A84C',
-            flexShrink: 0,
-            cursor: 'pointer',
-          }}
+          checked={accepte}
+          onChange={e => setAccepte(e.target.checked)}
+          style={{ marginTop: 2, width: 18, height: 18, flexShrink: 0, accentColor: '#C9A84C' }}
         />
-        <span style={{ fontSize: '13px', color: '#1C1814', lineHeight: '1.6' }}>
-          J'accepte explicitement que Konnexyon traite mes données relatives à mon orientation sexuelle
-          et mes pratiques intimes, conformément à la{' '}
-          <a
-            href="/confidentialite"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: '#C9A84C', textDecoration: 'underline' }}
-            onClick={e => e.stopPropagation()}
-          >
-            politique de confidentialité
-          </a>
-          .
+        <span style={{ fontSize: 12, lineHeight: 1.7, color: 'rgba(242,238,230,0.7)' }}>
+          J’accepte les <a href="/cgu" style={lien}>conditions d’utilisation</a> et la{' '}
+          <a href="/confidentialite" style={lien}>politique de confidentialité</a>.
         </span>
       </label>
+    </div>
+  )
+}
 
-      <p style={{ fontSize: '11px', color: 'rgba(28,24,20,0.45)', textAlign: 'center' }}>
-        Consentement {CONSENT_VERSION} — requis par le RGPD Art. 9. Non pré-coché, librement révocable.
+function EtapeIdentite({ identite, setIdentite }) {
+  return (
+    <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 18 }}>
+      <p style={{ fontSize: 13, color: 'rgba(242,238,230,0.5)', lineHeight: 1.7 }}>
+        Un prénom suffit. Le lieu peut rester vague — « quelque part entre Paris et
+        ailleurs » est une réponse acceptable.
       </p>
+      <Champ label="Prénom" value={identite.display_name} placeholder="Marion"
+             onChange={v => setIdentite(f => ({ ...f, display_name: v.slice(0, 40) }))} />
+      <div className="flex" style={{ gap: 12 }}>
+        <Champ label="Âge" type="number" value={identite.age} placeholder="37"
+               onChange={v => setIdentite(f => ({ ...f, age: v }))} />
+        <Champ label="Où" value={identite.city} placeholder="Lyon"
+               onChange={v => setIdentite(f => ({ ...f, city: v.slice(0, 60) }))} />
+      </div>
     </div>
   )
 }
 
-function StepProfil({ data, set, toggleArr }) {
+function EtapeEcriture({ answers, setAnswers, ecrites }) {
   return (
-    <div className="flex flex-col gap-5">
-      <div>
-        <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '2rem', fontWeight: 600, color: '#1C1814', marginBottom: '4px' }}>
-          Votre couple
-        </h2>
-        <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.9)' }}>Comment voulez-vous vous présenter ?</p>
-      </div>
-
-      <OField label="Pseudo du couple *">
-        <input
-          value={data.couple_name} onChange={e => set('couple_name', e.target.value)}
-          maxLength={50} placeholder="Marc & Julie"
-          style={inputStyle} onFocus={onFocus} onBlur={onBlur}
-        />
-      </OField>
-
-      <OField label={`Description · ${data.bio.length}/300`}>
-        <textarea
-          value={data.bio} onChange={e => set('bio', e.target.value)}
-          maxLength={300} rows={3} placeholder="Parlez de vous en quelques mots…"
-          style={{ ...inputStyle, resize: 'none' }} onFocus={onFocus} onBlur={onBlur}
-        />
-      </OField>
-
-      {/* Orientation Lui */}
-      <div>
-        <p style={{ fontSize: '11px', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)', marginBottom: '10px' }}>
-          Lui
-        </p>
-        <div className="flex gap-2">
-          {[{ value: 'hetero', label: 'Hétéro' }, { value: 'bi', label: 'Bi' }].map(o => (
-            <OButton key={o.value} active={data.orientation_lui === o.value} onClick={() => set('orientation_lui', o.value)}>
-              {o.label}
-            </OButton>
-          ))}
+    <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <p style={{ fontSize: 13, color: 'rgba(242,238,230,0.5)', lineHeight: 1.7 }}>
+        Ces quatre réponses tiennent lieu de profil. Répondez-en au moins {MIN_ANSWERS} —
+        vous compléterez le reste quand ça viendra. ({ecrites} sur {PROFILE_PROMPTS.length})
+      </p>
+      {PROFILE_PROMPTS.map(p => (
+        <div key={p.slug}>
+          <label htmlFor={p.slug} style={etiquette}>{p.label}</label>
+          <textarea
+            id={p.slug}
+            rows={3}
+            value={answers[p.slug] || ''}
+            maxLength={MAX_ANSWER_LENGTH}
+            placeholder={p.placeholder}
+            onChange={e => setAnswers(a => ({ ...a, [p.slug]: e.target.value.slice(0, MAX_ANSWER_LENGTH) }))}
+            style={champStyle}
+          />
         </div>
-      </div>
-
-      {/* Orientation Elle */}
-      <div>
-        <p style={{ fontSize: '11px', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)', marginBottom: '10px' }}>
-          Elle
-        </p>
-        <div className="flex gap-2">
-          {[{ value: 'hetero', label: 'Hétéro' }, { value: 'bi', label: 'Bi' }].map(o => (
-            <OButton key={o.value} active={data.orientation_elle === o.value} onClick={() => set('orientation_elle', o.value)}>
-              {o.label}
-            </OButton>
-          ))}
-        </div>
-      </div>
-
+      ))}
     </div>
   )
 }
 
-function StepMulti({ title, subtitle, options, field, data, toggle }) {
+// ─── détails ──────────────────────────────────────────────────
+
+function ageValide(age) {
+  if (age === '') return true                      // facultatif
+  const n = Number(age)
+  return Number.isInteger(n) && n >= 18 && n <= 120
+}
+
+function messageBlocage(step, ecrites, remplies) {
+  if (step === 0) return 'Il faut accepter les conditions pour continuer.'
+  if (step === 1) return 'Un prénom, et un âge entre 18 et 120 si vous le donnez.'
+  if (step === 2) return `Répondez à au moins ${MIN_ANSWERS} questions — il y en a ${ecrites}.`
+  return `Encore ${MIN_TRAITS - remplies} question${MIN_TRAITS - remplies > 1 ? 's' : ''} avant d’entrer.`
+}
+
+function Champ({ label, value, onChange, placeholder, type = 'text' }) {
   return (
-    <div className="flex flex-col gap-5">
-      <div>
-        <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '2rem', fontWeight: 600, color: '#1C1814', marginBottom: '4px' }}>
-          {title}
-        </h2>
-        {subtitle && <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.9)' }}>{subtitle}</p>}
-      </div>
-      <div className="flex flex-col gap-2">
-        {options.map(o => {
-          const active = data[field]?.includes(o.value)
-          return (
-            <button className="erb-btn"
-              key={o.value}
-              onClick={() => toggle(field, o.value)}
-              style={{
-                textAlign: 'left', padding: '14px 16px',
-                borderRadius: '14px',
-                border: `1px solid ${active ? 'rgba(201,168,76,0.5)' : 'rgba(201,168,76,0.15)'}`,
-                background: active ? 'rgba(201,168,76,0.1)' : 'rgba(245,240,232,0.6)',
-                color: active ? '#C9A84C' : 'rgba(28,24,20,0.9)',
-                fontSize: '14px', cursor: 'pointer',
-                transition: 'all 0.2s',
-                backdropFilter: 'blur(8px)',
-              }}
-            >
-              <span style={{ display: 'block', fontWeight: active ? 500 : 400 }}>{o.label}</span>
-              {o.desc && <span style={{ display: 'block', fontSize: '11px', color: active ? 'rgba(201,168,76,1)' : 'rgba(28,24,20,0.9)', marginTop: '2px' }}>{o.desc}</span>}
-            </button>
-          )
-        })}
-      </div>
+    <div style={{ flex: 1, minWidth: 0 }}>
+      <label style={etiquette}>{label}</label>
+      <input type={type} value={value} placeholder={placeholder}
+             onChange={e => onChange(e.target.value)}
+             style={{ ...champStyle, fontFamily: 'Inter, sans-serif', fontSize: 14 }} />
     </div>
   )
 }
 
-function StepDistance({ data, set }) {
-  const options = [
-    { value: 20,  label: 'Moins de 20 km',  desc: 'Autour de vous' },
-    { value: 50,  label: '20 – 50 km',       desc: 'Votre région' },
-    { value: 100, label: '50 – 100 km',      desc: 'Département élargi' },
-    { value: 0,   label: 'Peu importe',      desc: 'La connexion n\'a pas de distance' },
-  ]
-  return (
-    <div className="flex flex-col gap-5">
-      <div>
-        <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '2rem', fontWeight: 600, color: '#1C1814', marginBottom: '4px' }}>
-          Distance
-        </h2>
-        <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.9)' }}>Distance maximum pour une rencontre</p>
-      </div>
-      <div className="flex flex-col gap-2">
-        {options.map(o => (
-          <button className="erb-btn"
-            key={o.value}
-            onClick={() => set('max_distance_km', o.value)}
-            style={{
-              textAlign: 'left', padding: '14px 16px', borderRadius: '14px',
-              border: `1px solid ${data.max_distance_km === o.value ? 'rgba(201,168,76,0.5)' : 'rgba(201,168,76,0.15)'}`,
-              background: data.max_distance_km === o.value ? 'rgba(201,168,76,0.1)' : 'rgba(245,240,232,0.6)',
-              cursor: 'pointer', transition: 'all 0.2s', backdropFilter: 'blur(8px)',
-            }}
-          >
-            <span style={{ display: 'block', fontSize: '14px', color: data.max_distance_km === o.value ? '#C9A84C' : 'rgba(28,24,20,0.9)', fontWeight: data.max_distance_km === o.value ? 500 : 400 }}>
-              {o.label}
-            </span>
-            <span style={{ display: 'block', fontSize: '11px', color: 'rgba(28,24,20,0.9)', marginTop: '2px' }}>{o.desc}</span>
-          </button>
-        ))}
-      </div>
-    </div>
-  )
+const lien = { color: 'var(--or)', textDecoration: 'underline', textUnderlineOffset: 3 }
+
+const etiquette = {
+  display: 'block', fontSize: 10, letterSpacing: '0.18em',
+  textTransform: 'uppercase', color: 'rgba(201,168,76,0.75)', marginBottom: 7,
 }
 
-function StepVisibility({ data, set }) {
-  const options = [
-    { value: 'public',       label: 'Visible par tous', desc: 'Votre profil apparaît dans les connexions à proximité' },
-    { value: 'matches_only', label: 'Connexions uniquement', desc: 'Seuls vos matchs peuvent voir votre profil' },
-  ]
-  return (
-    <div className="flex flex-col gap-5">
-      <div>
-        <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '2rem', fontWeight: 600, color: '#1C1814', marginBottom: '4px' }}>
-          Visibilité
-        </h2>
-        <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.9)' }}>Qui peut voir votre profil ?</p>
-      </div>
-      <div className="flex flex-col gap-2">
-        {options.map(o => (
-          <button className="erb-btn"
-            key={o.value}
-            onClick={() => set('visibility', o.value)}
-            style={{
-              textAlign: 'left', padding: '16px', borderRadius: '14px',
-              border: `1px solid ${data.visibility === o.value ? 'rgba(201,168,76,0.5)' : 'rgba(201,168,76,0.15)'}`,
-              background: data.visibility === o.value ? 'rgba(201,168,76,0.1)' : 'rgba(245,240,232,0.6)',
-              cursor: 'pointer', transition: 'all 0.2s', backdropFilter: 'blur(8px)',
-            }}
-          >
-            <p style={{ fontSize: '14px', fontWeight: data.visibility === o.value ? 500 : 400, color: data.visibility === o.value ? '#C9A84C' : '#F2EDE6', marginBottom: '3px' }}>
-              {o.label}
-            </p>
-            <p style={{ fontSize: '12px', color: 'rgba(28,24,20,0.9)' }}>{o.desc}</p>
-          </button>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-const inputStyle = {
-  width: '100%',
-  background: 'rgba(245,240,232,0.85)',
-  border: '1px solid rgba(201,168,76,0.25)',
-  borderRadius: '14px',
-  padding: '14px 18px',
-  color: '#1C1814',
-  fontSize: '15px',
+const champStyle = {
+  width: '100%', resize: 'none',
+  background: 'rgba(242,238,230,0.04)',
+  border: '1px solid rgba(201,168,76,0.2)',
+  borderRadius: 3, padding: '12px 14px',
+  color: 'rgba(242,238,230,0.95)',
+  fontFamily: 'Cormorant, serif', fontSize: '1.1rem', lineHeight: 1.6,
   outline: 'none',
-  transition: 'border-color 0.2s, box-shadow 0.2s',
-  backdropFilter: 'blur(12px)',
-  fontFamily: 'Inter, sans-serif',
 }
-const onFocus = e => { e.target.style.borderColor = 'rgba(201,168,76,0.6)'; e.target.style.boxShadow = '0 0 0 3px rgba(201,168,76,0.12)'; }
-const onBlur  = e => { e.target.style.borderColor = 'rgba(201,168,76,0.25)'; e.target.style.boxShadow = 'none'; }
-
-function OField({ label, children }) {
-  return (
-    <div>
-      <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,168,76,1)', marginBottom: '8px' }}>
-        {label}
-      </label>
-      {children}
-    </div>
-  )
-}
-
-function StepPhoto({ photoPreview, onFile, fileRef }) {
-  return (
-    <div className="flex flex-col gap-5">
-      <div>
-        <h2 style={{ fontFamily: 'Cormorant, serif', fontSize: '2rem', fontWeight: 600, color: '#1C1814', marginBottom: '4px' }}>
-          Votre photo
-        </h2>
-        <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.9)' }}>Choisissez une photo de couple (optionnel)</p>
-      </div>
-
-      <div
-        onClick={() => fileRef.current?.click()}
-        style={{
-          width: '100%', aspectRatio: '4/3', borderRadius: '18px',
-          border: '2px dashed rgba(201,168,76,0.6)',
-          background: photoPreview ? 'transparent' : 'rgba(245,240,232,0.6)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          cursor: 'pointer', overflow: 'hidden', position: 'relative',
-          transition: 'border-color 0.2s',
-        }}
-      >
-        {photoPreview ? (
-          <img src={photoPreview} alt="Aperçu" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        ) : (
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '40px', marginBottom: '12px', opacity: 0.5 }}>📸</div>
-            <p style={{ fontSize: '14px', color: 'rgba(201,168,76,1)', fontWeight: 500 }}>Appuyez pour choisir une photo</p>
-            <p style={{ fontSize: '11px', color: 'rgba(28,24,20,0.5)', marginTop: '4px' }}>Pas de photos explicites</p>
-          </div>
-        )}
-      </div>
-
-      {photoPreview && (
-        <button
-          onClick={() => fileRef.current?.click()}
-          style={{
-            padding: '12px', borderRadius: '14px', cursor: 'pointer',
-            background: 'transparent', border: '1px solid rgba(201,168,76,0.25)',
-            color: 'rgba(201,168,76,1)', fontSize: '13px',
-          }}
-        >
-          Changer la photo
-        </button>
-      )}
-
-      <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }}
-        onChange={e => { if (e.target.files[0]) onFile(e.target.files[0]) }}
-      />
-
-      <p style={{ fontSize: '11px', color: 'rgba(28,24,20,0.5)', textAlign: 'center' }}>
-        Vous pourrez la modifier à tout moment depuis votre profil
-      </p>
-    </div>
-  )
-}
-
-function OButton({ active, onClick, children }) {
-  return (
-    <button className="erb-btn"
-      onClick={onClick}
-      style={{
-        textAlign: 'left', padding: '12px 16px', borderRadius: '12px',
-        border: `1px solid ${active ? 'rgba(201,168,76,0.5)' : 'rgba(201,168,76,0.15)'}`,
-        background: active ? 'rgba(201,168,76,0.1)' : 'transparent',
-        color: active ? '#C9A84C' : 'rgba(28,24,20,0.9)',
-        fontSize: '14px', cursor: 'pointer',
-        transition: 'all 0.2s',
-      }}
-    >
-      {children}
-    </button>
-  )
-}
-
