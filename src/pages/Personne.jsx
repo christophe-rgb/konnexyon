@@ -145,7 +145,7 @@ export default function Personne() {
           animationFillMode: 'both',
         }}>
           {/* plume en filigrane */}
-          <Quill size={190} tone="encre" animated={false} style={{
+          <Quill size={190} tone="encre" style={{
             position: 'absolute', right: -34, top: 54, opacity: 0.06, pointerEvents: 'none',
           }} />
 
