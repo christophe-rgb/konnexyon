@@ -84,7 +84,7 @@ export default function Home() {
           <Link to="/register" className="btn btn-lire">Commencer</Link>
 
           <p style={{ fontSize: 13, lineHeight: 1.85, color: 'rgba(11,11,11,0.6)', marginTop: 30 }}>
-            Pas de photos. Pas de swipe.<br />
+            Pas de photos. Pas de profils à remplir.<br />
             Seulement des mots.
           </p>
         </div>
@@ -165,7 +165,6 @@ export default function Home() {
           }}>
             Pas de photo.<br />
             Pas de filtre.<br />
-            Pas de swipe.<br />
             <span className="shine-text">Seulement vous.</span>
           </p>
 

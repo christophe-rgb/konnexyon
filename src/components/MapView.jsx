@@ -10,11 +10,6 @@ function escapeHtml(str) {
 }
 
 // Encode une URL pour un attribut HTML : on bloque tout schéma non http(s)
-function safeUrl(url) {
-  const s = String(url ?? '').trim()
-  if (!/^https?:\/\//i.test(s)) return ''
-  return escapeHtml(s)
-}
 
 export default function MapView({ profiles, onSelect, myProfile }) {
   const containerRef = useRef(null)
@@ -72,11 +67,9 @@ export default function MapView({ profiles, onSelect, myProfile }) {
     const valid = profiles.filter(p => p.lng != null && p.lat != null)
 
     valid.forEach(p => {
-      const initial = escapeHtml(p.couple_name?.[0] || '?')
-      const safeAvatar = safeUrl(p.avatar_url)
-      const inner = safeAvatar
-        ? `<img src="${safeAvatar}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
-        : `<span style="font-family:Cormorant,serif;font-weight:700;font-size:13px;color:#0D0D0D;">${initial}</span>`
+      // plus de photo : le marqueur porte l'initiale du prénom
+      const initial = escapeHtml(p.display_name?.[0] || '?')
+      const inner = `<span style="font-family:Cormorant,serif;font-weight:700;font-size:13px;color:#0B0B0B;">${initial}</span>`
       const icon = L.divIcon({
         className: '',
         html: `<div style="width:36px;height:36px;border-radius:50%;background:#C9A84C;border:2px solid #fff;cursor:pointer;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 0 12px rgba(201,168,76,0.6);">${inner}</div>`,
