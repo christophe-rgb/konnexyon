@@ -29,7 +29,9 @@ export function Quill({ size = 28, tone = 'or', style = {}, alt = '' }) {
       aria-hidden={alt ? undefined : 'true'}
       width={Math.round(size * PLUME_RATIO)}
       height={size}
-      style={{ height: size, width: 'auto', display: 'block', ...style }}
+      // marges automatiques : l'ancien dessin etait un SVG en ligne, que
+      // text-align centrait. Une image en display:block ne l'est plus.
+      style={{ height: size, width: 'auto', display: 'block', marginInline: 'auto', ...style }}
     />
   )
 }
