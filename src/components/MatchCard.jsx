@@ -8,7 +8,7 @@ export default function MatchCard({ match }) {
     <article
       role="button"
       tabIndex={0}
-      aria-label={`Conversation avec ${match.profile.couple_name}`}
+      aria-label={`Conversation avec ${match.profile.display_name}`}
       onClick={() => navigate(`/messages/${match.id}`)}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/messages/${match.id}`) } }}
       className="flex items-center gap-4 cursor-pointer group transition-all duration-200"
@@ -31,13 +31,10 @@ export default function MatchCard({ match }) {
         style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
       >
         <div style={{ width: 52, height: 52, borderRadius: '14px', overflow: 'hidden', border: '1px solid rgba(201,168,76,0.25)', boxShadow: 'none' }}>
-          {match.profile.avatar_url ? (
-            <img src={match.profile.avatar_url} alt={match.profile.couple_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          ) : (
-            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#EDE7DB', fontFamily: 'Cormorant, serif', fontSize: '22px', color: 'rgba(201,168,76,0.6)' }}>
-              {match.profile.couple_name?.[0]}
-            </div>
-          )}
+          {/* plus de photo : l'initiale tient lieu de vignette */}
+          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#E1DBD0', fontFamily: 'Cormorant, serif', fontSize: '22px', color: 'rgba(201,168,76,0.75)' }}>
+            {match.profile.display_name?.[0]}
+          </div>
         </div>
         {/* badge ∞ */}
         <div style={{
@@ -54,7 +51,7 @@ export default function MatchCard({ match }) {
       {/* texte */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.1rem', fontWeight: 600, color: '#1C1814', marginBottom: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {match.profile.couple_name}
+          {match.profile.display_name}
         </p>
         {match.lastMessage ? (
           <p style={{ fontSize: '12px', color: 'rgba(28,24,20,0.9)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

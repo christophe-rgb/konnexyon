@@ -38,7 +38,7 @@ export default function Matches() {
       const otherIds = data.map(m => m.couple_a === profile.id ? m.couple_b : m.couple_a)
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('id, couple_name, avatar_url, bio')
+        .select('id, display_name, age, city')
         .in('id', otherIds)
       const profileMap = Object.fromEntries((profiles || []).map(p => [p.id, p]))
 

@@ -79,7 +79,7 @@ export default function MatchModal({ match, onClose }) {
         </div>
 
         <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.9)', lineHeight: 1.7, marginBottom: '28px' }}>
-          Vous et <strong style={{ color: 'rgba(28,24,20,0.9)' }}>{match.other?.couple_name}</strong> vous êtes connectés mutuellement.
+          Vous et <strong style={{ color: 'rgba(28,24,20,0.9)' }}>{match.other?.display_name}</strong> vous êtes connectés mutuellement.
           Le chat est maintenant débloqué.
         </p>
 
@@ -126,19 +126,15 @@ function Avatar({ profile }) {
       border: '1px solid rgba(201,168,76,0.25)',
       boxShadow: '0 0 16px rgba(201,168,76,0.25)',
     }}>
-      {profile?.avatar_url ? (
-        <img src={profile.avatar_url} alt={profile.couple_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-      ) : (
-        <div style={{
-          width: '100%', height: '100%',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          background: '#EDE7DB',
-          fontFamily: 'Cormorant, serif', fontSize: '24px',
-          color: 'rgba(201,168,76,1)',
-        }}>
-          {profile?.couple_name?.[0] || '∞'}
-        </div>
-      )}
+      <div style={{
+        width: '100%', height: '100%',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: '#E1DBD0',
+        fontFamily: 'Cormorant, serif', fontSize: '24px',
+        color: 'rgba(201,168,76,1)',
+      }}>
+        {profile?.display_name?.[0] || '∞'}
+      </div>
     </div>
   )
 }

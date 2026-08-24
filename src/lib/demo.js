@@ -1,163 +1,24 @@
-// Données fictives pour le mode démo
+// Données fictives pour le mode démo — des personnes, pas des couples.
 
 export const DEMO_USER = {
   id: 'demo-user-1',
-  email: 'demo@app.com',
+  email: 'demo@konnexyon.fr',
 }
 
 export const DEMO_PROFILE = {
   id: 'demo-user-1',
-  couple_name: 'Alex & Sam',
-  bio: 'Couple curieux et bienveillant, nous cherchons des rencontres conviviales sans prise de tête.',
-  avatar_url: null,
-  orientation: 'hetero_hetero',
-  looking_for: ['couple', 'woman'],
-  seeking: ['rencontres_occasionnelles', 'amis_libertins'],
-  availabilities: ['weekend', 'rdv'],
-  limits: ['discretion', 'preservatif'],
+  display_name: 'Camille',
+  age: 34,
+  city: 'Montpellier',
   max_distance_km: 50,
   visibility: 'public',
   status: 'active',
   hide_location: false,
-  email_1: 'demo@app.com',
+  email_1: 'demo@konnexyon.fr',
   email_1_confirmed: true,
-  email_2: null,
-  email_2_confirmed: false,
-  distance_km: 0,
-  // RequireProfile exige age_confirmed_at : sans lui le mode démo
-  // rebondit sur l'onboarding au lieu d'ouvrir l'app
-  age_confirmed_at: '2026-01-01T00:00:00.000Z',
 }
 
-export const DEMO_PROFILES = [
-  {
-    id: 'demo-2',
-    couple_name: 'Marc & Julie',
-    bio: 'Couple hétéro de 35 ans, ouverts et discrets. Nous cherchons des amis libertins pour des soirées sympa.',
-    avatar_url: 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600&q=80',
-    orientation: 'hetero_hetero',
-    looking_for: ['couple'],
-    seeking: ['echangisme', 'amis_libertins'],
-    limits: ['discretion', 'pas_photo'],
-    distance_km: 8,
-    lng: 3.88, lat: 43.61,
-  },
-  {
-    id: 'demo-3',
-    couple_name: 'Tom & Léa',
-    bio: 'Bisexuels tous les deux, on aime rencontrer des gens ouverts d\'esprit. Préférence pour les couples.',
-    avatar_url: 'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?w=600&q=80',
-    orientation: 'bi_all',
-    looking_for: ['couple', 'woman'],
-    seeking: ['decouverte', 'rencontres_occasionnelles'],
-    limits: ['preservatif', 'discretion'],
-    distance_km: 14,
-    lng: 3.87, lat: 43.62,
-  },
-  {
-    id: 'demo-4',
-    couple_name: 'Pierre & Marie',
-    bio: 'Couple expérimenté, 40 ans, cherchons des rencontres de qualité dans la bonne humeur.',
-    avatar_url: 'https://images.unsplash.com/photo-1474552226712-ac0f0961a954?w=600&q=80',
-    orientation: 'hetero_bi',
-    looking_for: ['couple'],
-    seeking: ['echangisme', 'rencontres_occasionnelles'],
-    limits: ['preservatif', 'pas_contact_hors_site'],
-    distance_km: 23,
-    lng: 3.90, lat: 43.59,
-  },
-  {
-    id: 'demo-5',
-    couple_name: 'Chris & Jordan',
-    bio: 'Nouveaux dans le milieu, curieux et respectueux. On prend notre temps.',
-    avatar_url: 'https://images.unsplash.com/photo-1521305916504-4a1121188589?w=600&q=80',
-    orientation: 'bi_all',
-    looking_for: ['couple', 'woman', 'man'],
-    seeking: ['decouverte'],
-    limits: ['pas_photo', 'discretion'],
-    distance_km: 31,
-    lng: 3.85, lat: 43.64,
-  },
-  {
-    id: 'demo-6',
-    couple_name: 'Nico & Lisa',
-    bio: 'Couple actif qui aime les soirées festives. Ouverts et sans tabous.',
-    avatar_url: 'https://images.unsplash.com/photo-1464692805480-a69dfaafdb0d?w=600&q=80',
-    orientation: 'hetero_hetero',
-    looking_for: ['couple'],
-    seeking: ['echangisme', 'amis_libertins', 'rencontres_occasionnelles'],
-    limits: ['preservatif'],
-    distance_km: 45,
-    lng: 3.92, lat: 43.57,
-  },
-]
-
-export const DEMO_MATCHES = [
-  {
-    id: 'match-1',
-    couple_a: 'demo-user-1',
-    couple_b: 'demo-2',
-    created_at: new Date(Date.now() - 2 * 24 * 3600 * 1000).toISOString(),
-    profile: DEMO_PROFILES[0],
-    lastMessage: 'Avec plaisir ! On vous propose samedi soir ?',
-  },
-  {
-    id: 'match-2',
-    couple_a: 'demo-user-1',
-    couple_b: 'demo-3',
-    created_at: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString(),
-    profile: DEMO_PROFILES[1],
-    lastMessage: null,
-  },
-]
-
-export const DEMO_MESSAGES = {
-  'match-1': [
-    {
-      id: 'msg-1',
-      match_id: 'match-1',
-      sender_id: 'demo-2',
-      content: 'Bonjour ! Votre profil nous a beaucoup plu 😊',
-      photo_url: null,
-      read_at: new Date().toISOString(),
-      deleted_for: [],
-      created_at: new Date(Date.now() - 2 * 24 * 3600 * 1000 + 1000).toISOString(),
-    },
-    {
-      id: 'msg-2',
-      match_id: 'match-1',
-      sender_id: 'demo-user-1',
-      content: 'Bonjour Marc & Julie ! Pareil de notre côté, on est ravis du match 🙂',
-      photo_url: null,
-      read_at: new Date().toISOString(),
-      deleted_for: [],
-      created_at: new Date(Date.now() - 2 * 24 * 3600 * 1000 + 2000).toISOString(),
-    },
-    {
-      id: 'msg-3',
-      match_id: 'match-1',
-      sender_id: 'demo-2',
-      content: 'On serait dispo pour se rencontrer prochainement, vous êtes libres quand ?',
-      photo_url: null,
-      read_at: new Date().toISOString(),
-      deleted_for: [],
-      created_at: new Date(Date.now() - 1 * 24 * 3600 * 1000).toISOString(),
-    },
-    {
-      id: 'msg-4',
-      match_id: 'match-1',
-      sender_id: 'demo-user-1',
-      content: 'Avec plaisir ! On vous propose samedi soir ?',
-      photo_url: null,
-      read_at: new Date().toISOString(),
-      deleted_for: [],
-      created_at: new Date(Date.now() - 3600 * 1000).toISOString(),
-    },
-  ],
-  'match-2': [],
-}
-
-// ─── Mot du jour (mode démo) ──────────────────────────────────
+// ─── Mot du jour ──────────────────────────────────────────────
 
 export const DEMO_WORD = {
   id: 'demo-word-1',
@@ -166,10 +27,18 @@ export const DEMO_WORD = {
 }
 
 export const DEMO_RESPONSES = [
-  { id: 'demo-r-1', user_id: 'demo-2', pseudo: 'Marc & Julie',    line: 'On a hésité si longtemps devant la porte que la nuit est passée derrière nous.' },
-  { id: 'demo-r-2', user_id: 'demo-3', pseudo: 'Camille & Théo',  line: 'Le paillasson dit bienvenue à des gens qui ne viennent plus.' },
-  { id: 'demo-r-3', user_id: 'demo-4', pseudo: 'Inès & Rachid',   line: 'J’ai posé mes clés sur la table sans savoir si je repartais.' },
-  { id: 'demo-r-4', user_id: 'demo-5', pseudo: 'Louise & Pierre', line: 'Il faut deux courages : celui d’entrer, et celui de rester.' },
+  { id: 'demo-r-1', user_id: 'demo-2', pseudo: 'Marion',  line: 'On a hésité si longtemps devant la porte que la nuit est passée derrière nous.' },
+  { id: 'demo-r-2', user_id: 'demo-3', pseudo: 'Théo',    line: 'Le paillasson dit bienvenue à des gens qui ne viennent plus.' },
+  { id: 'demo-r-3', user_id: 'demo-4', pseudo: 'Inès',    line: 'J’ai posé mes clés sur la table sans savoir si je repartais.' },
+  { id: 'demo-r-4', user_id: 'demo-5', pseudo: 'Louise',  line: 'Il faut deux courages : celui d’entrer, et celui de rester.' },
+]
+
+// la liste de lecture ajoute l'âge, la ville et la position
+export const DEMO_READING = [
+  { compatibility: 88, user_id: 'demo-2', display_name: 'Marion', age: 37, city: 'Lyon',        line: DEMO_RESPONSES[0].line, distance_km: 4,  lng: 4.8357, lat: 45.7640 },
+  { compatibility: 62, user_id: 'demo-3', display_name: 'Théo',   age: 41, city: 'Villeurbanne', line: DEMO_RESPONSES[1].line, distance_km: 7,  lng: 4.8800, lat: 45.7700 },
+  { compatibility: 74, user_id: 'demo-4', display_name: 'Inès',   age: 29, city: 'Lyon',        line: DEMO_RESPONSES[2].line, distance_km: 2,  lng: 4.8300, lat: 45.7580 },
+  { compatibility: 41, user_id: 'demo-5', display_name: 'Louise', age: 35, city: 'Écully',      line: DEMO_RESPONSES[3].line, distance_km: 11, lng: 4.7780, lat: 45.7740 },
 ]
 
 export const DEMO_CARNET = [
@@ -177,3 +46,23 @@ export const DEMO_CARNET = [
   { id: 'demo-c-2', word: 'Insomnie', publish_date: '2026-08-21', line: 'À trois heures, la maison respire sans moi.' },
   { id: 'demo-c-3', word: 'Presque',  publish_date: '2026-08-20', line: 'Le plus long des mots, quand on le dit à voix basse.' },
 ]
+
+// ─── Connexions (mode démo) ───────────────────────────────────
+
+export const DEMO_MATCHES = DEMO_READING.map((p, i) => ({
+  id: `demo-match-${i + 1}`,
+  created_at: new Date(2026, 7, 23 - i).toISOString(),
+  profile: { id: p.user_id, display_name: p.display_name, age: p.age, city: p.city },
+}))
+
+export const DEMO_MESSAGES = {
+  'demo-match-1': [
+    { id: 'dm-1', match_id: 'demo-match-1', sender_id: 'demo-2',      content: 'J’ai relu ta réponse.',                 created_at: '2026-08-23T09:12:00.000Z', read_at: null },
+    { id: 'dm-2', match_id: 'demo-match-1', sender_id: 'demo-user-1', content: 'Et ?',                                   created_at: '2026-08-23T09:20:00.000Z', read_at: null },
+    { id: 'dm-3', match_id: 'demo-match-1', sender_id: 'demo-2',      content: 'Je crois que je ne suis pas d’accord avec toi.', created_at: '2026-08-23T09:24:00.000Z', read_at: null },
+    { id: 'dm-4', match_id: 'demo-match-1', sender_id: 'demo-user-1', content: 'Tant mieux. C’est le début d’une bonne conversation.', created_at: '2026-08-23T09:31:00.000Z', read_at: null },
+  ],
+  'demo-match-2': [
+    { id: 'dm-5', match_id: 'demo-match-2', sender_id: 'demo-3', content: 'Ta ligne d’hier m’a tenu éveillé.', created_at: '2026-08-22T22:40:00.000Z', read_at: null },
+  ],
+}

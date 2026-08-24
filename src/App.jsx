@@ -15,7 +15,6 @@ const Login          = lazy(() => import('./pages/Login'))
 const Register       = lazy(() => import('./pages/Register'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
-const ConfirmPartner = lazy(() => import('./pages/ConfirmPartner'))
 const Onboarding     = lazy(() => import('./pages/Onboarding'))
 const MotDuJour      = lazy(() => import('./pages/MotDuJour'))
 const Lire           = lazy(() => import('./pages/Lire'))
@@ -76,7 +75,7 @@ export default function App() {
 
         const otherId = m.couple_a === profile.id ? m.couple_b : m.couple_a
         const { data: other } = await supabase
-          .from('profiles').select('id, couple_name, avatar_url').eq('id', otherId).single()
+          .from('profiles').select('id, display_name').eq('id', otherId).single()
 
         setNewMatch({ id: m.id, me: profile, other })
       })
@@ -109,7 +108,6 @@ export default function App() {
             <Route path="/register"          element={<Register />} />
             <Route path="/forgot-password"   element={<ForgotPassword />} />
             <Route path="/reset-password"    element={<ResetPassword />} />
-            <Route path="/confirm-partner"   element={<ConfirmPartner />} />
             <Route path="/cgu"               element={<CGU />} />
             <Route path="/confidentialite"   element={<Confidentialite />} />
             <Route path="/contact"           element={<Contact />} />

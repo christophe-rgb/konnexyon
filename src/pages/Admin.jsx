@@ -28,8 +28,8 @@ export default function Admin() {
     const { data } = await supabase
       .from('reports')
       .select(`id, reason, status, created_at, admin_note,
-        reporter:reporter_id(couple_name),
-        reported:reported_id(id, couple_name, status, avatar_url)`)
+        reporter:reporter_id(display_name),
+        reported:reported_id(id, display_name, status)`)
       .order('created_at', { ascending: false })
     setReports(data || [])
     setLoading(false)
@@ -191,15 +191,14 @@ function ProfileReportGroup({ group, onAction, onViewProfile }) {
           background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.15)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          {profile?.avatar_url
-            ? <img src={profile.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            : <span style={{ fontFamily: 'Cormorant, serif', fontSize: '1.2rem', color: 'rgba(201,168,76,0.5)' }}>{profile?.couple_name?.[0] ?? '?'}</span>
-          }
+          <span style={{ fontFamily: 'Cormorant, serif', fontSize: '1.2rem', color: 'rgba(201,168,76,0.5)' }}>
+            {profile?.display_name?.[0] ?? '?'}
+          </span>
         </div>
 
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <p style={{ fontSize: 15, fontWeight: 500, color: '#1C1814' }}>{profile?.couple_name || 'Profil inconnu'}</p>
+            <p style={{ fontSize: 15, fontWeight: 500, color: '#1C1814' }}>{profile?.display_name || 'Profil inconnu'}</p>
             {isCritical && <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 99, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#EF4444', letterSpacing: '0.1em' }}>⚠ CRITIQUE</span>}
             {isBanned && <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 99, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: 'rgba(239,68,68,0.7)', letterSpacing: '0.1em' }}>BANNI</span>}
             {isSuspended && !isBanned && <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 99, background: 'rgba(251,146,60,0.1)', border: '1px solid rgba(251,146,60,0.25)', color: 'rgba(251,146,60,0.8)', letterSpacing: '0.1em' }}>SUSPENDU</span>}
@@ -247,7 +246,7 @@ function ReportRow({ report, profileId, onAction }) {
       >
         <div style={{ width: 7, height: 7, borderRadius: '50%', background: statusStyle.color, flexShrink: 0 }} />
         <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', flex: 1 }}>
-          <span style={{ color: 'rgba(255,255,255,0.6)' }}>{report.reporter?.couple_name || '?'}</span>
+          <span style={{ color: 'rgba(255,255,255,0.6)' }}>{report.reporter?.display_name || '?'}</span>
           {' · '}
           {new Date(report.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
         </p>

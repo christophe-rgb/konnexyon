@@ -94,18 +94,14 @@ export default function Conversation() {
         </button>
 
         <div style={{ width: 38, height: 38, borderRadius: '12px', overflow: 'hidden', flexShrink: 0, border: '1px solid rgba(201,168,76,0.1)', background: '#EDE7DB' }}>
-          {otherProfile?.avatar_url ? (
-            <img src={otherProfile.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          ) : (
-            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Cormorant, serif', fontSize: '18px', color: 'rgba(201,168,76,1)' }}>
-              {otherProfile?.couple_name?.[0]}
-            </div>
-          )}
+          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Cormorant, serif', fontSize: '18px', color: 'rgba(201,168,76,1)' }}>
+            {otherProfile?.display_name?.[0]}
+          </div>
         </div>
 
         <div style={{ flex: 1, minWidth: 0 }}>
           <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.1rem', fontWeight: 600, color: '#1C1814', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {otherProfile?.couple_name}
+            {otherProfile?.display_name}
           </p>
           <p style={{ fontSize: '10px', color: 'rgba(201,168,76,1)', letterSpacing: '0.1em' }}>
             ∞ connectés

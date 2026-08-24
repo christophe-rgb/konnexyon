@@ -22,7 +22,7 @@ export default function Settings() {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ consent_given_at: null, orientation: null, seeking: null })
+        .update({ consent_given_at: null })
         .eq('id', profile.id)
       if (error) throw new Error(error.message)
       await fetchProfile(profile.id)

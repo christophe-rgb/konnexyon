@@ -3,8 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
 export default function Register() {
-  const [form,    setForm]    = useState({ email: '', email_2: '', password: '', confirm: '' })
-  const [adult,   setAdult]   = useState(false)
+  const [form,    setForm]    = useState({ email: '', password: '', confirm: '' })
   const [error,   setError]   = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
@@ -14,22 +13,22 @@ export default function Register() {
   const handleSubmit = async e => {
     e.preventDefault()
     setError('')
-    if (!adult)                         return setError('Vous devez confirmer avoir 18 ans ou plus.')
     if (form.password !== form.confirm) return setError('Les mots de passe ne correspondent pas.')
     if (form.password.length < 8)       return setError('Mot de passe minimum 8 caractères.')
     setLoading(true)
     const { data, error: err } = await supabase.auth.signUp({ email: form.email, password: form.password })
     if (err) { setError(err.message); setLoading(false); return }
     if (!data.user) { setError('Compte déjà existant. Connectez-vous ou réinitialisez votre mot de passe.'); setLoading(false); return }
+    // display_name est not null en base : l'onboarding le remplacera par
+    // le prénom choisi, on pose une valeur d'attente d'ici là
     await supabase.from('profiles').insert({
       id:      data.user.id,
       email_1: form.email,
-      email_2: form.email_2 || null,
-      couple_name: 'Nouveau couple',
+      display_name: 'Anonyme',
       email_1_confirmed: false,
     })
     supabase.functions.invoke('welcome-email', {
-      body: { email: form.email, couple_name: 'Nouveau couple' },
+      body: { email: form.email },
     }).catch(() => {}) // non-bloquant
     setLoading(false)
     navigate('/onboarding')
@@ -67,14 +66,9 @@ export default function Register() {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
           <Field
-            label="Email partenaire 1" id="email" type="email" autoComplete="email"
+            label="Email" id="email" type="email" autoComplete="email"
             value={form.email} onChange={v => set('email', v)} placeholder="vous@email.com"
             delay="100ms"
-          />
-          <Field
-            label="Email partenaire 2 (optionnel)" id="email_2" type="email"
-            value={form.email_2} onChange={v => set('email_2', v)} placeholder="partenaire@email.com"
-            delay="150ms"
           />
           <Field
             label="Mot de passe" id="password" type="password" autoComplete="new-password"
@@ -86,22 +80,6 @@ export default function Register() {
             value={form.confirm} onChange={v => set('confirm', v)} placeholder="••••••••"
             delay="250ms"
           />
-
-          {/* checkbox 18+ */}
-          <label
-            className="flex items-start gap-3 cursor-pointer mt-1 animate-fade-in-up"
-            style={{ animationDelay: '300ms', animationFillMode: 'both' }}
-          >
-            <input
-              type="checkbox" id="adult" checked={adult} onChange={e => setAdult(e.target.checked)}
-              className="mt-0.5 w-5 h-5 flex-shrink-0"
-              style={{ accentColor: '#C9A84C' }}
-            />
-            <span style={{ fontSize: '12px', color: 'rgba(28,24,20,0.9)', lineHeight: 1.6 }}>
-              J'ai <strong style={{ color: 'rgba(201,168,76,1)' }}>18 ans ou plus</strong> et je certifie être majeur(e).
-              Ce site s'adresse exclusivement aux adultes consentants.
-            </span>
-          </label>
 
           {error && (
             <p role="alert" className="animate-fade-in" style={{

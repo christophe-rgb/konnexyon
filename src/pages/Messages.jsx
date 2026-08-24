@@ -40,8 +40,7 @@ export default function Messages() {
           matchId: row.match_id,
           profile: {
             id:          row.other_id,
-            couple_name: row.couple_name,
-            avatar_url:  row.avatar_url,
+            display_name: row.display_name,
           },
           lastMessage: row.created_at ? {
             content:    row.content,
@@ -57,7 +56,7 @@ export default function Messages() {
           const tb = b.lastMessage?.created_at || ''
           return tb.localeCompare(ta)
         })
-        .filter(t => t.profile.couple_name)
+        .filter(t => t.profile.display_name)
 
       if (!isMounted) return
       setThreads(threads)
@@ -204,13 +203,9 @@ export default function Messages() {
                   border: '1px solid rgba(201,168,76,0.2)',
                   background: '#EDE7DB',
                 }}>
-                  {t.profile?.avatar_url ? (
-                    <img src={t.profile.avatar_url} alt={t.profile?.couple_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  ) : (
-                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Cormorant, serif', fontSize: '20px', color: 'rgba(201,168,76,1)' }}>
-                      {t.profile?.couple_name?.[0]}
-                    </div>
-                  )}
+                  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Cormorant, serif', fontSize: '20px', color: 'rgba(201,168,76,1)' }}>
+                    {t.profile?.display_name?.[0]}
+                  </div>
                 </div>
                 {t.unread && (
                   <span style={{
@@ -233,7 +228,7 @@ export default function Messages() {
                   overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                   marginBottom: '2px',
                 }}>
-                  {t.profile?.couple_name}
+                  {t.profile?.display_name}
                 </p>
                 {t.lastMessage && (
                   <p style={{

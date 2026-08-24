@@ -56,7 +56,7 @@ export function useConversation(matchId) {
       if (!otherId) { navigate('/messages'); return }
 
       const { data: p } = await supabase
-        .from('profiles').select('id, couple_name, avatar_url').eq('id', otherId).single()
+        .from('profiles').select('id, display_name').eq('id', otherId).single()
       if (isMounted()) setOther(p)
 
       // Charger les messages uniquement si participant confirmé
