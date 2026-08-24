@@ -66,44 +66,32 @@ export function Quill({ size = 28, tone = 'or', style = {}, animated = true }) {
 }
 
 /**
+ * Le mot-symbole. Deux tirages du même dessin : ivoire et or sur fond
+ * encre, encre et or sur fond ivoire.
+ *
+ * `size` reste la hauteur des capitales, comme pour un texte — les
+ * capitales occupent 31,9 % de la hauteur de l'image, le reste étant la
+ * plume qui les surplombe et la volute qui passe dessous.
+ *
+ * @param {number} size   hauteur des capitales en px
  * @param {'or'|'encre'} tone
- * @param {number} size  hauteur de capitale en px
+ * @param {boolean} tagline
  */
+const CAP_RATIO = 0.319          // mesuré sur public/brand/konnexyon-encre.png
+const LOGO_RATIO = 3.017         // largeur / hauteur
+
 export function Wordmark({ size = 26, tone = 'or', tagline = false }) {
-  const color = tone === 'encre' ? INK : '#F2EEE6'
+  const hauteur = Math.round(size / CAP_RATIO)
 
   return (
-    <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
-      <span style={{
-        fontFamily: 'Cormorant, serif',
-        fontSize: size,
-        fontWeight: 500,
-        letterSpacing: '0.18em',
-        color,
-        lineHeight: 1,
-        display: 'inline-flex',
-        alignItems: 'flex-end',
-        whiteSpace: 'nowrap',
-      }}>
-        KONNE
-        {/* la plume est plantée dans le X */}
-        <span style={{ position: 'relative', display: 'inline-block', color: GOLD }}>
-          X
-          {/* la plume surplombe le X sans l'effacer : sa pointe touche la
-              croisée, le duvet monte au-dessus de la ligne de capitales */}
-          <Quill
-            size={size * 1.45}
-            tone="or"
-            style={{
-              position: 'absolute',
-              left: '46%', bottom: '34%',
-              transform: 'translateX(-34%) rotate(-14deg)',
-              pointerEvents: 'none',
-            }}
-          />
-        </span>
-        YON
-      </span>
+    <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+      <img
+        src={tone === 'encre' ? '/brand/konnexyon-encre.png' : '/brand/konnexyon.png'}
+        alt="Konnexyon"
+        width={Math.round(hauteur * LOGO_RATIO)}
+        height={hauteur}
+        style={{ height: hauteur, width: 'auto', display: 'block' }}
+      />
 
       {tagline && (
         <span style={{
