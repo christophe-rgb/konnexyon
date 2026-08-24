@@ -18,6 +18,38 @@ set display_name = couple_name
 where display_name is null and couple_name is not null;
 
 -- ============================================================
+-- 1 bis. ARCHIVE DE CE QUI VA DISPARAÎTRE
+--
+-- Les colonnes supprimées plus bas contiennent de vraies données de
+-- membres. On les recopie avant, pour qu'un regret reste réparable.
+--
+-- RLS activée sans aucune policy : la table devient invisible depuis
+-- l'API publique. Sans ça, PostgREST l'exposerait aux clients.
+-- ============================================================
+
+create table if not exists public.archive_profils_couple as
+select
+  id,
+  couple_name,
+  avatar_url,
+  orientation::text as orientation,
+  orientation_lui,
+  orientation_elle,
+  looking_for::text[] as looking_for,
+  seeking,
+  "limits",
+  availabilities,
+  email_2,
+  email_2_confirmed,
+  now() as archive_le
+from public.profiles;
+
+alter table public.archive_profils_couple enable row level security;
+
+comment on table public.archive_profils_couple is
+  'Colonnes du modèle couple, archivées avant leur suppression le 24/08/2026. Aucune policy : lecture réservée au service_role.';
+
+-- ============================================================
 -- 2. PROFILS DE DÉMONSTRATION LIBERTINS
 --    (seed 20260101001800, préfixe d'identifiant 11111111-)
 -- ============================================================

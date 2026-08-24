@@ -4,14 +4,45 @@
     {
       "name": "dossierculture",
       "runtimeExecutable": "bash",
-      "runtimeArgs": ["scripts/dossierculture-dev.sh"],
+      "runtimeArgs": [
+        "scripts/dossierculture-dev.sh"
+      ],
       "port": 5174
     },
     {
       "name": "konnexyon",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["serve", "dist", "-p", "5173", "--no-clipboard", "--single"],
+      "runtimeArgs": [
+        "serve",
+        "dist",
+        "-p",
+        "5173",
+        "--no-clipboard",
+        "--single"
+      ],
       "port": 5173
+    },
+    {
+      "name": "demos-prospection",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "/Users/parrachristophe/Desktop/prospection-orb/server.mjs"
+      ],
+      "port": 4173
+    },
+    {
+      "name": "devis-peintre",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "/Users/parrachristophe/Desktop/maxime/devis-peintre",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5180"
+      ],
+      "port": 5180
     }
   ]
 }
