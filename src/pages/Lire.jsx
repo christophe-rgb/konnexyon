@@ -35,7 +35,9 @@ export default function Lire() {
   const { word } = useDailyWord()
   const { left, connect } = useConnections()
 
-  const [mode,    setMode]    = useState('liste')   // 'liste' | 'pile' | 'carte'
+  // la pile d'abord : swiper sur les phrases plutot que sur les visages
+  // est le geste central du site, il ne se cache pas derriere une bascule
+  const [mode,    setMode]    = useState('pile')    // 'pile' | 'liste' | 'carte'
   const [maPosition, setMaPosition] = useState(null)
   const [choisi,  setChoisi]  = useState(null)
   const [entries, setEntries] = useState([])
@@ -104,8 +106,8 @@ export default function Lire() {
           {/* bascule liste / pile */}
           <div className="flex" style={{ border: '1px solid rgba(242,238,230,0.16)', borderRadius: 3, overflow: 'hidden', flexShrink: 0 }}>
             {[
-              { id: 'liste', Icon: LayoutList, aria: 'Lire en liste' },
               { id: 'pile',  Icon: Layers2,    aria: 'Lire en pile'  },
+              { id: 'liste', Icon: LayoutList, aria: 'Lire en liste' },
               { id: 'carte', Icon: MapIcon,    aria: 'Lire sur la carte' },
             ].map(({ id, Icon, aria }) => (
               <button
