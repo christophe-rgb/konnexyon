@@ -60,6 +60,14 @@ create table public.profiles (
   limits          text[]   default '{}',   -- pas_photo, discretion, pas_contact_hors_site, preservatif
   max_distance_km integer  default 50,
 
+  -- abonnement
+  plan            text not null default 'free' check (plan in ('free', 'premium')),
+  plan_expires_at timestamptz,
+
+  -- orientation détaillée (lui / elle)
+  orientation_lui  text default 'hetero' check (orientation_lui  in ('hetero', 'bi')),
+  orientation_elle text default 'hetero' check (orientation_elle in ('hetero', 'bi')),
+
   -- visibilité & statut
   visibility      profile_visibility not null default 'public',
   status          profile_status not null default 'active',
@@ -326,12 +334,6 @@ returns boolean language sql security definer as $$
   );
 $$;
 
--- helper : est-ce que je suis dans ce match ?
-create or replace function public.is_match_member(match_row public.matches)
-returns boolean language sql security definer as $$
-  select match_row.couple_a = auth.uid() or match_row.couple_b = auth.uid();
-$$;
-
 -- helper : est-ce que X m'a bloqué ou je l'ai bloqué ?
 create or replace function public.is_blocked(other_id uuid)
 returns boolean language sql security definer as $$
@@ -344,30 +346,29 @@ $$;
 
 -- ── PROFILES ──────────────────────────────────────────────────
 
--- lecture : profil visible uniquement si
---   • status = active
---   • pas de blocage mutuel
---   • visibilité = public  OU  (matches_only et on est matchés)  OU  c'est mon profil
+-- lecture : toujours voir son propre profil ; les autres uniquement si active + visibilité ok
 create policy "profiles_select" on public.profiles
   for select using (
     auth.uid() is not null
-    and status = 'active'
     and not public.is_blocked(id)
     and (
       id = auth.uid()
-      or visibility = 'public'
       or (
-        visibility = 'matches_only'
-        and exists (
-          select 1 from public.matches
-          where (couple_a = least(auth.uid(), id) and couple_b = greatest(auth.uid(), id))
+        status = 'active'
+        and (
+          visibility = 'public'
+          or (
+            visibility in ('matches_only', 'discreet')
+            and exists (
+              select 1 from public.matches
+              where couple_a = least(auth.uid(), id)
+                and couple_b = greatest(auth.uid(), id)
+            )
+          )
         )
       )
     )
   );
-
--- mode discret : profil visible uniquement par soi-même et ses matchs
--- (la policy ci-dessus couvre déjà ce cas ; discreet = invisible pour public)
 
 create policy "profiles_insert" on public.profiles
   for insert with check (id = auth.uid());
@@ -445,11 +446,21 @@ create policy "messages_insert" on public.messages
   );
 
 create policy "messages_update" on public.messages
-  for update using (
+  for update
+  using (
     exists (
       select 1 from public.matches m
       where m.id = match_id
         and (m.couple_a = auth.uid() or m.couple_b = auth.uid())
+    )
+  )
+  with check (
+    sender_id = auth.uid()
+    or exists (
+      select 1 from public.messages orig
+      where orig.id = id
+        and orig.content is not distinct from content
+        and orig.photo_url is not distinct from photo_url
     )
   );
 

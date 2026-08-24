@@ -169,12 +169,16 @@ export default function Onboarding() {
     // Upload photo si choisie
     if (photoFile) {
       const ext  = photoFile.name.split('.').pop().toLowerCase()
-      const path = `${uid}/avatar.${ext}`
-      const { error: upErr } = await supabase.storage.from('avatars').upload(path, photoFile, { upsert: true, contentType: photoFile.type })
+      const path = `${uid}/avatar_${Date.now()}.${ext}`
+      const { error: upErr } = await supabase.storage.from('avatars').upload(path, photoFile, { upsert: false, contentType: photoFile.type })
       if (!upErr) {
-        const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
-        const urlWithCache = `${publicUrl}?t=${Date.now()}`
-        await supabase.from('profiles').update({ avatar_url: urlWithCache }).eq('id', uid)
+        // Bucket privé → signed URL (10 ans)
+        const { data: signedData } = await supabase.storage
+          .from('avatars')
+          .createSignedUrl(path, 315_360_000)
+        if (signedData?.signedUrl) {
+          await supabase.from('profiles').update({ avatar_url: signedData.signedUrl }).eq('id', uid)
+        }
       }
     }
 
@@ -194,7 +198,7 @@ export default function Onboarding() {
         body: { profile_id: uid, email_2: updatedProfile.email_2, app_url: window.location.origin },
       }).catch(() => {})
     }
-    navigate('/discover?view=map')
+    navigate('/lire')
   }
 
   const currentStep = STEPS[step]

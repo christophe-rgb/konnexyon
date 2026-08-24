@@ -18,7 +18,7 @@ export default function Admin() {
 
   const checkAdmin = async () => {
     const { data: { user: u } } = await supabase.auth.getUser()
-    if (u?.app_metadata?.role !== 'admin') { navigate('/discover'); return }
+    if (u?.app_metadata?.role !== 'admin') { navigate('/lire'); return }
     setIsAdmin(true)
     loadReports()
   }

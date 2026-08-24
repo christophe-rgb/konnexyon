@@ -1,90 +1,122 @@
-import { useState, lazy, Suspense } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BookOpen } from 'lucide-react'
+import { BookOpen, ArrowRight } from 'lucide-react'
 import { useDailyWord } from '../hooks/useDailyWord'
-import { MAX_LINE_LENGTH, DAILY_CONNECTION_QUOTA, normalizeLine, formatCarnetDate } from '../lib/dailyWord'
+import { MAX_LINE_LENGTH, normalizeLine, formatCarnetDate } from '../lib/dailyWord'
+import { QUESTIONS_INSPIRATION } from '../lib/prompts'
+import { Quill } from '../components/Logo'
 
-const SwipeStack = lazy(() => import('../components/SwipeStack'))
-
-const BG   = '#050505'
-const GOLD = '#C9A84C'
-
+/**
+ * Écrire — le mot du jour et la ligne qu'il fait remonter.
+ *
+ * Une fois la ligne écrite, on ne trie pas des cartes : on va lire.
+ * L'écran renvoie vers /lire, c'est tout.
+ */
 export default function MotDuJour() {
   const navigate = useNavigate()
-  const { loading, word, myLine, responses, left, sending, submitLine, connect } = useDailyWord()
+  const { loading, word, myLine, sending, submitLine } = useDailyWord()
   const [draft, setDraft] = useState('')
-  const [passed, setPassed] = useState([])
+  const [inspiration, setInspiration] = useState(null)
 
-  // Toutes les lignes du jour répondent au même mot : on le recopie dans
-  // chaque item plutôt que de le faire traverser SwipeStack en prop.
-  // L'id de l'item est celui de l'auteur — c'est lui qu'on connecte.
-  const items = responses
-    .filter(r => !passed.includes(r.user_id))
-    .map(r => ({ id: r.user_id, pseudo: r.pseudo, line: r.line, word: word?.word }))
-
-  const remaining = normalizeLine(draft).length
+  const written = normalizeLine(draft).length
 
   return (
-    <div style={{ minHeight: '100dvh', background: BG, color: 'rgba(245,240,232,0.92)', display: 'flex', flexDirection: 'column' }}
-         className="pb-nav">
+    <div className="pb-nav" style={{
+      minHeight: '100dvh', background: 'var(--encre)', color: 'var(--ivoire)',
+      display: 'flex', flexDirection: 'column',
+    }}>
 
-      {/* ── en-tête ── */}
-      <header className="flex items-center justify-between px-5 pt-5 pb-2">
+      <header className="flex items-center justify-between" style={{ padding: '20px clamp(18px, 5vw, 28px) 6px' }}>
         <span style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.6)' }}>
           {word ? formatCarnetDate(word.publish_date) : '—'}
         </span>
-        <button
-          onClick={() => navigate('/carnet')}
-          className="erb-btn flex items-center gap-2"
-          aria-label="Mon carnet"
-          style={{
-            padding: '6px 13px', borderRadius: 999,
-            background: 'rgba(201,168,76,0.07)',
-            border: '1px solid rgba(201,168,76,0.28)',
-            color: GOLD, fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase',
-            cursor: 'pointer',
-          }}
-        >
+        <button onClick={() => navigate('/carnet')} aria-label="Mon carnet"
+                className="flex items-center" style={{
+                  gap: 7, padding: '7px 13px', borderRadius: 3,
+                  background: 'transparent', border: '1px solid rgba(201,168,76,0.3)',
+                  color: 'var(--or)', fontSize: 10, letterSpacing: '0.14em',
+                  textTransform: 'uppercase', cursor: 'pointer',
+                }}>
           <BookOpen size={13} strokeWidth={1.5} />
           Mon carnet
         </button>
       </header>
 
       {loading ? (
-        <div className="flex-1 flex items-center justify-center" role="status" aria-label="Chargement…">
-          <div className="w-8 h-8 rounded-full animate-spin"
-               style={{ border: '2px solid rgba(201,168,76,0.25)', borderTopColor: GOLD }} />
-        </div>
+        <Centre><Spinner /></Centre>
       ) : !word ? (
-        <NoWord />
-      ) : !myLine ? (
-        /* ── 1. écrire sa ligne ── */
-        <section className="flex-1 flex flex-col items-center justify-center px-6 animate-fade-in"
-                 style={{ animationFillMode: 'both', gap: 30 }}>
+        <Centre>
+          <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.6rem' }}>Pas de mot aujourd’hui</p>
+          <p style={{ fontSize: 13, color: 'rgba(242,238,230,0.45)', lineHeight: 1.7, marginTop: 10 }}>
+            Le prochain arrive bientôt. Revenez tout à l’heure.
+          </p>
+        </Centre>
+      ) : myLine ? (
+        /* ── ligne écrite : on va lire ── */
+        <Centre>
+          <Quill size={52} tone="or" style={{ marginBottom: 26 }} />
+          <p style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.6)' }}>
+            {word.word}
+          </p>
+          <p style={{
+            fontFamily: 'Cormorant, serif', fontStyle: 'italic',
+            fontSize: 'clamp(1.35rem, 5.4vw, 1.8rem)', lineHeight: 1.6,
+            margin: '16px 0 4px', maxWidth: 460,
+          }}>
+            « {myLine} »
+          </p>
+          <p style={{ fontSize: 13, color: 'rgba(242,238,230,0.45)', lineHeight: 1.75, marginTop: 18, maxWidth: 380 }}>
+            Votre ligne est déposée. Les autres vous sont ouvertes.
+          </p>
+          <button onClick={() => navigate('/lire')} className="btn btn-continuer" style={{ marginTop: 30 }}>
+            Lire ce qu’ils ont écrit
+            <ArrowRight size={14} strokeWidth={1.7} />
+          </button>
+        </Centre>
+      ) : (
+        /* ── écrire sa ligne ── */
+        <section className="flex-1 flex flex-col items-center justify-center animate-fade-in"
+                 style={{ animationFillMode: 'both', gap: 32, padding: '0 clamp(20px, 6vw, 28px)' }}>
 
-          <WordHero word={word.word} />
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ fontSize: 10, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.55)', marginBottom: 12 }}>
+              Le mot du jour
+            </p>
+            <h1 className="shine-text" style={{
+              fontFamily: 'Cormorant, serif',
+              fontSize: 'clamp(3rem, 15vw, 5rem)',
+              fontWeight: 500, lineHeight: 1, letterSpacing: '0.02em',
+            }}>
+              {word.word}
+            </h1>
+          </div>
 
-          <div style={{ width: '100%', maxWidth: 420, display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <label htmlFor="ligne-du-jour" style={{ fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.7)' }}>
-              Votre ligne
+          <div style={{ width: '100%', maxWidth: 440, display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {/* l'invite est une phrase, pas une étiquette : Cormorant, casse normale */}
+            <label htmlFor="ligne-du-jour" style={{
+              fontFamily: 'Cormorant, serif',
+              fontSize: 'clamp(1.1rem, 4vw, 1.3rem)',
+              lineHeight: 1.5,
+              color: 'rgba(242,238,230,0.9)',
+            }}>
+              Écris quelque chose que tu n’aurais jamais mis sur une photo.
             </label>
 
             <textarea
               id="ligne-du-jour"
-              className="input-gold"
               value={draft}
               onChange={e => setDraft(e.target.value.slice(0, MAX_LINE_LENGTH))}
               maxLength={MAX_LINE_LENGTH}
               rows={3}
-              placeholder="Ce que ce mot fait remonter…"
+              placeholder="Commence à écrire…"
               autoComplete="off"
               style={{
                 width: '100%', resize: 'none',
-                background: 'rgba(255,255,255,0.03)',
+                background: 'rgba(242,238,230,0.04)',
                 border: '1px solid rgba(201,168,76,0.22)',
-                borderRadius: 14, padding: '14px 16px',
-                color: 'rgba(245,240,232,0.95)',
-                fontFamily: 'Cormorant, serif', fontSize: '1.2rem', lineHeight: 1.6,
+                borderRadius: 3, padding: '15px 17px',
+                color: 'rgba(242,238,230,0.95)',
+                fontFamily: 'Cormorant, serif', fontSize: '1.25rem', lineHeight: 1.6,
                 outline: 'none',
               }}
             />
@@ -92,112 +124,69 @@ export default function MotDuJour() {
             <div className="flex items-center justify-between">
               <span aria-live="polite" style={{
                 fontSize: 11, letterSpacing: '0.1em',
-                color: remaining >= MAX_LINE_LENGTH ? 'rgba(248,113,113,0.9)' : 'rgba(245,240,232,0.4)',
+                color: written >= MAX_LINE_LENGTH ? 'rgba(248,113,113,0.9)' : 'rgba(242,238,230,0.38)',
               }}>
-                {remaining} / {MAX_LINE_LENGTH}
+                {written} / {MAX_LINE_LENGTH}
               </span>
-              <span style={{ fontSize: 11, letterSpacing: '0.1em', color: 'rgba(245,240,232,0.35)' }}>
-                Une ligne par jour
-              </span>
+              <button
+                onClick={() => setInspiration(pickOther(inspiration))}
+                style={{
+                  background: 'none', border: 'none', padding: 0, cursor: 'pointer',
+                  fontSize: 11, letterSpacing: '0.1em', color: 'rgba(242,238,230,0.38)',
+                  textDecoration: 'underline', textUnderlineOffset: 3,
+                }}
+              >
+                Rien ne vient ?
+              </button>
             </div>
 
+            {inspiration && (
+              <p className="animate-fade-in" style={{
+                fontFamily: 'Cormorant, serif', fontStyle: 'italic', fontSize: '1.05rem',
+                color: 'rgba(201,168,76,0.8)', lineHeight: 1.55, animationFillMode: 'both',
+              }}>
+                {inspiration}
+              </p>
+            )}
+
             <button
-              className="btn-gold"
+              className="btn btn-continuer"
               onClick={async () => { const ok = await submitLine(draft); if (ok) setDraft('') }}
-              disabled={sending || remaining === 0}
-              style={{
-                marginTop: 4, padding: '14px', borderRadius: 14,
-                fontSize: 13, border: 'none',
-                cursor: sending || remaining === 0 ? 'not-allowed' : 'pointer',
-                opacity: sending || remaining === 0 ? 0.45 : 1,
-              }}
+              disabled={sending || written === 0}
+              style={{ marginTop: 6, width: '100%' }}
             >
-              {sending ? 'Envoi…' : 'Écrire ma ligne'}
+              {sending ? 'Envoi…' : 'Continuer'}
+              {!sending && <ArrowRight size={14} strokeWidth={1.7} />}
             </button>
 
-            <p style={{ fontSize: 11, color: 'rgba(245,240,232,0.35)', lineHeight: 1.6, textAlign: 'center' }}>
-              Vous découvrirez les lignes des autres une fois la vôtre écrite.
+            <p style={{ fontSize: 11, color: 'rgba(242,238,230,0.32)', lineHeight: 1.7, textAlign: 'center' }}>
+              Une ligne par jour. Vous lirez les autres une fois la vôtre écrite.
             </p>
           </div>
-        </section>
-      ) : (
-        /* ── 2. découvrir les lignes des autres ── */
-        <section className="flex-1 flex flex-col animate-fade-in" style={{ animationFillMode: 'both' }}>
-
-          <MyLine line={myLine} />
-
-          {left === 0 && (
-            <p role="status" className="mx-5 mb-1" style={{
-              padding: '9px 14px', borderRadius: 12, textAlign: 'center',
-              background: 'rgba(248,113,113,0.07)',
-              border: '1px solid rgba(248,113,113,0.22)',
-              color: 'rgba(248,113,113,0.9)', fontSize: 12, lineHeight: 1.5,
-            }}>
-              Vos {DAILY_CONNECTION_QUOTA} connexions du jour sont utilisées. Vous pouvez continuer à lire — le compteur repart demain.
-            </p>
-          )}
-
-          <Suspense fallback={<div className="flex-1" />}>
-            <SwipeStack
-              variant="word"
-              profiles={items}
-              counterLabel={`${left} connexion${left > 1 ? 's' : ''} sur ${DAILY_CONNECTION_QUOTA} aujourd’hui`}
-              onLike={userId => connect(userId)}
-              onPass={userId => setPassed(p => p.includes(userId) ? p : [...p, userId])}
-            />
-          </Suspense>
         </section>
       )}
     </div>
   )
 }
 
-function WordHero({ word }) {
+// une question au hasard, jamais deux fois la même d'affilée
+function pickOther(current) {
+  const pool = QUESTIONS_INSPIRATION.filter(q => q !== current)
+  return pool[Math.floor(Math.random() * pool.length)]
+}
+
+function Centre({ children }) {
   return (
-    <div style={{ textAlign: 'center' }}>
-      <p style={{ fontSize: 10, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.55)', marginBottom: 10 }}>
-        Le mot du jour
-      </p>
-      <h1 className="shine-text" style={{
-        fontFamily: 'Cormorant, serif',
-        fontSize: 'clamp(3rem, 15vw, 5rem)',
-        fontWeight: 600, lineHeight: 1, letterSpacing: '0.02em',
-      }}>
-        {word}
-      </h1>
+    <div className="flex-1 flex flex-col items-center justify-center text-center"
+         style={{ padding: '0 clamp(24px, 7vw, 32px)' }}>
+      {children}
     </div>
   )
 }
 
-// Le mot est repris sur chaque carte de la pile : inutile de le redire ici,
-// on ne rappelle que la ligne du membre. Le retrait droit dégage le bouton
-// panique, fixé en haut à droite de l'app.
-function MyLine({ line }) {
+function Spinner() {
   return (
-    <div style={{ textAlign: 'center', padding: '2px 48px 16px' }}>
-      <p style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.55)', marginBottom: 6 }}>
-        Votre ligne
-      </p>
-      <p style={{
-        fontFamily: 'Cormorant, serif', fontStyle: 'italic',
-        fontSize: '1.05rem', lineHeight: 1.5,
-        color: 'rgba(245,240,232,0.62)',
-      }}>
-        « {line} »
-      </p>
-    </div>
-  )
-}
-
-function NoWord() {
-  return (
-    <div className="flex-1 flex flex-col items-center justify-center text-center px-8" style={{ gap: 14 }}>
-      <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.6rem', color: 'rgba(245,240,232,0.85)' }}>
-        Pas de mot aujourd’hui
-      </p>
-      <p style={{ fontSize: 13, color: 'rgba(245,240,232,0.45)', lineHeight: 1.6 }}>
-        Le prochain arrive bientôt. Revenez tout à l’heure.
-      </p>
-    </div>
+    <div role="status" aria-label="Chargement…" className="w-8 h-8 rounded-full animate-spin"
+         style={{ border: '2px solid rgba(201,168,76,0.25)', borderTopColor: 'var(--or)' }} />
   )
 }

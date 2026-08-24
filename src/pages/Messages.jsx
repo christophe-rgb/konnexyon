@@ -4,8 +4,6 @@ import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
 import { DEMO_MATCHES, DEMO_MESSAGES } from '../lib/demo'
 import { MessageCircle } from 'lucide-react'
-import { isPremium } from '../lib/plan'
-import UpgradeModal from '../components/UpgradeModal'
 
 export default function Messages() {
   const profile  = useAuthStore(s => s.profile)
@@ -14,7 +12,6 @@ export default function Messages() {
   const [threads,     setThreads]     = useState([])
   const [loading,     setLoading]     = useState(true)
   const [showUpgrade, setShowUpgrade] = useState(false)
-  const premium = isPremium(profile)
 
   useEffect(() => {
     if (!profile) return
@@ -108,18 +105,6 @@ export default function Messages() {
       supabase.removeChannel(channel)
     }
   }, [profile])
-
-  // Paywall : la messagerie est réservée aux abonnés Premium (sauf mode démo)
-  if (!demoMode && !premium) {
-    return (
-      <div className="max-w-lg mx-auto pb-nav">
-        <UpgradeModal
-          message="La messagerie est réservée aux membres Premium. Passez Premium pour échanger avec vos connexions."
-          onClose={() => navigate('/discover')}
-        />
-      </div>
-    )
-  }
 
   return (
     <div className="max-w-lg mx-auto pb-nav">

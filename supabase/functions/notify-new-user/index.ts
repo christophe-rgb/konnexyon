@@ -1,8 +1,8 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 
-const TELEGRAM_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN')!
-const CHAT_ID = Deno.env.get('TELEGRAM_CHAT_ID')!
-const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!
+const TELEGRAM_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN') ?? ''
+const CHAT_ID = Deno.env.get('TELEGRAM_CHAT_ID') ?? ''
+const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY') ?? ''
 const ADMIN_EMAIL = 'konnexyon@gmail.com'
 
 // Échappe le HTML injecté dans les emails (anti-XSS / injection de contenu)

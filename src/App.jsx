@@ -2,14 +2,12 @@ import { useEffect, useState, lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from './store/auth'
 import { supabase } from './lib/supabase'
-import { safeGet, safeSet, safeRemove } from './lib/storage'
 
 import ErrorBoundary from './components/ErrorBoundary'
 import Navbar       from './components/Navbar'
 import { ToastContainer } from './components/Toast'
 import { ConfirmDialogHost } from './components/ConfirmDialog'
 import MatchModal   from './components/MatchModal'
-import AgeGate      from './components/AgeGate'
 import CookieBanner from './components/CookieBanner'
 
 const Home           = lazy(() => import('./pages/Home'))
@@ -19,7 +17,6 @@ const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
 const ConfirmPartner = lazy(() => import('./pages/ConfirmPartner'))
 const Onboarding     = lazy(() => import('./pages/Onboarding'))
-const Discover       = lazy(() => import('./pages/Discover'))
 const MotDuJour      = lazy(() => import('./pages/MotDuJour'))
 const Lire           = lazy(() => import('./pages/Lire'))
 const Personne       = lazy(() => import('./pages/Personne'))
@@ -30,14 +27,9 @@ const Conversation   = lazy(() => import('./pages/Conversation'))
 const Profile        = lazy(() => import('./pages/Profile'))
 const Settings       = lazy(() => import('./pages/Settings'))
 const Admin          = lazy(() => import('./pages/Admin'))
-const Abonnement     = lazy(() => import('./pages/Abonnement'))
 const CGU            = lazy(() => import('./pages/CGU'))
 const Confidentialite = lazy(() => import('./pages/Confidentialite'))
 const Contact        = lazy(() => import('./pages/Contact'))
-const Blog           = lazy(() => import('./pages/Blog'))
-const BlogArticle    = lazy(() => import('./pages/BlogArticle'))
-const BlogCountryList    = lazy(() => import('./pages/BlogCountry').then(m => ({ default: m.BlogCountryList })))
-const BlogCountryArticle = lazy(() => import('./pages/BlogCountry').then(m => ({ default: m.BlogCountryArticle })))
 const NotFound           = lazy(() => import('./pages/NotFound'))
 
 const PageLoader = () => (
@@ -61,7 +53,6 @@ function RequireProfile({ children }) {
   const { profile, loading } = useAuthStore()
   if (loading) return null
   if (!profile || !profile.email_1_confirmed) return <Navigate to="/onboarding" replace />
-  if (!profile.age_confirmed_at) return <Navigate to="/onboarding" replace />
   return children
 }
 
@@ -71,37 +62,6 @@ export default function App() {
   const profile = useAuthStore(s => s.profile)
   const user    = useAuthStore(s => s.user)
   const [newMatch, setNewMatch] = useState(null)
-  const [ageConfirmed, setAgeConfirmed] = useState(
-    () => safeGet('age_confirmed') === '1'
-  )
-
-  useEffect(() => { init(); return () => cleanup() }, [init, cleanup])
-
-  // Vérification hybride age_confirmed : localStorage + Supabase profiles
-  // Empêche l'injection manuelle de la clé localStorage sans validation réelle
-  useEffect(() => {
-    if (!user) return
-    supabase
-      .from('profiles')
-      .select('age_confirmed_at')
-      .eq('id', user.id)
-      .single()
-      .then(({ data, error }) => {
-        if (error || !data) return
-        if (data.age_confirmed_at) {
-          // La DB confirme l'âge — synchroniser localStorage si absent
-          if (safeGet('age_confirmed') !== '1') {
-            safeSet('age_confirmed', '1')
-          }
-          setAgeConfirmed(true)
-        } else {
-          // Pas de confirmation DB — invalider la clé localStorage injectée
-          safeRemove('age_confirmed')
-          setAgeConfirmed(false)
-        }
-      })
-  }, [user])
-
   // écoute les nouveaux matchs en realtime pour afficher la modal
   useEffect(() => {
     if (!profile) return
@@ -127,54 +87,8 @@ export default function App() {
 
   const showNav = user && profile?.email_1_confirmed
 
-  if (!ageConfirmed) return <AgeGate onConfirm={() => setAgeConfirmed(true)} />
-
-  const panicExit = async () => {
-    safeRemove('age_confirmed')
-    await supabase.auth.signOut()
-    window.location.replace('https://www.google.fr')
-  }
-
   return (
     <div className="min-h-dvh bg-bg text-text" style={{ position: 'relative' }}>
-
-      {/* Bouton panique — discret, toujours visible */}
-      <button
-        onClick={panicExit}
-        title="Fermer"
-        aria-label="Fermer le site"
-        style={{
-          position: 'fixed',
-          top: '90px',
-          right: '14px',
-          zIndex: 9999,
-          width: 32,
-          height: 32,
-          borderRadius: '50%',
-          background: 'rgba(200,190,175,0.55)',
-          border: '1px solid rgba(28,24,20,0.08)',
-          color: 'rgba(220,50,50,0.85)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          fontSize: '16px',
-          backdropFilter: 'blur(6px)',
-          transition: 'all 0.2s',
-        }}
-        onMouseEnter={e => {
-          e.currentTarget.style.background = 'rgba(60,20,20,0.85)'
-          e.currentTarget.style.color = 'rgba(255,80,80,1)'
-          e.currentTarget.style.borderColor = 'rgba(220,50,50,0.4)'
-        }}
-        onMouseLeave={e => {
-          e.currentTarget.style.background = 'rgba(200,190,175,0.55)'
-          e.currentTarget.style.color = 'rgba(220,50,50,0.85)'
-          e.currentTarget.style.borderColor = 'rgba(28,24,20,0.08)'
-        }}
-      >
-        ⚠
-      </button>
 
       <ToastContainer />
       <ConfirmDialogHost />
@@ -199,14 +113,6 @@ export default function App() {
             <Route path="/cgu"               element={<CGU />} />
             <Route path="/confidentialite"   element={<Confidentialite />} />
             <Route path="/contact"           element={<Contact />} />
-            <Route path="/blog"              element={<Blog />} />
-            <Route path="/blog/:slug"        element={<BlogArticle />} />
-            <Route path="/belgique"          element={<BlogCountryList country="belgique" />} />
-            <Route path="/belgique/:slug"    element={<BlogCountryArticle country="belgique" />} />
-            <Route path="/suisse"            element={<BlogCountryList country="suisse" />} />
-            <Route path="/suisse/:slug"      element={<BlogCountryArticle country="suisse" />} />
-            <Route path="/quebec"            element={<BlogCountryList country="quebec" />} />
-            <Route path="/quebec/:slug"      element={<BlogCountryArticle country="quebec" />} />
 
             <Route path="/onboarding" element={
               <RequireAuth><Onboarding /></RequireAuth>
@@ -224,9 +130,6 @@ export default function App() {
             <Route path="/carnet" element={
               <RequireAuth><RequireProfile><Carnet /></RequireProfile></RequireAuth>
             } />
-            <Route path="/discover" element={
-              <RequireAuth><RequireProfile><Discover /></RequireProfile></RequireAuth>
-            } />
             <Route path="/matches" element={
               <RequireAuth><RequireProfile><Matches /></RequireProfile></RequireAuth>
             } />
@@ -241,9 +144,6 @@ export default function App() {
             } />
             <Route path="/settings" element={
               <RequireAuth><RequireProfile><Settings /></RequireProfile></RequireAuth>
-            } />
-            <Route path="/abonnement" element={
-              <RequireAuth><RequireProfile><Abonnement /></RequireProfile></RequireAuth>
             } />
             <Route path="/admin" element={
               <RequireAuth><Admin /></RequireAuth>

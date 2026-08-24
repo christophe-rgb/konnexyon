@@ -186,7 +186,6 @@ export default function Home() {
       }}>
         <Wordmark size={16} tone="encre" />
         <nav style={{ display: 'flex', gap: 22, flexWrap: 'wrap' }}>
-          <Link to="/blog"            style={footLink}>Journal</Link>
           <Link to="/cgu"             style={footLink}>Conditions</Link>
           <Link to="/confidentialite" style={footLink}>Confidentialité</Link>
           <Link to="/contact"         style={footLink}>Contact</Link>

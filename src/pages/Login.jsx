@@ -29,10 +29,10 @@ export default function Login() {
         location_updated_at: new Date().toISOString(),
       }).eq('id', data.user.id)
     })
-    navigate('/discover')
+    navigate('/lire')
   }
 
-  const handleDemo = () => { setDemo(); navigate('/discover') }
+  const handleDemo = () => { setDemo(); navigate('/lire') }
 
   return (
     <div className="min-h-dvh flex flex-col items-center justify-center px-6 relative overflow-hidden">

@@ -69,7 +69,7 @@ export function useProfileActions(uid) {
     const { error } = await supabase.from('blocks').insert({ blocker_id: myProfile.id, blocked_id: uid })
     if (error && error.code !== '23505') { toast(`Erreur : ${error.message}`, 'error'); return }
     toast('Couple bloqué')
-    navigate('/discover')
+    navigate('/lire')
   }
 
   const report = async (reason) => {
@@ -90,6 +90,13 @@ export function useProfileActions(uid) {
     }
   }
 
+  // Extrait le chemin storage depuis une URL Supabase (sans le ?t= éventuel)
+  const _storagePathFromUrl = (url) => {
+    if (!url) return null
+    const m = url.match(/\/avatars\/(.+?)(?:\?|$)/)
+    return m ? m[1] : null
+  }
+
   const uploadAvatar = async (file) => {
     const check = validateImageFile(file)
     if (!check.ok) { toast(check.error, 'error'); return }
@@ -97,12 +104,23 @@ export function useProfileActions(uid) {
     if (!magic.ok) { toast(magic.error, 'error'); return }
     try {
       const ext  = file.name.split('.').pop().toLowerCase()
-      const path = `${myProfile.id}/avatar.${ext}`
-      const { error: upErr } = await supabase.storage.from('avatars').upload(path, file, { upsert: true, contentType: file.type })
+      // Nom unique à chaque upload → contourne le cache CDN Supabase
+      const path = `${myProfile.id}/avatar_${Date.now()}.${ext}`
+
+      // Supprimer l'ancienne photo du storage si elle existe
+      const oldPath = _storagePathFromUrl(myProfile.avatar_url)
+      if (oldPath) {
+        await supabase.storage.from('avatars').remove([oldPath])
+      }
+
+      const { error: upErr } = await supabase.storage.from('avatars').upload(path, file, { upsert: false, contentType: file.type })
       if (upErr) { toast(`Erreur upload : ${upErr.message}`); return }
-      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
-      const urlWithCache = `${publicUrl}?t=${Date.now()}`
-      const { error: dbErr } = await supabase.from('profiles').update({ avatar_url: urlWithCache }).eq('id', myProfile.id)
+      // Bucket privé → signed URL (10 ans, renouvelée à chaque re-upload)
+      const { data: signedData, error: signErr } = await supabase.storage
+        .from('avatars')
+        .createSignedUrl(path, 315_360_000)
+      if (signErr || !signedData?.signedUrl) { toast('Erreur génération URL image'); return }
+      const { error: dbErr } = await supabase.from('profiles').update({ avatar_url: signedData.signedUrl }).eq('id', myProfile.id)
       if (dbErr) { toast(`Erreur sauvegarde : ${dbErr.message}`); return }
       await fetchProfile(myProfile.id)
       toast('Photo mise à jour ✓')
@@ -120,9 +138,9 @@ export function useProfileActions(uid) {
     })
     if (!ok) return
     try {
-      const url = myProfile.avatar_url || ''
-      const filename = url.split('/').pop()
-      if (filename) await supabase.storage.from('avatars').remove([`${myProfile.id}/${filename}`])
+      // Extraire le chemin propre (sans ?t=...) pour la suppression storage
+      const storagePath = _storagePathFromUrl(myProfile.avatar_url)
+      if (storagePath) await supabase.storage.from('avatars').remove([storagePath])
       await supabase.from('profiles').update({ avatar_url: null }).eq('id', myProfile.id)
       await fetchProfile(myProfile.id)
       toast('Photo supprimée')
@@ -153,7 +171,7 @@ export function useProfileActions(uid) {
       }
       await fetchProfile(myProfile.id)
       setEditing(false)
-      navigate('/discover?view=map')
+      navigate('/lire')
     } catch (err) {
       if (import.meta.env.DEV) console.error('Exception save():', err)
       toast('Une erreur inattendue est survenue')
