@@ -67,6 +67,25 @@
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     <script>
+      // Filet de recuperation : si un ancien service worker a servi un
+      // index.html perime, les modules haches qu'il reference n'existent
+      // plus et la page reste blanche. On le desinscrit et on recharge,
+      // une seule fois par session pour ne pas boucler.
+      window.addEventListener('error', function (e) {
+        var cible = e.target
+        if (!cible || cible.tagName !== 'SCRIPT') return
+        if (sessionStorage.getItem('sw-reset')) return
+        sessionStorage.setItem('sw-reset', '1')
+        if (navigator.serviceWorker) {
+          navigator.serviceWorker.getRegistrations()
+            .then(function (rs) { return Promise.all(rs.map(function (r) { return r.unregister() })) })
+            .then(function () { location.reload() })
+        } else {
+          location.reload()
+        }
+      }, true)
+    </script>
+    <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js').catch(() => {})
