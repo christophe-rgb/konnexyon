@@ -29,6 +29,9 @@ const Admin          = lazy(() => import('./pages/Admin'))
 const CGU            = lazy(() => import('./pages/CGU'))
 const Confidentialite = lazy(() => import('./pages/Confidentialite'))
 const Contact        = lazy(() => import('./pages/Contact'))
+const Boutique       = lazy(() => import('./pages/Boutique'))
+const Produit        = lazy(() => import('./pages/Produit'))
+const Panier         = lazy(() => import('./pages/Panier'))
 const NotFound           = lazy(() => import('./pages/NotFound'))
 
 const PageLoader = () => (
@@ -111,6 +114,11 @@ export default function App() {
             <Route path="/cgu"               element={<CGU />} />
             <Route path="/confidentialite"   element={<Confidentialite />} />
             <Route path="/contact"           element={<Contact />} />
+
+            {/* La Papeterie — publique : on peut acheter sans compte */}
+            <Route path="/boutique"          element={<Boutique />} />
+            <Route path="/boutique/:slug"    element={<Produit />} />
+            <Route path="/panier"            element={<Panier />} />
 
             <Route path="/onboarding" element={
               <RequireAuth><Onboarding /></RequireAuth>
