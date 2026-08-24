@@ -64,6 +64,12 @@ export default function App() {
   const profile = useAuthStore(s => s.profile)
   const user    = useAuthStore(s => s.user)
   const [newMatch, setNewMatch] = useState(null)
+
+  // Sans cet appel, loading reste a true et toute route protegee tourne
+  // dans le vide. Le mode demo, lui, met loading a false directement :
+  // c'est pourquoi le bug ne se voyait qu'avec un vrai compte.
+  useEffect(() => { init(); return () => cleanup() }, [init, cleanup])
+
   // écoute les nouveaux matchs en realtime pour afficher la modal
   useEffect(() => {
     if (!profile) return
