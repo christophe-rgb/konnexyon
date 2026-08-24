@@ -71,9 +71,9 @@ export default function App() {
         event: 'INSERT', schema: 'public', table: 'matches',
       }, async payload => {
         const m = payload.new
-        if (m.couple_a !== profile.id && m.couple_b !== profile.id) return
+        if (m.member_a !== profile.id && m.member_b !== profile.id) return
 
-        const otherId = m.couple_a === profile.id ? m.couple_b : m.couple_a
+        const otherId = m.member_a === profile.id ? m.member_b : m.member_a
         const { data: other } = await supabase
           .from('profiles').select('id, display_name').eq('id', otherId).single()
 

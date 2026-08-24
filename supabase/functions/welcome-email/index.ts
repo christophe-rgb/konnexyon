@@ -9,7 +9,7 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
   try {
-    const { email, couple_name } = await req.json()
+    const { email, display_name } = await req.json()
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
 
     if (!RESEND_API_KEY) throw new Error('RESEND_API_KEY not set')
@@ -40,11 +40,11 @@ serve(async (req) => {
           <tr>
             <td style="padding:40px 40px 32px;">
               <h1 style="margin:0 0 16px;font-size:28px;font-weight:600;color:#F2EDE6;line-height:1.25;">
-                Bienvenue${couple_name && couple_name !== 'Nouveau couple' ? `,<br/>${couple_name}` : ''} !
+                Bienvenue${display_name && display_name !== 'Anonyme' ? `,<br/>${display_name}` : ''} !
               </h1>
               <p style="margin:0 0 20px;font-size:15px;color:rgba(255,255,255,0.5);line-height:1.75;">
                 Votre compte Konnexyon a été créé avec succès.<br/>
-                Vous faites désormais partie d'une communauté exclusive dédiée aux couples libertins.
+                Chaque jour, un mot. Vous écrivez la ligne qu'il fait remonter, puis vous lisez celles des autres.
               </p>
               <p style="margin:0 0 32px;font-size:15px;color:rgba(255,255,255,0.5);line-height:1.75;">
                 Complétez votre profil et commencez à explorer des connexions près de chez vous.

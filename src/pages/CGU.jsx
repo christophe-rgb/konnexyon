@@ -14,10 +14,10 @@ export default function CGU() {
       </header>
       <div style={{ maxWidth: 680, margin: '0 auto', padding: '40px 24px 80px' }}>
         <Article title="1. Objet">
-          Konnexyon est une plateforme de rencontres réservée exclusivement aux couples adultes consentants. L'accès au site est strictement interdit aux mineurs de moins de 18 ans.
+          Konnexyon est un site de rencontre par l'écriture, réservé aux personnes majeures. On n'y publie pas de photo : le profil est constitué de réponses écrites.
         </Article>
         <Article title="2. Conditions d'accès">
-          Pour utiliser Konnexyon, vous devez : avoir 18 ans ou plus, être en couple et utiliser le service en tant que couple, fournir des informations exactes lors de l'inscription, ne pas usurper l'identité d'un tiers.
+          Pour utiliser Konnexyon, vous devez : avoir 18 ans ou plus, écrire vous-même les textes que vous publiez, fournir des informations exactes lors de l'inscription, ne pas usurper l'identité d'un tiers.
         </Article>
         <Article title="3. Contenu des profils">
           Konnexyon est une plateforme de rencontres — pas un site de contenu adulte. Les photos de profil doivent rester décentes : visages, tenues de ville ou de soirée. Les photos dénudées, explicites ou à caractère pornographique sont strictement interdites. Tout contenu impliquant des mineurs, non consenti, pornographique ou illégal entraîne la suppression immédiate du compte et peut faire l'objet d'un signalement aux autorités compétentes.

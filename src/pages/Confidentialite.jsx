@@ -14,7 +14,7 @@ export default function Confidentialite() {
       </header>
       <div style={{ maxWidth: 680, margin: '0 auto', padding: '40px 24px 80px' }}>
         <Article title="1. Données collectées">
-          Nous collectons : adresse(s) email, pseudo du couple, description et photo de profil, localisation approximative (si autorisée), préférences et critères de recherche, données d'abonnement (sans données bancaires — traitées par notre prestataire de paiement).
+          Nous collectons : adresse email, prénom affiché, âge et lieu si vous les renseignez, les textes que vous écrivez (réponses de profil et lignes du jour), vos réponses au questionnaire de compatibilité, et une localisation approximative si vous l'autorisez. Vos réponses au questionnaire ne sont lisibles que par vous : les autres membres n'en voient qu'un pourcentage de compatibilité.
         </Article>
         <Article title="2. Utilisation des données">
           Vos données sont utilisées exclusivement pour : faire fonctionner le service de mise en relation, améliorer l'expérience utilisateur, gérer votre abonnement. Vos données ne sont jamais vendues à des tiers.

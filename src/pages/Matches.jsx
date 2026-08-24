@@ -28,14 +28,14 @@ export default function Matches() {
     const load = async () => {
       const { data } = await supabase
         .from('matches')
-        .select('id, created_at, couple_a, couple_b')
-        .or(`couple_a.eq.${profile.id},couple_b.eq.${profile.id}`)
+        .select('id, created_at, member_a, member_b')
+        .or(`member_a.eq.${profile.id},member_b.eq.${profile.id}`)
         .order('created_at', { ascending: false })
 
       if (!data) { if (isMounted) setLoading(false); return }
 
       // Batch fetch all profiles in one query instead of N individual selects
-      const otherIds = data.map(m => m.couple_a === profile.id ? m.couple_b : m.couple_a)
+      const otherIds = data.map(m => m.member_a === profile.id ? m.member_b : m.member_a)
       const { data: profiles } = await supabase
         .from('profiles')
         .select('id, display_name, age, city')
@@ -43,7 +43,7 @@ export default function Matches() {
       const profileMap = Object.fromEntries((profiles || []).map(p => [p.id, p]))
 
       const enriched = await Promise.all(data.map(async m => {
-        const otherId = m.couple_a === profile.id ? m.couple_b : m.couple_a
+        const otherId = m.member_a === profile.id ? m.member_b : m.member_a
 
         const { data: msg } = await supabase
           .from('messages')

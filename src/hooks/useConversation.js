@@ -46,13 +46,13 @@ export function useConversation(matchId) {
 
     const init = async () => {
       // SEC-003 : loadMatch en premier (séquentiel) pour vérifier que
-      // l'utilisateur est bien couple_a ou couple_b avant de s'abonner.
+      // l'utilisateur est bien membre de la connexion avant de s'abonner.
       const { data: m } = await supabase
-        .from('matches').select('couple_a, couple_b').eq('id', matchId).single()
+        .from('matches').select('member_a, member_b').eq('id', matchId).single()
       if (!m || !isMounted()) return
-      const otherId = m.couple_a === profile.id
-        ? m.couple_b
-        : m.couple_b === profile.id ? m.couple_a : null
+      const otherId = m.member_a === profile.id
+        ? m.member_b
+        : m.member_b === profile.id ? m.member_a : null
       if (!otherId) { navigate('/messages'); return }
 
       const { data: p } = await supabase
@@ -224,7 +224,7 @@ export function useConversation(matchId) {
       danger: true,
     })
     if (!ok) return
-    const { error } = await supabase.from('matches').delete().eq('id', matchId).or(`couple_a.eq.${profile.id},couple_b.eq.${profile.id}`)
+    const { error } = await supabase.from('matches').delete().eq('id', matchId).or(`member_a.eq.${profile.id},member_b.eq.${profile.id}`)
     if (error) { toast(`Erreur : ${error.message}`, 'error'); return }
     navigate('/matches')
     toast('Match annulé')

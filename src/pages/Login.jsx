@@ -113,7 +113,7 @@ export default function Login() {
               fontWeight: 400,
               animationDuration: '22s',
               animationDelay: '1s',
-            }}>Libertins par choix · Connectés par désir</span>
+            }}>On ne choisit pas un visage</span>
             <div className="w-8 h-px" style={{ background: 'linear-gradient(90deg, rgba(201,168,76,0.1), transparent)' }} />
           </div>
         </div>

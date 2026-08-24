@@ -23,7 +23,7 @@ serve(async (req) => {
     const record = payload.record
 
     const now = new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })
-    const coupleName = record.couple_name || 'Couple sans nom'
+    const displayName = record.display_name || 'Sans nom'
     const city = record.city || '—'
     const status = record.status || 'actif'
     const email = record.email_1 || record.email || '—'
@@ -34,7 +34,7 @@ serve(async (req) => {
       const msg = [
         `🎉 *Nouvel inscrit sur Konnexyon !*`,
         ``,
-        `👫 *${escapeMarkdown(coupleName)}*`,
+        `🖋 *${escapeMarkdown(displayName)}*`,
         `📧 ${escapeMarkdown(email)}`,
         `📍 ${escapeMarkdown(city)}`,
         `💎 Plan : ${escapeMarkdown(plan)}`,
@@ -67,11 +67,11 @@ serve(async (req) => {
         </tr>
         <tr>
           <td style="padding:24px;">
-            <p style="margin:0 0 16px;font-size:16px;font-weight:bold;color:#0D1117;">🎉 Nouveau couple inscrit !</p>
+            <p style="margin:0 0 16px;font-size:16px;font-weight:bold;color:#0D1117;">🎉 Nouvelle inscription !</p>
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr>
-                <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;color:#666;font-size:13px;width:40%;">Couple</td>
-                <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;color:#0D1117;font-size:13px;font-weight:bold;">${escapeHtml(coupleName)}</td>
+                <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;color:#666;font-size:13px;width:40%;">Membre</td>
+                <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;color:#0D1117;font-size:13px;font-weight:bold;">${escapeHtml(displayName)}</td>
               </tr>
               <tr>
                 <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;color:#666;font-size:13px;">Email</td>
@@ -112,7 +112,7 @@ serve(async (req) => {
         body: JSON.stringify({
           from: 'Konnexyon <noreply@konnexyon.com>',
           to: [ADMIN_EMAIL],
-          subject: `🎉 Nouvel inscrit : ${String(coupleName).replace(/[\r\n]/g, ' ')}`,
+          subject: `🎉 Nouvel inscrit : ${String(displayName).replace(/[\r\n]/g, ' ')}`,
           html,
         }),
       })

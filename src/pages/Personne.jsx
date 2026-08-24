@@ -42,8 +42,8 @@ export default function Personne() {
         const [{ data, error }, { data: match }] = await Promise.all([
           supabase.rpc('get_profile_page', { p_user_id: id }),
           supabase.from('matches').select('id')
-            .eq('couple_a', me.id < id ? me.id : id)
-            .eq('couple_b', me.id < id ? id : me.id)
+            .eq('member_a', me.id < id ? me.id : id)
+            .eq('member_b', me.id < id ? id : me.id)
             .maybeSingle(),
         ])
         if (!alive) return
