@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { Quill } from './Logo'
 import { MessageCircle } from 'lucide-react'
 
 export default function MatchCard({ match }) {
@@ -36,16 +37,17 @@ export default function MatchCard({ match }) {
             {match.profile.display_name?.[0]}
           </div>
         </div>
-        {/* badge ∞ */}
+        {/* pastille de connexion */}
         <div style={{
           position: 'absolute', bottom: -4, right: -4,
           width: 18, height: 18, borderRadius: '50%',
           background: 'linear-gradient(135deg, #A07830, #E8CC7A)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: '10px', color: '#050505', fontWeight: 700,
           boxShadow: 'none',
-          border: '1.5px solid #FDFAF6',
-        }}>∞</div>
+          border: '1.5px solid #F2EEE6',
+        }}>
+          <Quill size={11} tone="encre" />
+        </div>
       </button>
 
       {/* texte */}

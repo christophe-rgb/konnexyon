@@ -104,7 +104,7 @@ export default function Conversation() {
             {otherProfile?.display_name}
           </p>
           <p style={{ fontSize: '10px', color: 'rgba(201,168,76,1)', letterSpacing: '0.1em' }}>
-            ∞ connectés
+            Connectés
           </p>
         </div>
 
@@ -154,7 +154,7 @@ export default function Conversation() {
         ) : messages.length === 0 ? (
           <div style={{ textAlign: 'center', marginTop: '40px' }}>
             <p style={{ fontSize: '11px', letterSpacing: '0.15em', color: 'rgba(201,168,76,1)', textTransform: 'uppercase' }}>
-              ∞ · La connexion commence ici · ∞
+              La conversation commence ici
             </p>
           </div>
         ) : (

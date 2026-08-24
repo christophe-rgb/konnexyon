@@ -110,6 +110,8 @@ create policy "admin_all_profile_answers" on public.profile_answers
 --
 -- Remplace le swipe : on ne trie plus des visages, on lit une page.
 -- Comme get_today_responses, elle exige d'avoir écrit sa propre ligne.
+drop function if exists public.get_reading_list();
+
 create or replace function public.get_reading_list()
 returns table (
   user_id      uuid,
@@ -151,6 +153,8 @@ $$;
 -- Une page de profil : l'identité, les quatre réponses, la dernière
 -- ligne écrite. En security definer pour rester lisible quelle que
 -- soit la visibilité héritée de l'ancien modèle.
+drop function if exists public.get_profile_page(uuid);
+
 create or replace function public.get_profile_page(p_user_id uuid)
 returns json
 language sql

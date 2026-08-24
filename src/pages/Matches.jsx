@@ -201,7 +201,7 @@ function EmptyState() {
       </div>
 
       <div style={{ fontSize: '10px', letterSpacing: '0.18em', color: 'rgba(201,168,76,1)', textTransform: 'uppercase' }}>
-        ∞ · Connectés par désir · ∞
+        Ceux dont les mots vous ont retenu
       </div>
     </div>
   )

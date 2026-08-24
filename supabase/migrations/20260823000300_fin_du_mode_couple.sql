@@ -106,6 +106,8 @@ $$;
 grant execute on function public.get_message_threads(uuid) to authenticated;
 
 -- lignes du jour : le pseudo devient le prénom
+drop function if exists public.get_today_responses();
+
 create or replace function public.get_today_responses()
 returns table (
   id          uuid,
@@ -194,6 +196,8 @@ as $$
 $$;
 
 -- page de profil : idem
+drop function if exists public.get_profile_page(uuid);
+
 create or replace function public.get_profile_page(p_user_id uuid)
 returns json
 language sql

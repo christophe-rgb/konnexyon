@@ -31,6 +31,8 @@ create trigger profile_traits_updated_at
   for each row execute function public.set_updated_at();
 
 -- lecture des réponses de n'importe qui, réservée aux fonctions internes
+drop function if exists public.traits_of(uuid);
+
 create or replace function public.traits_of(p_user_id uuid)
 returns jsonb
 language sql
@@ -52,6 +54,8 @@ $$;
 -- rempli n'écrase pas les autres. En dessous de 8 réponses communes,
 -- le score ne veut rien dire : on renvoie NULL.
 -- ============================================================
+
+drop function if exists public.compat_score(jsonb, jsonb);
 
 create or replace function public.compat_score(a jsonb, b jsonb)
 returns smallint
@@ -175,6 +179,8 @@ as $$
   order by r.created_at desc;
 $$;
 
+drop function if exists public.get_profile_page(uuid);
+
 create or replace function public.get_profile_page(p_user_id uuid)
 returns json
 language sql
@@ -213,6 +219,8 @@ $$;
 
 -- Combien de questions j'ai remplies, pour la barre de progression de
 -- mon propre profil.
+drop function if exists public.my_traits();
+
 create or replace function public.my_traits()
 returns jsonb
 language sql

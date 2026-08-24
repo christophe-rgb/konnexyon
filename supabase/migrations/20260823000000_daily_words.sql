@@ -50,6 +50,8 @@ create index if not exists word_responses_user_idx
 -- Indispensable en security definer : appelée depuis la policy SELECT de
 -- word_responses, une sous-requête directe sur word_responses ferait
 -- récursion infinie. Même contournement que public.is_blocked().
+drop function if exists public.has_answered(uuid);
+
 create or replace function public.has_answered(p_word_id uuid)
 returns boolean
 language sql
@@ -66,6 +68,8 @@ $$;
 -- Le mot du jour. Prend le plus récent déjà publié plutôt qu'une égalité
 -- stricte sur current_date : un trou dans le calendrier ne casse pas
 -- l'écran, il prolonge simplement le mot de la veille.
+drop function if exists public.get_word_of_the_day();
+
 create or replace function public.get_word_of_the_day()
 returns table (id uuid, word text, publish_date date)
 language sql
@@ -82,6 +86,8 @@ $$;
 -- Connexions restantes aujourd'hui (quota 3/jour).
 -- Journée calée sur Europe/Paris : le compteur se remet à zéro à minuit
 -- heure française, pas à 2h du matin comme le ferait un date_trunc UTC.
+drop function if exists public.get_daily_connections_left();
+
 create or replace function public.get_daily_connections_left()
 returns integer
 language sql
@@ -103,6 +109,8 @@ $$;
 -- un membre en visibilité 'discreet' verrait sinon sa ligne disparaître de
 -- la pile faute de pouvoir lire son couple_name. Les exclusions (soi-même,
 -- bloqués, déjà connectés) restent appliquées ici explicitement.
+drop function if exists public.get_today_responses();
+
 create or replace function public.get_today_responses()
 returns table (
   id          uuid,
@@ -141,6 +149,8 @@ as $$
 $$;
 
 -- Mon carnet : mes lignes, chacune avec son mot, anti-chronologique.
+drop function if exists public.get_my_carnet();
+
 create or replace function public.get_my_carnet()
 returns table (
   id            uuid,

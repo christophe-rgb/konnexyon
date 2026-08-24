@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import XLogo from './XLogo'
+import { Quill } from './Logo'
 import { Unlink, Feather } from 'lucide-react'
 
 const THRESHOLD = 70
@@ -169,7 +169,7 @@ export default function SwipeStack({ profiles, onLike, onPass, counterLabel }) {
         </ActionBtn>
 
         <ActionBtn onClick={handleLike} aria="Se connecter" gold>
-          <XLogo size={32} />
+          <Quill size={30} tone="or" />
         </ActionBtn>
       </div>
     </div>

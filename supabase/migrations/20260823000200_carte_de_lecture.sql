@@ -71,6 +71,8 @@ as $$
 $$;
 
 -- Ma propre position, pour le marqueur « Vous ».
+drop function if exists public.get_my_location();
+
 create or replace function public.get_my_location()
 returns table (lng float, lat float)
 language sql

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Quill } from '../components/Logo'
 
 export default function Contact() {
   return (
@@ -9,8 +10,9 @@ export default function Contact() {
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           background: 'radial-gradient(circle, rgba(201,168,76,0.1), transparent)',
           border: '1px solid rgba(201,168,76,0.2)',
-          fontSize: 26,
-        }}>∞</div>
+        }}>
+          <Quill size={26} tone="or" />
+        </div>
         <h1 style={{ fontFamily: 'Cormorant, serif', fontSize: '2rem', color: '#1C1814', marginBottom: 12 }}>Contact</h1>
         <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)', lineHeight: 1.8, marginBottom: 36 }}>
           Pour toute question, signalement ou demande concernant vos données personnelles, contactez-nous par email.

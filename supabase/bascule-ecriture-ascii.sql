@@ -21,10 +21,10 @@ begin;
 
 -- ============================================================
 -- MOT DU JOUR
---   • daily_words    : un mot publié par jour
---   • word_responses : la ligne que chaque membre écrit en réaction
+--   - daily_words    : un mot publie par jour
+--   - word_responses : la ligne que chaque membre ecrit en reaction
 --
--- Aucune migration existante n'est modifiée. La seule policy reprise
+-- Aucune migration existante n'est modifiee. La seule policy reprise
 -- est likes_insert, pour y ajouter le quota 3/jour (DROP + CREATE,
 -- comme dans 20260101001300_rate_limit_likes.sql).
 -- ============================================================
@@ -58,7 +58,7 @@ create table if not exists public.word_responses (
 create index if not exists word_responses_word_idx
   on public.word_responses (daily_word_id, created_at desc);
 
--- lecture de « Mon carnet » (anti-chronologique)
+-- lecture de " Mon carnet " (anti-chronologique)
 create index if not exists word_responses_user_idx
   on public.word_responses (user_id, created_at desc);
 
@@ -66,11 +66,11 @@ create index if not exists word_responses_user_idx
 -- HELPERS (security definer)
 -- ============================================================
 
--- Ai-je déjà écrit ma ligne pour ce mot ?
+-- Ai-je deja ecrit ma ligne pour ce mot ?
 --
--- Indispensable en security definer : appelée depuis la policy SELECT de
--- word_responses, une sous-requête directe sur word_responses ferait
--- récursion infinie. Même contournement que public.is_blocked().
+-- Indispensable en security definer : appelee depuis la policy SELECT de
+-- word_responses, une sous-requete directe sur word_responses ferait
+-- recursion infinie. Meme contournement que public.is_blocked().
 drop function if exists public.has_answered(uuid);
 
 create or replace function public.has_answered(p_word_id uuid)
@@ -86,9 +86,9 @@ as $$
   );
 $$;
 
--- Le mot du jour. Prend le plus récent déjà publié plutôt qu'une égalité
+-- Le mot du jour. Prend le plus recent deja publie plutot qu'une egalite
 -- stricte sur current_date : un trou dans le calendrier ne casse pas
--- l'écran, il prolonge simplement le mot de la veille.
+-- l'ecran, il prolonge simplement le mot de la veille.
 drop function if exists public.get_word_of_the_day();
 
 create or replace function public.get_word_of_the_day()
@@ -105,8 +105,8 @@ as $$
 $$;
 
 -- Connexions restantes aujourd'hui (quota 3/jour).
--- Journée calée sur Europe/Paris : le compteur se remet à zéro à minuit
--- heure française, pas à 2h du matin comme le ferait un date_trunc UTC.
+-- Journee calee sur Europe/Paris : le compteur se remet a zero a minuit
+-- heure francaise, pas a 2h du matin comme le ferait un date_trunc UTC.
 drop function if exists public.get_daily_connections_left();
 
 create or replace function public.get_daily_connections_left()
@@ -126,10 +126,10 @@ $$;
 
 -- Les lignes des autres pour le mot du jour.
 --
--- En security definer pour ne pas dépendre de la policy SELECT de profiles :
--- un membre en visibilité 'discreet' verrait sinon sa ligne disparaître de
--- la pile faute de pouvoir lire son couple_name. Les exclusions (soi-même,
--- bloqués, déjà connectés) restent appliquées ici explicitement.
+-- En security definer pour ne pas dependre de la policy SELECT de profiles :
+-- un membre en visibilite 'discreet' verrait sinon sa ligne disparaitre de
+-- la pile faute de pouvoir lire son couple_name. Les exclusions (soi-meme,
+-- bloques, deja connectes) restent appliquees ici explicitement.
 drop function if exists public.get_today_responses();
 
 create or replace function public.get_today_responses()
@@ -156,12 +156,12 @@ as $$
   join today t            on t.id  = r.daily_word_id
   join public.profiles pr on pr.id = r.user_id
   where auth.uid() is not null
-    -- on ne découvre les lignes des autres qu'après avoir écrit la sienne
+    -- on ne decouvre les lignes des autres qu'apres avoir ecrit la sienne
     and public.has_answered(t.id)
     and r.user_id <> auth.uid()
     and pr.status = 'active'
     and not public.is_blocked(r.user_id)
-    -- déjà connecté : on ne le repropose pas
+    -- deja connecte : on ne le repropose pas
     and not exists (
       select 1 from public.likes l
       where l.from_id = auth.uid() and l.to_id = r.user_id
@@ -198,17 +198,17 @@ $$;
 alter table public.daily_words    enable row level security;
 alter table public.word_responses enable row level security;
 
--- ── DAILY_WORDS ───────────────────────────────────────────────
--- lecture ouverte à tout membre authentifié ; écriture réservée à l'admin
+-- -- DAILY_WORDS -----------------------------------------------
+-- lecture ouverte a tout membre authentifie ; ecriture reservee a l'admin
 create policy "daily_words_select" on public.daily_words
   for select using (auth.uid() is not null);
 
 create policy "daily_words_admin" on public.daily_words
   for all using (public.is_admin()) with check (public.is_admin());
 
--- ── WORD_RESPONSES ────────────────────────────────────────────
+-- -- WORD_RESPONSES --------------------------------------------
 -- lecture : la mienne toujours ; celles des autres seulement une fois
--- que j'ai écrit ma ligne, et hors blocage
+-- que j'ai ecrit ma ligne, et hors blocage
 create policy "word_responses_select" on public.word_responses
   for select using (
     auth.uid() is not null
@@ -236,10 +236,10 @@ create policy "admin_all_word_responses" on public.word_responses
 -- ============================================================
 -- QUOTA : 3 CONNEXIONS PAR JOUR
 --
--- Posé dans la policy plutôt que côté client : infalsifiable, atomique,
--- et cohérent avec le rate-limit horaire déjà en place. Le plafond
--- 50/heure est conservé tel quel — il ne coûte rien et couvre le cas
--- d'un quota journalier qui viendrait à être relevé.
+-- Pose dans la policy plutot que cote client : infalsifiable, atomique,
+-- et coherent avec le rate-limit horaire deja en place. Le plafond
+-- 50/heure est conserve tel quel - il ne coute rien et couvre le cas
+-- d'un quota journalier qui viendrait a etre releve.
 -- ============================================================
 
 drop policy if exists "likes_insert" on public.likes;
@@ -247,13 +247,13 @@ drop policy if exists "likes_insert" on public.likes;
 create policy "likes_insert" on public.likes
   for insert
   with check (
-    -- on n'insère que ses propres connexions
+    -- on n'insere que ses propres connexions
     from_id = auth.uid()
 
-    -- la cible n'est pas bloquée
+    -- la cible n'est pas bloquee
     and not public.is_blocked(to_id)
 
-    -- moins de 50 connexions envoyées dans la dernière heure
+    -- moins de 50 connexions envoyees dans la derniere heure
     and (
       select count(*)
       from public.likes
@@ -261,7 +261,7 @@ create policy "likes_insert" on public.likes
         and created_at > now() - interval '1 hour'
     ) < 50
 
-    -- moins de 3 connexions envoyées aujourd'hui (heure de Paris)
+    -- moins de 3 connexions envoyees aujourd'hui (heure de Paris)
     and (
       select count(*)
       from public.likes
@@ -272,40 +272,40 @@ create policy "likes_insert" on public.likes
   );
 
 -- ============================================================
--- SEED — 30 mots à partir du 23/08/2026
+-- SEED - 30 mots a partir du 23/08/2026
 -- ============================================================
 
 insert into public.daily_words (word, publish_date)
 values
   ('Seuil',      date '2026-08-23'),
-  ('Marée',      date '2026-08-24'),
+  (E'Mar\u00E9e',      date '2026-08-24'),
   ('Insomnie',   date '2026-08-25'),
   ('Presque',    date '2026-08-26'),
-  ('Écorce',     date '2026-08-27'),
+  (E'\u00C9corce',     date '2026-08-27'),
   ('Dimanche',   date '2026-08-28'),
-  ('Fêlure',     date '2026-08-29'),
+  (E'F\u00EAlure',     date '2026-08-29'),
   ('Encore',     date '2026-08-30'),
   ('Quai',       date '2026-08-31'),
-  ('Rentrée',    date '2026-09-01'),
+  (E'Rentr\u00E9e',    date '2026-09-01'),
   ('Vertige',    date '2026-09-02'),
   ('Lenteur',    date '2026-09-03'),
   ('Chaise',     date '2026-09-04'),
   ('Sel',        date '2026-09-05'),
   ('Croisement', date '2026-09-06'),
-  ('Crépuscule', date '2026-09-07'),
+  (E'Cr\u00E9puscule', date '2026-09-07'),
   ('Non-dit',    date '2026-09-08'),
   ('Lampe',      date '2026-09-09'),
   ('Lettre',     date '2026-09-10'),
-  ('Écoute',     date '2026-09-11'),
+  (E'\u00C9coute',     date '2026-09-11'),
   ('Vent',       date '2026-09-12'),
   ('Ticket',     date '2026-09-13'),
   ('Cloison',    date '2026-09-14'),
   ('Silence',    date '2026-09-15'),
   ('Fou rire',   date '2026-09-16'),
   ('Couvert',    date '2026-09-17'),
-  ('Départ',     date '2026-09-18'),
+  (E'D\u00E9part',     date '2026-09-18'),
   ('Brouillon',  date '2026-09-19'),
-  ('Tiède',      date '2026-09-20'),
+  (E'Ti\u00E8de',      date '2026-09-20'),
   ('Demain',     date '2026-09-21')
 on conflict (publish_date) do nothing;
 
@@ -315,19 +315,19 @@ on conflict (publish_date) do nothing;
 -- ----------------------------------------------------------
 
 -- ============================================================
--- PROFILS ÉCRITS
+-- PROFILS ECRITS
 --
--- Le profil n'est plus une photo et des cases à cocher : c'est un
--- prénom, un âge, un lieu, et quatre réponses écrites.
+-- Le profil n'est plus une photo et des cases a cocher : c'est un
+-- prenom, un age, un lieu, et quatre reponses ecrites.
 --
--- Aucune colonne n'est supprimée ici. couple_name, avatar_url,
+-- Aucune colonne n'est supprimee ici. couple_name, avatar_url,
 -- orientation, seeking, limits et location restent en place le temps
--- que les écrans qui s'en servent encore soient repris ; leur retrait
--- fera l'objet d'une migration de nettoyage à part.
+-- que les ecrans qui s'en servent encore soient repris ; leur retrait
+-- fera l'objet d'une migration de nettoyage a part.
 -- ============================================================
 
 -- ============================================================
--- IDENTITÉ INDIVIDUELLE
+-- IDENTITE INDIVIDUELLE
 -- ============================================================
 
 alter table public.profiles
@@ -356,13 +356,13 @@ begin
   end if;
 end $$;
 
--- reprise de l'existant : le nom affiché part de couple_name
+-- reprise de l'existant : le nom affiche part de couple_name
 update public.profiles
 set display_name = couple_name
 where display_name is null;
 
 -- ============================================================
--- LES QUATRE RÉPONSES QUI FONT LE PROFIL
+-- LES QUATRE REPONSES QUI FONT LE PROFIL
 -- ============================================================
 
 create table if not exists public.profile_answers (
@@ -374,8 +374,8 @@ create table if not exists public.profile_answers (
 
   unique (user_id, slug),
 
-  -- liste fermée : les intitulés vivent côté app (src/lib/prompts.js),
-  -- la base ne garde que les clés pour rester lisible en SQL
+  -- liste fermee : les intitules vivent cote app (src/lib/prompts.js),
+  -- la base ne garde que les cles pour rester lisible en SQL
   constraint profile_answers_slug check (slug in (
     'phrase_pour_commencer',
     'ce_qui_me_fait_rester',
@@ -421,11 +421,11 @@ create policy "admin_all_profile_answers" on public.profile_answers
 -- LECTURE
 -- ============================================================
 
--- La liste de lecture : les lignes du jour, dans l'ordre où elles ont
--- été écrites, avec de quoi ouvrir le profil de leur auteur.
+-- La liste de lecture : les lignes du jour, dans l'ordre ou elles ont
+-- ete ecrites, avec de quoi ouvrir le profil de leur auteur.
 --
 -- Remplace le swipe : on ne trie plus des visages, on lit une page.
--- Comme get_today_responses, elle exige d'avoir écrit sa propre ligne.
+-- Comme get_today_responses, elle exige d'avoir ecrit sa propre ligne.
 drop function if exists public.get_reading_list();
 
 create or replace function public.get_reading_list()
@@ -466,9 +466,9 @@ as $$
   order by r.created_at desc;
 $$;
 
--- Une page de profil : l'identité, les quatre réponses, la dernière
--- ligne écrite. En security definer pour rester lisible quelle que
--- soit la visibilité héritée de l'ancien modèle.
+-- Une page de profil : l'identite, les quatre reponses, la derniere
+-- ligne ecrite. En security definer pour rester lisible quelle que
+-- soit la visibilite heritee de l'ancien modele.
 drop function if exists public.get_profile_page(uuid);
 
 create or replace function public.get_profile_page(p_user_id uuid)
@@ -510,12 +510,12 @@ $$;
 -- ============================================================
 -- LA CARTE DE LECTURE
 --
--- get_reading_list() gagne les coordonnées : la même requête sert la
+-- get_reading_list() gagne les coordonnees : la meme requete sert la
 -- liste, la pile et la carte. DROP puis CREATE parce que la signature
--- de retour change — un create or replace refuserait.
+-- de retour change - un create or replace refuserait.
 --
 -- get_my_location() manquait : Discover l'appelait sans qu'elle existe,
--- le marqueur « Vous » ne s'est jamais affiché.
+-- le marqueur " Vous " ne s'est jamais affiche.
 -- ============================================================
 
 drop function if exists public.get_reading_list();
@@ -557,7 +557,7 @@ as $$
       when pr.location is null or moi.location is null then null
       else round((st_distance(pr.location, moi.location) / 1000)::numeric, 0)::float
     end as distance_km,
-    -- coordonnées floutées à ~500m : on situe une personne dans un
+    -- coordonnees floutees a ~500m : on situe une personne dans un
     -- quartier, jamais devant sa porte
     case
       when pr.location is null or pr.hide_location then null
@@ -579,7 +579,7 @@ as $$
   order by r.created_at desc;
 $$;
 
--- Ma propre position, pour le marqueur « Vous ».
+-- Ma propre position, pour le marqueur " Vous ".
 drop function if exists public.get_my_location();
 
 create or replace function public.get_my_location()
@@ -605,15 +605,15 @@ $$;
 -- FIN DU MODE COUPLE
 --
 -- Konnexyon n'est plus un site libertin pour couples : c'est un site
--- de rencontre par l'écriture, entre individus. Cette migration solde
--- l'ancien modèle.
+-- de rencontre par l'ecriture, entre individus. Cette migration solde
+-- l'ancien modele.
 --
--- Elle supprime des colonnes et des données. Elle n'est pas
--- réversible : à passer en connaissance de cause.
+-- Elle supprime des colonnes et des donnees. Elle n'est pas
+-- reversible : a passer en connaissance de cause.
 -- ============================================================
 
 -- ============================================================
--- 1. SAUVEGARDE DE L'IDENTITÉ
+-- 1. SAUVEGARDE DE L'IDENTITE
 -- ============================================================
 
 update public.profiles
@@ -621,13 +621,13 @@ set display_name = couple_name
 where display_name is null and couple_name is not null;
 
 -- ============================================================
--- 1 bis. ARCHIVE DE CE QUI VA DISPARAÎTRE
+-- 1 bis. ARCHIVE DE CE QUI VA DISPARAITRE
 --
--- Les colonnes supprimées plus bas contiennent de vraies données de
--- membres. On les recopie avant, pour qu'un regret reste réparable.
+-- Les colonnes supprimees plus bas contiennent de vraies donnees de
+-- membres. On les recopie avant, pour qu'un regret reste reparable.
 --
--- RLS activée sans aucune policy : la table devient invisible depuis
--- l'API publique. Sans ça, PostgREST l'exposerait aux clients.
+-- RLS activee sans aucune policy : la table devient invisible depuis
+-- l'API publique. Sans ca, PostgREST l'exposerait aux clients.
 -- ============================================================
 
 create table if not exists public.archive_profils_couple as
@@ -650,18 +650,18 @@ from public.profiles;
 alter table public.archive_profils_couple enable row level security;
 
 comment on table public.archive_profils_couple is
-  'Colonnes du modèle couple, archivées avant leur suppression le 24/08/2026. Aucune policy : lecture réservée au service_role.';
+  E'Colonnes du mod\u00E8le couple, archiv\u00E9es avant leur suppression le 24/08/2026. Aucune policy : lecture r\u00E9serv\u00E9e au service_role.';
 
 -- ============================================================
--- 2. PROFILS DE DÉMONSTRATION LIBERTINS
---    (seed 20260101001800, préfixe d'identifiant 11111111-)
+-- 2. PROFILS DE DEMONSTRATION LIBERTINS
+--    (seed 20260101001800, prefixe d'identifiant 11111111-)
 -- ============================================================
 
 delete from public.profiles where id::text like '11111111-%';
 
 -- ============================================================
--- 3. FONCTIONS QUI LISENT LES COLONNES CONDAMNÉES
---    Elles doivent être réécrites AVANT le DROP COLUMN.
+-- 3. FONCTIONS QUI LISENT LES COLONNES CONDAMNEES
+--    Elles doivent etre reecrites AVANT le DROP COLUMN.
 -- ============================================================
 
 -- fils de discussion : plus de nom de couple, plus de photo
@@ -708,7 +708,7 @@ $$;
 
 grant execute on function public.get_message_threads(uuid) to authenticated;
 
--- lignes du jour : le pseudo devient le prénom
+-- lignes du jour : le pseudo devient le prenom
 drop function if exists public.get_today_responses();
 
 create or replace function public.get_today_responses()
@@ -780,7 +780,7 @@ as $$
       when pr.location is null or moi.location is null then null
       else round((st_distance(pr.location, moi.location) / 1000)::numeric, 0)::float
     end as distance_km,
-    -- coordonnées floutées à ~500m : on situe une personne dans un
+    -- coordonnees floutees a ~500m : on situe une personne dans un
     -- quartier, jamais devant sa porte
     case when pr.location is null or pr.hide_location then null
          else round((st_x(pr.location::geometry) + (random() - 0.5) * 0.005)::numeric, 5)::float end as lng,
@@ -832,7 +832,7 @@ $$;
 -- 4. FONCTIONS ET TABLES PROPRES AU MODE COUPLE
 -- ============================================================
 
--- appariement par orientation croisée et proximité : remplacé par la
+-- appariement par orientation croisee et proximite : remplace par la
 -- liste de lecture du jour
 drop function if exists public.get_nearby_compatible_profiles(integer);
 
@@ -840,8 +840,8 @@ drop function if exists public.get_nearby_compatible_profiles(integer);
 drop function if exists public.confirm_partner_token(text);
 drop table    if exists public.partner_confirmations;
 
--- verrou des colonnes monétisées : il recopiait aussi des colonnes
--- qui disparaissent, on le réécrit sur ce qui reste
+-- verrou des colonnes monetisees : il recopiait aussi des colonnes
+-- qui disparaissent, on le reecrit sur ce qui reste
 create or replace function public.lock_sensitive_profile_columns()
 returns trigger
 language plpgsql
@@ -865,7 +865,7 @@ $$;
 
 alter table public.profiles
   drop column if exists couple_name,
-  drop column if exists avatar_url,          -- « pas de photo »
+  drop column if exists avatar_url,          -- " pas de photo "
   drop column if exists orientation,
   drop column if exists orientation_lui,
   drop column if exists orientation_elle,
@@ -876,7 +876,7 @@ alter table public.profiles
   drop column if exists email_2,
   drop column if exists email_2_confirmed;
 
--- display_name devient l'identité : obligatoire une fois renseignée
+-- display_name devient l'identite : obligatoire une fois renseignee
 update public.profiles set display_name = 'Anonyme' where display_name is null;
 alter table public.profiles alter column display_name set not null;
 
@@ -891,12 +891,12 @@ drop type if exists public.looking_for_type;
 -- 7. LES PHOTOS DE MESSAGERIE
 --
 -- La messagerie garde l'envoi de photo pour l'instant : seule la photo
--- de profil disparaît. Si tu veux une messagerie purement écrite, dis-le
+-- de profil disparait. Si tu veux une messagerie purement ecrite, dis-le
 -- et messages.photo_url part avec le bucket chat-photos.
 -- ============================================================
 
 comment on column public.profiles.display_name is
-  'Prénom ou nom affiché. Remplace couple_name depuis le passage aux profils individuels.';
+  E'Pr\u00E9nom ou nom affich\u00E9. Remplace couple_name depuis le passage aux profils individuels.';
 
 
 -- ----------------------------------------------------------
@@ -904,17 +904,17 @@ comment on column public.profiles.display_name is
 -- ----------------------------------------------------------
 
 -- ============================================================
--- COMPATIBILITÉ INTELLECTUELLE
+-- COMPATIBILITE INTELLECTUELLE
 --
--- Seize questions, quatre thèmes, une échelle de 1 à 5.
--- Les réponses vivent dans une table à part, lisible par son seul
--- propriétaire : le score est calculé en base par des fonctions
+-- Seize questions, quatre themes, une echelle de 1 a 5.
+-- Les reponses vivent dans une table a part, lisible par son seul
+-- proprietaire : le score est calcule en base par des fonctions
 -- security definer, et on expose un pourcentage, jamais un profil
--- psychologique. Une colonne sur profiles n'aurait pas tenu — la policy
--- profiles_select laisse lire la ligne entière des autres membres.
+-- psychologique. Une colonne sur profiles n'aurait pas tenu - la policy
+-- profiles_select laisse lire la ligne entiere des autres membres.
 --
--- Le même calcul existe en JS (src/lib/compatibility.js) pour le mode
--- démo et les tests. Les deux doivent rester d'accord.
+-- Le meme calcul existe en JS (src/lib/compatibility.js) pour le mode
+-- demo et les tests. Les deux doivent rester d'accord.
 -- ============================================================
 
 create table if not exists public.profile_traits (
@@ -925,7 +925,7 @@ create table if not exists public.profile_traits (
 
 alter table public.profile_traits enable row level security;
 
--- personne d'autre que soi ne lit ses réponses, pas même pour comparer :
+-- personne d'autre que soi ne lit ses reponses, pas meme pour comparer :
 -- la comparaison passe par compat_score, en security definer
 create policy "profile_traits_own" on public.profile_traits
   for all using (user_id = auth.uid()) with check (user_id = auth.uid());
@@ -935,7 +935,7 @@ create trigger profile_traits_updated_at
   before update on public.profile_traits
   for each row execute function public.set_updated_at();
 
--- lecture des réponses de n'importe qui, réservée aux fonctions internes
+-- lecture des reponses de n'importe qui, reservee aux fonctions internes
 drop function if exists public.traits_of(uuid);
 
 create or replace function public.traits_of(p_user_id uuid)
@@ -954,9 +954,9 @@ $$;
 -- ============================================================
 -- LE CALCUL
 --
--- Sur chaque question répondue des deux côtés, l'accord vaut
--- 1 - écart/4. Les thèmes pèsent le même poids, pour qu'un thème très
--- rempli n'écrase pas les autres. En dessous de 8 réponses communes,
+-- Sur chaque question repondue des deux cotes, l'accord vaut
+-- 1 - ecart/4. Les themes pesent le meme poids, pour qu'un theme tres
+-- rempli n'ecrase pas les autres. En dessous de 8 reponses communes,
 -- le score ne veut rien dire : on renvoie NULL.
 -- ============================================================
 
@@ -996,7 +996,7 @@ begin
 
     for s in 1..4 loop
       slug := slugs[t][s];
-      -- une valeur hors échelle ou non entière est ignorée, comme en JS
+      -- une valeur hors echelle ou non entiere est ignoree, comme en JS
       begin
         va := (a ->> slug)::int;
         vb := (b ->> slug)::int;
@@ -1065,7 +1065,7 @@ as $$
       when pr.location is null or moi.location is null then null
       else round((st_distance(pr.location, moi.location) / 1000)::numeric, 0)::float
     end as distance_km,
-    -- coordonnées floutées à ~500m : on situe une personne dans un
+    -- coordonnees floutees a ~500m : on situe une personne dans un
     -- quartier, jamais devant sa porte
     case when pr.location is null or pr.hide_location then null
          else round((st_x(pr.location::geometry) + (random() - 0.5) * 0.005)::numeric, 5)::float end as lng,
@@ -1110,7 +1110,7 @@ as $$
       public.traits_of(p.id)
     ),
     -- combien de questions la personne a remplies : de quoi expliquer
-    -- un score absent sans révéler une seule de ses réponses
+    -- un score absent sans reveler une seule de ses reponses
     'traits_answered', (
       select count(*) from jsonb_object_keys(public.traits_of(p.id))
     )
@@ -1144,9 +1144,9 @@ $$;
 -- ============================================================
 -- LA TABLE MATCHES PARLE ENCORE DE COUPLES
 --
--- couple_a / couple_b étaient les deux couples d'une connexion. Ce sont
--- désormais deux personnes : on renomme. Dernière trace structurelle du
--- modèle abandonné.
+-- couple_a / couple_b etaient les deux couples d'une connexion. Ce sont
+-- desormais deux personnes : on renomme. Derniere trace structurelle du
+-- modele abandonne.
 -- ============================================================
 
 alter table public.matches rename column couple_a to member_a;
@@ -1156,10 +1156,10 @@ alter index if exists matches_a_idx rename to matches_member_a_idx;
 alter index if exists matches_b_idx rename to matches_member_b_idx;
 
 -- ============================================================
--- LES OBJETS QUI S'Y RÉFÈRENT
+-- LES OBJETS QUI S'Y REFERENT
 -- ============================================================
 
--- création automatique de la connexion réciproque
+-- creation automatique de la connexion reciproque
 create or replace function public.create_match_if_mutual()
 returns trigger language plpgsql security definer
 set search_path = public as $$
@@ -1169,7 +1169,7 @@ begin
     select 1 from public.likes
     where from_id = new.to_id and to_id = new.from_id
   ) then
-    -- member_a < member_b : l'ordre garantit l'unicité sans doublon
+    -- member_a < member_b : l'ordre garantit l'unicite sans doublon
     a := least(new.from_id, new.to_id);
     b := greatest(new.from_id, new.to_id);
     insert into public.matches (member_a, member_b) values (a, b)
@@ -1267,9 +1267,9 @@ create policy "messages_update" on public.messages
     )
   )
   with check (
-    -- modification du contenu : expéditeur uniquement
+    -- modification du contenu : expediteur uniquement
     sender_id = auth.uid()
-    -- ou mise à jour de read_at seule, contenu et photo inchangés
+    -- ou mise a jour de read_at seule, contenu et photo inchanges
     or exists (
       select 1 from public.messages orig
       where orig.id = id
@@ -1278,14 +1278,14 @@ create policy "messages_update" on public.messages
     )
   );
 
--- la visibilité restreinte des profils s'appuyait aussi sur ces colonnes
+-- la visibilite restreinte des profils s'appuyait aussi sur ces colonnes
 drop policy if exists "profiles_select" on public.profiles;
 create policy "profiles_select" on public.profiles
   for select using (
     auth.uid() is not null
     and not public.is_blocked(id)
     and (
-      -- toujours voir son propre profil, même suspendu
+      -- toujours voir son propre profil, meme suspendu
       id = auth.uid()
       or (
         status = 'active'
@@ -1310,16 +1310,16 @@ create policy "profiles_select" on public.profiles
 -- ----------------------------------------------------------
 
 -- ============================================================
--- LA PAPETERIE — la boutique de Konnexyon
+-- LA PAPETERIE - la boutique de Konnexyon
 --
---   • products     : le catalogue (lecture publique)
---   • orders       : une commande par passage en caisse
---   • order_items  : le detail, fige au prix du jour de la commande
+--   - products     : le catalogue (lecture publique)
+--   - orders       : une commande par passage en caisse
+--   - order_items  : le detail, fige au prix du jour de la commande
 --
 -- Principe : le catalogue est public en lecture, ecrit uniquement par
 -- le service_role (import produit / back-office). Les commandes sont
 -- privees : chacun ne voit que les siennes, et ne peut jamais les
--- modifier apres coup — seul le webhook de paiement (service_role)
+-- modifier apres coup - seul le webhook de paiement (service_role)
 -- fait avancer le statut.
 --
 -- Aucune migration existante n'est modifiee.
@@ -1463,51 +1463,51 @@ insert into public.products
   (slug, name, tagline, description, price_cents, compare_cents, category, plate, stock, rank)
 values
   ('necessaire-a-lettres',
-   'Le Nécessaire à lettres',
-   'Tout ce qu''il faut pour écrire à quelqu''un.',
-   'Un sceau de cire à votre initiale, six bâtons de cire ivoire, un porte-plume en bois tourné, un encrier d''encre noire, dix cartes et dix enveloppes en coton. Présenté dans un coffret toilé. C''est le geste complet, du premier mot au cachet.',
+   E'Le N\u00E9cessaire \u00E0 lettres',
+   E'Tout ce qu\'il faut pour \u00E9crire \u00E0 quelqu\'un.',
+   E'Un sceau de cire \u00E0 votre initiale, six b\u00E2tons de cire ivoire, un porte-plume en bois tourn\u00E9, un encrier d\'encre noire, dix cartes et dix enveloppes en coton. Pr\u00E9sent\u00E9 dans un coffret toil\u00E9. C\'est le geste complet, du premier mot au cachet.',
    6800, 8500, 'kit', 'necessaire', 120, 10),
 
   ('carnet-du-mot-du-jour',
    'Le Carnet du Mot du jour',
    'Une ligne par jour, trois cent soixante-cinq fois.',
-   'Le pendant papier de votre carnet Konnexyon. Une page par jour : le mot en haut, une seule ligne à remplir en dessous. Papier ivoire 120 g, ouverture à plat, signet doré. Ce que vous écrivez sur l''écran, vous pouvez le réécrire ici — c''est le même geste, en plus lent.',
+   E'Le pendant papier de votre carnet Konnexyon. Une page par jour : le mot en haut, une seule ligne \u00E0 remplir en dessous. Papier ivoire 120 g, ouverture \u00E0 plat, signet dor\u00E9. Ce que vous \u00E9crivez sur l\'\u00E9cran, vous pouvez le r\u00E9\u00E9crire ici \u2014 c\'est le m\u00EAme geste, en plus lent.',
    3200, null, 'carnet', 'carnet', 200, 20),
 
   ('cartes-questions',
    'Les Cartes-questions',
-   'Cinquante-deux questions, aucune réponse facile.',
-   'Les questions de Konnexyon, imprimées sur cinquante-deux cartes au format jeu. « Une chose que tu ne dis presque jamais. » « Quelle phrase pourrait te faire changer d''avis ? » À tirer seul devant une page blanche, ou à deux, à voix haute.',
+   E'Cinquante-deux questions, aucune r\u00E9ponse facile.',
+   E'Les questions de Konnexyon, imprim\u00E9es sur cinquante-deux cartes au format jeu. \u00AB Une chose que tu ne dis presque jamais. \u00BB \u00AB Quelle phrase pourrait te faire changer d\'avis ? \u00BB \u00C0 tirer seul devant une page blanche, ou \u00E0 deux, \u00E0 voix haute.',
    2400, null, 'carnet', 'cartes', 300, 30),
 
   ('sceau-konnexyon',
    'Le Sceau',
    'Votre initiale, dans la cire.',
-   'Sceau en laiton massif monté sur manche de noyer, gravé à l''initiale de votre choix. Livré avec vingt bâtons de cire — noir d''encre, ivoire ou or. La cire fond en quarante secondes et tient des années.',
+   E'Sceau en laiton massif mont\u00E9 sur manche de noyer, grav\u00E9 \u00E0 l\'initiale de votre choix. Livr\u00E9 avec vingt b\u00E2tons de cire \u2014 noir d\'encre, ivoire ou or. La cire fond en quarante secondes et tient des ann\u00E9es.',
    2900, null, 'ecriture', 'sceau', 250, 40),
 
   ('porte-plume-et-encre',
    'Le Porte-plume & l''encre',
    'La main ralentit, la phrase change.',
-   'Porte-plume en bois tourné, trois becs de rechange, et un encrier de trente millilitres d''encre noire. Écrire à la plume oblige à savoir où l''on va avant de poser le mot — c''est exactement le point.',
+   E'Porte-plume en bois tourn\u00E9, trois becs de rechange, et un encrier de trente millilitres d\'encre noire. \u00C9crire \u00E0 la plume oblige \u00E0 savoir o\u00F9 l\'on va avant de poser le mot \u2014 c\'est exactement le point.',
    4400, null, 'ecriture', 'plume', 140, 50),
 
   ('encre-d-or',
    'L''Encre d''or',
    'Pour la phrase qui compte.',
-   'Trente millilitres d''encre dorée à particules, à agiter avant usage. Sur le papier ivoire, elle accroche la lumière. À réserver aux quelques lignes qui le méritent.',
+   E'Trente millilitres d\'encre dor\u00E9e \u00E0 particules, \u00E0 agiter avant usage. Sur le papier ivoire, elle accroche la lumi\u00E8re. \u00C0 r\u00E9server aux quelques lignes qui le m\u00E9ritent.',
    1800, null, 'ecriture', 'encre', 400, 60),
 
   ('papier-a-lettres',
-   'Le Papier à lettres',
+   E'Le Papier \u00E0 lettres',
    'Quarante feuilles, vingt enveloppes.',
-   'Papier de coton ivoire 120 g, non ligné, filigrané à la plume. Vingt enveloppes doublées assorties. La recharge du Nécessaire — parce qu''on écrit plus qu''on ne le croyait.',
+   E'Papier de coton ivoire 120 g, non lign\u00E9, filigran\u00E9 \u00E0 la plume. Vingt enveloppes doubl\u00E9es assorties. La recharge du N\u00E9cessaire \u2014 parce qu\'on \u00E9crit plus qu\'on ne le croyait.',
    2200, null, 'papier', 'papier', 500, 70),
 
   ('abonnement-correspondance',
    'L''Abonnement Correspondance',
-   'Chaque mois, de quoi écrire à quelqu''un.',
-   'Le premier de chaque mois, une enveloppe arrive : du papier, une encre ou une cire, et une carte-question inédite qui n''existe nulle part ailleurs. Sans engagement, résiliable en un clic.',
+   E'Chaque mois, de quoi \u00E9crire \u00E0 quelqu\'un.',
+   E'Le premier de chaque mois, une enveloppe arrive : du papier, une encre ou une cire, et une carte-question in\u00E9dite qui n\'existe nulle part ailleurs. Sans engagement, r\u00E9siliable en un clic.',
    2400, null, 'abonnement', 'abonnement', null, 80)
 on conflict (slug) do nothing;
 

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
-import XLogo from '../components/XLogo'
+import { Quill } from '../components/Logo'
 
 
 export default function Login() {
@@ -77,7 +77,7 @@ export default function Login() {
               border: '1px solid rgba(201,168,76,0.35)',
               boxShadow: '0 0 24px rgba(201,168,76,0.2), inset 0 1px 0 rgba(232,204,122,0.25)',
             }}>
-              <XLogo size={52} />
+              <Quill size={52} tone="or" />
             </div>
             {/* halo pulsant */}
             <div className="absolute inset-0 rounded-full animate-pulse-gold" style={{
@@ -249,7 +249,7 @@ export default function Login() {
           onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.55)'; e.currentTarget.style.color = '#C9A84C'; e.currentTarget.style.background = 'rgba(201,168,76,0.15)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
           onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.3)'; e.currentTarget.style.color = 'rgba(201,168,76,0.85)'; e.currentTarget.style.background = 'rgba(201,168,76,0.1)'; e.currentTarget.style.transform = 'translateY(0)'; }}
         >
-          ∞ &nbsp; Explorer les connexions
+          Explorer les connexions
         </button>
 
         <p className="animate-fade-in delay-800" style={{ textAlign: 'center', fontSize: '12px', color: 'rgba(28,24,20,0.9)', marginTop: '28px', animationFillMode: 'both' }}>

@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { MessageCircle } from 'lucide-react'
-import XLogo from './XLogo'
+import { Quill } from './Logo'
 
 export default function MatchModal({ match, onClose }) {
   const navigate = useNavigate()
@@ -52,7 +52,7 @@ export default function MatchModal({ match, onClose }) {
             animation: 'pulseGold 2s ease-in-out infinite',
             border: '1px solid rgba(201,168,76,0.25)',
           }}>
-            <XLogo size={48} />
+            <Quill size={48} tone="or" />
           </div>
 
           <Avatar profile={match.other} />
@@ -75,7 +75,7 @@ export default function MatchModal({ match, onClose }) {
         </p>
 
         <div style={{ fontSize: '10px', letterSpacing: '0.2em', color: 'rgba(201,168,76,1)', textTransform: 'uppercase', marginBottom: '16px' }}>
-          ∞ · Connexion mutuelle · ∞
+          Vous vous êtes lus
         </div>
 
         <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.9)', lineHeight: 1.7, marginBottom: '28px' }}>
@@ -133,7 +133,7 @@ function Avatar({ profile }) {
         fontFamily: 'Cormorant, serif', fontSize: '24px',
         color: 'rgba(201,168,76,1)',
       }}>
-        {profile?.display_name?.[0] || '∞'}
+        {profile?.display_name?.[0] || '.'}
       </div>
     </div>
   )

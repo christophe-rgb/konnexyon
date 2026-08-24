@@ -281,7 +281,7 @@ function EmptyState() {
         </p>
       </div>
       <div style={{ fontSize: '10px', letterSpacing: '0.18em', color: 'rgba(201,168,76,1)', textTransform: 'uppercase' }}>
-        ∞ · Connectés par désir · ∞
+        Ce qui a commencé par une ligne
       </div>
     </div>
   )
