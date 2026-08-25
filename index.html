@@ -87,8 +87,18 @@
     </script>
     <script>
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').catch(() => {})
+        // Un onglet deja controle par un service worker garde l'index.html
+        // que celui-ci lui a servi. Quand une nouvelle version prend la
+        // main, on recharge pour repartir sur les bons fichiers.
+        var avaitUnControleur = !!navigator.serviceWorker.controller
+        var rechargeEnCours = false
+        navigator.serviceWorker.addEventListener('controllerchange', function () {
+          if (!avaitUnControleur || rechargeEnCours) return
+          rechargeEnCours = true
+          window.location.reload()
+        })
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('/sw.js').catch(function () {})
         })
       }
     </script>

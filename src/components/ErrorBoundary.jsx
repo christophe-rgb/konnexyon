@@ -1,5 +1,9 @@
 import { Component } from 'react'
 
+// Les navigateurs ne s'accordent pas sur le libelle de cette panne.
+const CHARGEMENT_MANQUE =
+  /Failed to fetch dynamically imported module|error loading dynamically imported module|Importing a module script failed/i
+
 export default class ErrorBoundary extends Component {
   constructor(props) {
     super(props)
@@ -12,6 +16,27 @@ export default class ErrorBoundary extends Component {
 
   componentDidCatch(error, info) {
     console.error('[ErrorBoundary]', error, info.componentStack)
+
+    // Un morceau de code charge a la demande peut manquer apres un
+    // deploiement : l'onglet ouvert tient un index.html qui reference des
+    // fichiers dont le nom a change. Le cache et le service worker gardent
+    // l'ancienne version — on les vide et on recharge, une seule fois par
+    // session pour ne pas boucler si la panne vient d'ailleurs.
+    if (!CHARGEMENT_MANQUE.test(error?.message || '')) return
+    try {
+      if (sessionStorage.getItem('reprise-morceau')) return
+      sessionStorage.setItem('reprise-morceau', '1')
+    } catch { /* mode prive : on tente la reprise quand meme */ }
+
+    const vider = window.caches
+      ? caches.keys().then(cles => Promise.all(cles.map(c => caches.delete(c)))).catch(() => {})
+      : Promise.resolve()
+
+    vider
+      .then(() => navigator.serviceWorker?.getRegistrations?.() ?? [])
+      .then(regs => Promise.all(regs.map(r => r.unregister())))
+      .catch(() => {})
+      .then(() => window.location.reload())
   }
 
   render() {
