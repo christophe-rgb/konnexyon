@@ -1,5 +1,11 @@
-import { Link } from 'react-router-dom'
+import { useEffect, useState, lazy, Suspense } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { ArrowRight } from 'lucide-react'
+import { supabase } from '../lib/supabase'
 import { Quill, Wordmark } from '../components/Logo'
+import { ajouterSwipe } from '../lib/swipesEnAttente'
+
+const SwipeStack = lazy(() => import('../components/SwipeStack'))
 import EncartBoutique from '../components/EncartBoutique'
 
 /**
@@ -35,6 +41,28 @@ const QUESTIONS = [
 ]
 
 export default function Home() {
+  const navigate = useNavigate()
+  const [mot,        setMot]        = useState(null)
+  const [cartes,     setCartes]     = useState([])
+  const [chargement, setChargement] = useState(true)
+
+  // L'apercu est public : il montre le mot du jour et quelques lignes,
+  // sans age, sans ville, et sans moyen de joindre leur auteur.
+  useEffect(() => {
+    let vivant = true
+    supabase.rpc('get_apercu_du_jour', { p_limite: 6 })
+      .then(({ data }) => {
+        if (!vivant || !data?.length) return
+        setMot(data[0].mot)
+        setCartes(data.map((l, i) => ({
+          id: l.auteur, word: l.mot, line: l.ligne, pseudo: l.prenom,
+        })))
+      })
+      .catch(() => {})
+      .finally(() => { if (vivant) setChargement(false) })
+    return () => { vivant = false }
+  }, [])
+
   return (
     <div style={{ minHeight: '100dvh', background: 'var(--ivoire)', color: 'var(--encre)', overflowX: 'hidden' }}>
 
@@ -57,43 +85,69 @@ export default function Home() {
         </nav>
       </header>
 
-      {/* ── accroche ── */}
+      {/* ── la pile : on montre avant d'expliquer ── */}
       <section style={{
         maxWidth: 1180, margin: '0 auto',
-        padding: 'clamp(28px, 7vw, 76px) clamp(20px, 5vw, 56px) clamp(48px, 9vw, 96px)',
-        display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', alignItems: 'center', gap: 32,
+        padding: 'clamp(18px, 4vw, 44px) clamp(20px, 5vw, 56px) clamp(40px, 7vw, 72px)',
       }}>
-        <div className="animate-fade-in-up" style={{ animationFillMode: 'both', maxWidth: 620 }}>
+        <div className="animate-fade-in-up" style={{ animationFillMode: 'both', textAlign: 'center', maxWidth: 640, margin: '0 auto' }}>
           <h1 style={{
             fontFamily: 'Cormorant, serif',
-            fontSize: 'clamp(2.1rem, 6.4vw, 3.9rem)',
-            fontWeight: 500, lineHeight: 1.13, letterSpacing: '-0.005em',
+            fontSize: 'clamp(1.7rem, 4.6vw, 2.6rem)',
+            fontWeight: 500, lineHeight: 1.2,
           }}>
-            Vous ne choisissez pas un visage.<br />
-            Vous découvrez une personne.
+            Vous ne choisissez pas un visage.<br />Vous découvrez une personne.
           </h1>
 
-          <p style={{
-            fontFamily: 'Cormorant, serif', fontStyle: 'italic',
-            fontSize: 'clamp(1.2rem, 3.4vw, 1.75rem)',
-            color: 'var(--or)', marginTop: 18,
-          }}>
-            Commencez par lire.
-          </p>
-
-          <div style={{ width: 74, height: 1, background: 'rgba(11,11,11,0.18)', margin: '30px 0 28px' }} />
-
-          <Link to="/register" className="btn btn-lire">Commencer</Link>
-
-          <p style={{ fontSize: 13, lineHeight: 1.85, color: 'rgba(11,11,11,0.6)', marginTop: 30 }}>
-            Pas de photos. Pas de profils à remplir.<br />
-            Seulement des mots.
-          </p>
+          {mot && (
+            <p style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(11,11,11,0.4)', marginTop: 18 }}>
+              Aujourd’hui, on écrit sur&nbsp;: <span style={{ color: 'var(--or)' }}>{mot}</span>
+            </p>
+          )}
         </div>
 
-        {/* plume — décorative, retirée sur petit écran */}
-        <div className="hidden md:block animate-fade-in" style={{ animationFillMode: 'both', animationDelay: '250ms', opacity: 0.9 }}>
-          <Quill size={230} tone="encre" />
+        {/* la pile est sur fond encre, comme dans l'app : le visiteur voit
+            exactement ce qu'il aura */}
+        <div className="ink animate-fade-in" style={{
+          marginTop: 28, padding: '10px 0 22px',
+          animationFillMode: 'both', animationDelay: '120ms',
+          maxWidth: 520, marginInline: 'auto',
+        }}>
+          {chargement ? (
+            <div className="flex justify-center" style={{ padding: '90px 0' }} role="status" aria-label="Chargement…">
+              <div className="w-7 h-7 rounded-full animate-spin"
+                   style={{ border: '2px solid rgba(201,168,76,0.22)', borderTopColor: 'var(--or)' }} />
+            </div>
+          ) : (
+            <Suspense fallback={<div style={{ height: 380 }} />}>
+              <SwipeStack
+                profiles={cartes}
+                counterLabel="Un aperçu de ce qui s’écrit aujourd’hui"
+                onLike={auteur => {
+                  // le geste est garde : il deviendra une vraie connexion
+                  // une fois le compte cree
+                  ajouterSwipe(auteur)
+                  navigate('/participer')
+                }}
+                onPass={() => {}}
+                vide={{
+                  titre: 'C’est à vous, maintenant.',
+                  texte: 'Écrivez votre ligne du jour, et les autres s’ouvriront.',
+                }}
+              />
+            </Suspense>
+          )}
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: 26 }}>
+          <Link to="/participer" className="btn btn-continuer">
+            Moi aussi je veux participer
+            <ArrowRight size={14} strokeWidth={1.7} />
+          </Link>
+          <p style={{ fontSize: 12, lineHeight: 1.8, color: 'rgba(11,11,11,0.5)', marginTop: 16 }}>
+            Pas de photos. Pas de profil à remplir.<br />
+            Votre ligne du jour, et le profil suit.
+          </p>
         </div>
       </section>
 

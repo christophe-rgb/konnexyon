@@ -14,6 +14,7 @@ import WeCanTrack   from './components/WeCanTrack'
 const Home           = lazy(() => import('./pages/Home'))
 const Login          = lazy(() => import('./pages/Login'))
 const Register       = lazy(() => import('./pages/Register'))
+const Participer     = lazy(() => import('./pages/Participer'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
 const Onboarding     = lazy(() => import('./pages/Onboarding'))
@@ -114,7 +115,7 @@ export default function App() {
   // publiques — presentation, conditions, boutique — elle flottait au
   // milieu du contenu et coupait la page en deux.
   const PAGES_PUBLIQUES = ['/', '/login', '/register', '/forgot-password',
-                           '/reset-password', '/cgu', '/confidentialite',
+                           '/reset-password', '/participer', '/cgu', '/confidentialite',
                            '/contact', '/boutique']
   const surPagePublique = PAGES_PUBLIQUES.includes(location.pathname)
     || location.pathname.startsWith('/boutique/')
@@ -141,6 +142,7 @@ export default function App() {
             <Route path="/"                  element={<AccueilOuApp />} />
             <Route path="/login"             element={<Login />} />
             <Route path="/register"          element={<Register />} />
+            <Route path="/participer"        element={<Participer />} />
             <Route path="/forgot-password"   element={<ForgotPassword />} />
             <Route path="/reset-password"    element={<ResetPassword />} />
             <Route path="/cgu"               element={<CGU />} />

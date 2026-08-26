@@ -11,7 +11,7 @@ const THRESHOLD = 70
  * c'est lui qu'on connecte. Le mot est recopié dans chaque item, toutes
  * les lignes du jour répondant au même.
  */
-export default function SwipeStack({ profiles, onLike, onPass, counterLabel }) {
+export default function SwipeStack({ profiles, onLike, onPass, counterLabel, vide }) {
   const cardBg      = '#0D0D0D'
   const stackHeight = 'min(430px, calc(100dvh - 380px))'
   const [index,  setIndex]  = useState(0)
@@ -65,7 +65,7 @@ export default function SwipeStack({ profiles, onLike, onPass, counterLabel }) {
   const handleLike = () => { if (!flying) triggerFly('right') }
   const handlePass = () => { if (!flying) triggerFly('left')  }
 
-  if (!current) return <EmptySwipe />
+  if (!current) return <EmptySwipe vide={vide} />
 
   const dx  = flying === 'right' ? 700 : flying === 'left' ? -700 : drag.x
   const dy  = flying ? 0 : drag.y * 0.25
@@ -257,7 +257,7 @@ function ActionBtn({ onClick, children, aria, gold }) {
   )
 }
 
-function EmptySwipe() {
+function EmptySwipe({ vide }) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20, padding: '0 32px', textAlign: 'center' }}>
       <div style={{ width: 72, height: 72, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle, rgba(201,168,76,0.1), transparent)', border: '1px solid rgba(201,168,76,0.1)' }}>
