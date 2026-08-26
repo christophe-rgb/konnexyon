@@ -164,3 +164,21 @@ describe('lienSortant avec Awin', () => {
       .toBe('https://markandfold.com/x')
   })
 })
+
+describe('clickref', () => {
+  const base = { awinmid: '1234', url: 'https://m.fr/p', affid: '99999' }
+
+  it('etiquette le clic avec l’identifiant de l’article', () => {
+    const u = new URL(lienAwin({ ...base, clickref: 'carnet-du-mot-du-jour' }))
+    expect(u.searchParams.get('clickref')).toBe('carnet-du-mot-du-jour')
+  })
+
+  it('n’ajoute rien quand il n’y a pas d’etiquette', () => {
+    expect(new URL(lienAwin(base)).searchParams.has('clickref')).toBe(false)
+  })
+
+  it('borne une etiquette trop longue', () => {
+    const u = new URL(lienAwin({ ...base, clickref: 'x'.repeat(300) }))
+    expect(u.searchParams.get('clickref')).toHaveLength(100)
+  })
+})

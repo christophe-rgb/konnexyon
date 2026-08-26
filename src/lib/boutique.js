@@ -155,7 +155,7 @@ export const AWIN_AFFID =
  * On n'accepte qu'une destination en https : le lien finit dans un
  * href, et un javascript: encode s'executerait au clic.
  */
-export function lienAwin({ awinmid, url, affid = AWIN_AFFID }) {
+export function lienAwin({ awinmid, url, affid = AWIN_AFFID, clickref = null }) {
   if (!affid || !awinmid || typeof url !== 'string') return null
   try {
     if (new URL(url).protocol !== 'https:') return null
@@ -167,6 +167,10 @@ export function lienAwin({ awinmid, url, affid = AWIN_AFFID }) {
     awinaffid: String(affid),
     ued: url,
   })
+  // clickref est le SubID d'Awin : il revient tel quel dans le rapport de
+  // transactions. En y mettant l'identifiant de l'article, on sait quelle
+  // fiche a declenche la vente sans dependre d'un tiers ni poser de cookie.
+  if (clickref) p.set('clickref', String(clickref).slice(0, 100))
   return `${AWIN_REDIRECTION}?${p.toString()}`
 }
 
@@ -181,7 +185,11 @@ export function lienSortant(produit) {
   // Un article passe par Awin des qu'il porte l'identifiant de son
   // marchand ; sinon on retombe sur un lien pose a la main, utile pour
   // les enseignes qui gerent leur affiliation en direct.
-  const parAwin = lienAwin({ awinmid: produit?.awin_mid, url: produit?.affiliate_url })
+  const parAwin = lienAwin({
+    awinmid: produit?.awin_mid,
+    url: produit?.affiliate_url,
+    clickref: produit?.slug,
+  })
   if (parAwin) return parAwin
 
   const url = produit?.affiliate_url

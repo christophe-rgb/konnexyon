@@ -17,7 +17,7 @@ export default function Confidentialite() {
           Nous collectons : adresse email, prénom affiché, âge et lieu si vous les renseignez, les textes que vous écrivez (réponses de profil et lignes du jour), vos réponses au questionnaire de compatibilité, et une localisation approximative si vous l'autorisez. Vos réponses au questionnaire ne sont lisibles que par vous : les autres membres n'en voient qu'un pourcentage de compatibilité.
         </Article>
         <Article title="2. Utilisation des données">
-          Vos données sont utilisées exclusivement pour : faire fonctionner le service de mise en relation, améliorer l'expérience utilisateur, gérer votre abonnement. Vos données ne sont jamais vendues à des tiers.
+          Vos données sont utilisées exclusivement pour : faire fonctionner le service, afficher ce que vous écrivez à ceux qui ont écrit, et mesurer l'audience du site. Elles ne sont jamais vendues à des tiers.
         </Article>
         <Article title="3. Localisation">
           La géolocalisation est utilisée uniquement pour calculer les distances entre membres. Votre position exacte n'est jamais affichée — seule une approximation en kilomètres est visible par les autres membres. Vous pouvez désactiver la géolocalisation à tout moment.
@@ -29,7 +29,7 @@ export default function Confidentialite() {
           Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, d'effacement, de portabilité et d'opposition. Pour exercer ces droits : contact@konnexyon.com
         </Article>
         <Article title="6. Cookies">
-          Konnexyon utilise uniquement des cookies techniques nécessaires au fonctionnement du service. Aucun cookie publicitaire ou de tracking tiers n'est utilisé.
+          Konnexyon utilise des cookies techniques nécessaires au fonctionnement du service — ceux-là ne se refusent pas, sans eux le site ne marche pas. Si vous l'acceptez, un traceur d'affiliation (wecantrack) mesure en plus les achats effectués chez nos marchands partenaires : c'est ce qui rémunère le site, et c'est la seule raison de sa présence. Il ne se charge qu'après votre accord, et vous pouvez le refuser sans perdre l'accès à quoi que ce soit. Aucun cookie publicitaire n'est utilisé, et aucune donnée n'est revendue.
         </Article>
         <Article title="7. Conservation">
           Vos données sont conservées tant que votre compte est actif. En cas de suppression de compte, toutes vos données sont effacées sous 30 jours.

@@ -9,6 +9,7 @@ import { ToastContainer } from './components/Toast'
 import { ConfirmDialogHost } from './components/ConfirmDialog'
 import MatchModal   from './components/MatchModal'
 import CookieBanner from './components/CookieBanner'
+import WeCanTrack   from './components/WeCanTrack'
 
 const Home           = lazy(() => import('./pages/Home'))
 const Login          = lazy(() => import('./pages/Login'))
@@ -100,6 +101,7 @@ export default function App() {
       <ToastContainer />
       <ConfirmDialogHost />
       <CookieBanner />
+      <WeCanTrack />
 
       {showNav && <Navbar />}
 

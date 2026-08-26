@@ -64,7 +64,7 @@ export default function CookieBanner() {
 
         {/* texte */}
         <p style={{ fontSize: 13, color: 'rgba(80,70,60,0.85)', lineHeight: 1.7, margin: 0 }}>
-          Konnexyon utilise des cookies essentiels pour son fonctionnement. Aucun cookie tiers, aucun tracker publicitaire.
+          Konnexyon utilise des cookies essentiels pour son fonctionnement. Si vous l’acceptez, un traceur mesure aussi les achats faits chez nos marchands partenaires — c’est ce qui rémunère le site. Aucune publicité, aucune revente de données.
           Consultez notre{' '}
           <a href="/confidentialite" style={{ color: 'rgba(201,168,76,1)', textDecoration: 'none' }}>
             politique de confidentialité
