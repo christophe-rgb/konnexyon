@@ -14,19 +14,19 @@ export default function CGU() {
       </header>
       <div style={{ maxWidth: 680, margin: '0 auto', padding: '40px 24px 80px' }}>
         <Article title="1. Objet">
-          Konnexyon est un site de rencontre par l'écriture, réservé aux personnes majeures. On n'y publie pas de photo : le profil est constitué de réponses écrites.
+          Konnexyon est un site de connexion par l'écriture, réservé aux personnes majeures. On n'y publie aucune photo : le profil est constitué de réponses écrites. Chaque jour, un mot est publié ; chaque membre écrit la ligne qu'il lui inspire, et découvre ensuite celles des autres.
         </Article>
         <Article title="2. Conditions d'accès">
           Pour utiliser Konnexyon, vous devez : avoir 18 ans ou plus, écrire vous-même les textes que vous publiez, fournir des informations exactes lors de l'inscription, ne pas usurper l'identité d'un tiers.
         </Article>
         <Article title="3. Contenu des profils">
-          Konnexyon est une plateforme de rencontres — pas un site de contenu adulte. Les photos de profil doivent rester décentes : visages, tenues de ville ou de soirée. Les photos dénudées, explicites ou à caractère pornographique sont strictement interdites. Tout contenu impliquant des mineurs, non consenti, pornographique ou illégal entraîne la suppression immédiate du compte et peut faire l'objet d'un signalement aux autorités compétentes.
+          Le site ne comporte aucune photographie : profils, lignes du jour et messages sont uniquement textuels. Vous devez écrire vous-même ce que vous publiez. Les propos haineux, harcelants, diffamatoires, les contenus à caractère pornographique et tout texte impliquant des mineurs ou publié sans le consentement des personnes concernées sont strictement interdits, et entraînent la suppression immédiate du compte ainsi qu'un éventuel signalement aux autorités compétentes.
         </Article>
-        <Article title="4. Abonnement Premium">
-          L'abonnement Premium est proposé à titre onéreux. Le paiement est sécurisé et traité par notre prestataire de paiement. L'abonnement est renouvelé automatiquement à son terme, sauf résiliation de votre part avant la date d'échéance.
+        <Article title="4. La Papeterie">
+          L'accès au site est gratuit. La Papeterie propose des articles à la vente : le paiement est sécurisé et traité par notre prestataire, et les conditions de livraison et de retour sont précisées au moment de la commande.
         </Article>
         <Article title="5. Responsabilité">
-          Konnexyon met en relation des adultes consentants mais ne peut être tenu responsable des rencontres physiques organisées entre membres. Chaque membre est responsable de ses actes.
+          Konnexyon met des adultes consentants en relation par l'écrit, mais ne peut être tenu responsable des échanges entre membres ni de ce qui en découle en dehors du site. Chaque membre est responsable de ses propos et de ses actes.
         </Article>
         <Article title="6. Données personnelles">
           Vos données sont traitées conformément à notre Politique de Confidentialité et au RGPD. Vous disposez d'un droit d'accès, de rectification et de suppression de vos données.

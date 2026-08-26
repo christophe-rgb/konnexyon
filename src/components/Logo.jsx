@@ -1,5 +1,5 @@
 /**
- * Identité Konnexyon — « site de rencontre par l'écriture ».
+ * Identité Konnexyon — « site de connexion par l'écriture ».
  *
  * Quill    : la plume, seule (icône, favicon, puces).
  * Wordmark : KONNE·X·YON, la plume plantée dans le X.
@@ -72,7 +72,7 @@ export function Wordmark({ size = 26, tone = 'or', tagline = false }) {
           color: tone === 'encre' ? 'rgba(11,11,11,0.55)' : 'rgba(242,238,230,0.5)',
           whiteSpace: 'nowrap',
         }}>
-          Site de rencontre par l’écriture
+          Site de connexion par l’écriture
         </span>
       )}
     </span>

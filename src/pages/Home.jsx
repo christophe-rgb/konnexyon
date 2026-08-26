@@ -3,7 +3,7 @@ import { Quill, Wordmark } from '../components/Logo'
 import EncartBoutique from '../components/EncartBoutique'
 
 /**
- * Page d'accueil publique — d'après la charte « rencontre par l'écriture ».
+ * Page d'accueil publique — d'après la charte « connexion par l'écriture ».
  * Fond ivoire, encre pour le texte, l'or réservé aux accroches et à l'action.
  */
 
