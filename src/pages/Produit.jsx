@@ -1,19 +1,14 @@
-import { useState } from 'react'
 import { Link, useParams, Navigate } from 'react-router-dom'
-import { ArrowLeft, ShoppingBag, Minus, Plus } from 'lucide-react'
+import { ArrowLeft, ShoppingBag } from 'lucide-react'
 import { Wordmark } from '../components/Logo'
 import Plate from '../components/boutique/Plates'
-import { CATALOGUE, bySlug, euros, FRANCO_CENTS } from '../lib/boutique'
-import { usePanier, usePanierTotaux } from '../store/panier'
+import { CATALOGUE, bySlug, euros, MENTION_AFFILIATION } from '../lib/boutique'
+import LienMarchand from '../components/boutique/LienMarchand'
 
 /** La fiche produit. */
 export default function Produit() {
   const { slug } = useParams()
   const produit = bySlug(slug)
-  const ajouter = usePanier(s => s.ajouter)
-  const { count } = usePanierTotaux()
-  const [quantite, setQuantite] = useState(1)
-  const [ajoute, setAjoute] = useState(false)
 
   if (!produit) return <Navigate to="/boutique" replace />
 
@@ -22,12 +17,6 @@ export default function Produit() {
     .sort((a, b) => a.rank - b.rank)
     .slice(0, 3)
 
-  const mettreAuPanier = () => {
-    ajouter(produit.slug, quantite)
-    setAjoute(true)
-    setTimeout(() => setAjoute(false), 1800)
-  }
-
   return (
     <div style={{ minHeight: '100dvh', background: 'var(--ivoire)', color: 'var(--encre)' }}>
 
@@ -35,7 +24,7 @@ export default function Produit() {
         background: 'var(--encre)', color: 'var(--ivoire)', textAlign: 'center',
         padding: '9px 16px', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase',
       }}>
-        Livraison offerte dès {euros(FRANCO_CENTS)} · Expédié sous 48 h
+        {MENTION_AFFILIATION}
       </div>
 
       <header style={{
@@ -43,10 +32,7 @@ export default function Produit() {
         padding: '20px clamp(20px, 5vw, 56px)', maxWidth: 1180, margin: '0 auto',
       }}>
         <Link to="/" aria-label="Konnexyon, accueil"><Wordmark size={22} tone="encre" /></Link>
-        <Link to="/panier" style={{ ...navLink, color: 'var(--or)', display: 'flex', alignItems: 'center', gap: 7 }}>
-          <ShoppingBag size={15} strokeWidth={1.6} />
-          Panier{count > 0 && <span aria-label={`${count} article(s)`}>({count})</span>}
-        </Link>
+
       </header>
 
       <main style={{ maxWidth: 1180, margin: '0 auto', padding: '8px clamp(20px, 5vw, 56px) 40px' }}>
@@ -111,28 +97,11 @@ export default function Produit() {
             </div>
 
             <div style={{ display: 'flex', gap: 13, flexWrap: 'wrap', alignItems: 'center', marginTop: 22 }}>
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: 4,
-                border: '1px solid rgba(11,11,11,0.18)', borderRadius: 999, padding: '4px 6px',
-              }}>
-                <button onClick={() => setQuantite(q => Math.max(1, q - 1))}
-                        aria-label="Retirer un" style={pas}>
-                  <Minus size={14} strokeWidth={1.6} />
-                </button>
-                <span aria-live="polite" style={{ minWidth: 22, textAlign: 'center', fontSize: 14 }}>{quantite}</span>
-                <button onClick={() => setQuantite(q => Math.min(20, q + 1))}
-                        aria-label="Ajouter un" style={pas}>
-                  <Plus size={14} strokeWidth={1.6} />
-                </button>
-              </div>
-
-              <button onClick={mettreAuPanier} className="btn btn-continuer">
-                {ajoute ? 'Ajouté ✓' : 'Mettre au panier'}
-              </button>
+              <LienMarchand produit={produit} />
             </div>
 
             <p style={{ fontSize: 12, lineHeight: 1.8, color: 'rgba(11,11,11,0.45)', marginTop: 20 }}>
-              Expédié sous 48 h depuis l’Hérault · Trente jours pour changer d’avis
+              Vendu et expédié par le marchand · Ses conditions de retour s’appliquent
             </p>
           </div>
         </div>

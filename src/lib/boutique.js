@@ -1,10 +1,18 @@
 /**
- * La Papeterie — catalogue et calculs de panier.
+ * La Papeterie — une sélection, pas un stock.
+ *
+ * Le modèle est l'affiliation : on choisit des objets chez des marchands
+ * partenaires, on renvoie chez eux, et la commission tombe sur la vente.
+ * Le site ne détient aucun stock, n'encaisse rien et n'expédie rien.
  *
  * Le catalogue vit dans Supabase (table products). CATALOGUE ci-dessous en
  * est la copie de secours : la boutique doit rester lisible même si la base
  * ne répond pas, parce qu'une page produit vide sur du trafic payant, c'est
  * du budget publicitaire jeté.
+ *
+ * Chaque article porte `merchant`, `affiliate_url` et `commission_rate`.
+ * Tant que le lien manque, l'article s'affiche sans bouton d'achat plutôt
+ * que de mener nulle part.
  */
 
 export const CATALOGUE = [
@@ -99,9 +107,18 @@ export const RAYONS = [
   { key: 'abonnement', label: 'Abonnement' },
 ]
 
-/** Franco de port à partir de ce montant — le levier de panier moyen. */
-export const FRANCO_CENTS   = 6000
-export const LIVRAISON_CENTS = 490
+/**
+ * Mention légale d'affiliation.
+ *
+ * La transparence sur les liens rémunérés est une obligation, pas une
+ * politesse : elle doit être visible avant le clic, pas enfouie dans les
+ * mentions légales. Ce texte est affiché en tête de boutique et sur
+ * chaque fiche.
+ */
+export const MENTION_AFFILIATION =
+  'Les articles présentés sont vendus par des marchands partenaires. ' +
+  'Konnexyon touche une commission sur les achats effectués depuis ces liens, ' +
+  'sans que cela change le prix payé.'
 
 export function euros(cents) {
   return (cents / 100).toLocaleString('fr-FR', {
@@ -115,29 +132,40 @@ export function bySlug(slug) {
 }
 
 /**
- * Totaux du panier. `lignes` = [{ slug, quantity }].
- * Le prix vient toujours du catalogue, jamais du panier stocké côté client :
- * un panier en localStorage est modifiable par n'importe qui.
+ * Le lien sortant d'un article, s'il est utilisable.
+ *
+ * On n'ouvre que du https : un lien d'affiliation vient d'un fichier de
+ * configuration ou de la base, et un `javascript:` glissé là s'exécuterait
+ * dans la page au clic.
  */
-export function totaux(lignes) {
-  const items = lignes
-    .map(l => {
-      const p = bySlug(l.slug)
-      if (!p) return null
-      const quantity = Math.max(1, Math.min(20, Math.trunc(l.quantity) || 1))
-      return { ...p, quantity, ligne_cents: p.price_cents * quantity }
-    })
-    .filter(Boolean)
-
-  const sous_total = items.reduce((s, i) => s + i.ligne_cents, 0)
-  const livraison  = sous_total === 0 || sous_total >= FRANCO_CENTS ? 0 : LIVRAISON_CENTS
-
-  return {
-    items,
-    count: items.reduce((s, i) => s + i.quantity, 0),
-    sous_total_cents: sous_total,
-    livraison_cents: livraison,
-    total_cents: sous_total + livraison,
-    manque_franco_cents: Math.max(0, FRANCO_CENTS - sous_total),
+export function lienSortant(produit) {
+  const url = produit?.affiliate_url
+  if (typeof url !== 'string') return null
+  try {
+    return new URL(url).protocol === 'https:' ? url : null
+  } catch {
+    return null
   }
+}
+
+/** Un article est-il achetable, c'est-à-dire relié à un marchand ? */
+export function estDisponible(produit) {
+  return !!lienSortant(produit)
+}
+
+/** « chez Papersmiths », ou rien si le marchand n'est pas renseigné. */
+export function chezLeMarchand(produit) {
+  return produit?.merchant ? `chez ${produit.merchant}` : ''
+}
+
+/**
+ * Ce que rapporte une vente, en centimes.
+ * Sert au suivi interne — jamais affiché au visiteur.
+ */
+export function commissionCents(produit) {
+  const taux = Number(produit?.commission_rate)
+  const prix = Number(produit?.price_cents)
+  if (!Number.isFinite(taux) || !Number.isFinite(prix)) return 0
+  if (taux <= 0 || prix <= 0) return 0
+  return Math.round((prix * Math.min(taux, 100)) / 100)
 }

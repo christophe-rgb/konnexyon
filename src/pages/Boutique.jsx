@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom'
 import { ShoppingBag, Check } from 'lucide-react'
 import { Quill, Wordmark } from '../components/Logo'
 import Plate from '../components/boutique/Plates'
-import { CATALOGUE, RAYONS, euros, FRANCO_CENTS } from '../lib/boutique'
-import { usePanier, usePanierTotaux } from '../store/panier'
+import { CATALOGUE, RAYONS, euros, MENTION_AFFILIATION } from '../lib/boutique'
+import LienMarchand from '../components/boutique/LienMarchand'
 
 /**
  * La Papeterie — la boutique de Konnexyon.
@@ -18,14 +18,11 @@ import { usePanier, usePanierTotaux } from '../store/panier'
 const REASSURANCE = [
   ['Expédié sous 48 h', 'Depuis l’Hérault, emballé à la main.'],
   ['Trente jours pour changer d’avis', 'Retour accepté, même ouvert.'],
-  ['Livraison offerte dès ' + euros(FRANCO_CENTS), 'En France métropolitaine.'],
+  ['Une sélection, pas un stock', 'Chaque objet est choisi, puis acheté chez son marchand.'],
 ]
 
 export default function Boutique() {
   const [rayon, setRayon] = useState('tout')
-  const ajouter = usePanier(s => s.ajouter)
-  const { count } = usePanierTotaux()
-  const [ajoute, setAjoute] = useState(null)
 
   const heros = CATALOGUE[0]
   const rayonnage = useMemo(
@@ -33,11 +30,6 @@ export default function Boutique() {
     [rayon],
   )
 
-  const mettreAuPanier = slug => {
-    ajouter(slug, 1)
-    setAjoute(slug)
-    setTimeout(() => setAjoute(a => (a === slug ? null : a)), 1600)
-  }
 
   return (
     <div style={{ minHeight: '100dvh', background: 'var(--ivoire)', color: 'var(--encre)', overflowX: 'hidden' }}>
@@ -47,7 +39,7 @@ export default function Boutique() {
         background: 'var(--encre)', color: 'var(--ivoire)', textAlign: 'center',
         padding: '9px 16px', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase',
       }}>
-        Livraison offerte dès {euros(FRANCO_CENTS)} · Expédié sous 48 h
+        {MENTION_AFFILIATION}
       </div>
 
       {/* ── barre ── */}
@@ -60,10 +52,7 @@ export default function Boutique() {
         <nav style={{ display: 'flex', alignItems: 'center', gap: 'clamp(16px, 3vw, 34px)' }}>
           <a href="#rayons" style={navLink} className="hidden sm:inline">Le rayon</a>
           <a href="#ensemble" style={navLink} className="hidden sm:inline">Pourquoi</a>
-          <Link to="/panier" style={{ ...navLink, color: 'var(--or)', display: 'flex', alignItems: 'center', gap: 7 }}>
-            <ShoppingBag size={15} strokeWidth={1.6} />
-            Panier{count > 0 && <span aria-label={`${count} article(s)`}>({count})</span>}
-          </Link>
+  
         </nav>
       </header>
 
@@ -138,9 +127,7 @@ export default function Boutique() {
             </div>
 
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 24 }}>
-              <button onClick={() => mettreAuPanier(heros.slug)} className="btn btn-continuer">
-                {ajoute === heros.slug ? 'Ajouté ✓' : 'Mettre au panier'}
-              </button>
+              <LienMarchand produit={heros} />
               <Link to={`/boutique/${heros.slug}`} className="btn btn-ecrire">Voir le détail</Link>
             </div>
           </div>
@@ -207,18 +194,17 @@ export default function Boutique() {
                 </p>
               </Link>
 
-              <button onClick={() => mettreAuPanier(p.slug)}
-                aria-label={`Mettre ${p.name} au panier`}
+              <LienMarchand
+                produit={p}
+                className="btn"
                 style={{
-                  marginTop: 13, width: '100%', padding: '11px 0', cursor: 'pointer',
+                  marginTop: 13, width: '100%', padding: '11px 0',
                   fontSize: 11, letterSpacing: '0.13em', textTransform: 'uppercase',
                   border: '1px solid rgba(11,11,11,0.18)', borderRadius: 999,
                   transition: 'all 0.25s var(--ease-out)',
-                  background: ajoute === p.slug ? 'var(--or)' : 'transparent',
-                  color: ajoute === p.slug ? 'var(--encre)' : 'rgba(11,11,11,0.75)',
-                }}>
-                {ajoute === p.slug ? 'Ajouté ✓' : 'Ajouter'}
-              </button>
+                  background: 'transparent', color: 'rgba(11,11,11,0.75)',
+                }}
+              />
             </article>
           ))}
         </div>
