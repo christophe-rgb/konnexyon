@@ -9,7 +9,6 @@ import { ToastContainer } from './components/Toast'
 import { ConfirmDialogHost } from './components/ConfirmDialog'
 import MatchModal   from './components/MatchModal'
 import CookieBanner from './components/CookieBanner'
-import WeCanTrack   from './components/WeCanTrack'
 
 const Home           = lazy(() => import('./pages/Home'))
 const Login          = lazy(() => import('./pages/Login'))
@@ -31,8 +30,6 @@ const Admin          = lazy(() => import('./pages/Admin'))
 const CGU            = lazy(() => import('./pages/CGU'))
 const Confidentialite = lazy(() => import('./pages/Confidentialite'))
 const Contact        = lazy(() => import('./pages/Contact'))
-const Boutique       = lazy(() => import('./pages/Boutique'))
-const Produit        = lazy(() => import('./pages/Produit'))
 const NotFound           = lazy(() => import('./pages/NotFound'))
 
 const PageLoader = () => (
@@ -112,13 +109,12 @@ export default function App() {
   }, [profile])
 
   // La barre du membre n'apparait que dans l'app. Sur les pages
-  // publiques — presentation, conditions, boutique — elle flottait au
+  // publiques — presentation, conditions, contact — elle flottait au
   // milieu du contenu et coupait la page en deux.
   const PAGES_PUBLIQUES = ['/', '/login', '/register', '/forgot-password',
                            '/reset-password', '/participer', '/cgu', '/confidentialite',
-                           '/contact', '/boutique']
+                           '/contact']
   const surPagePublique = PAGES_PUBLIQUES.includes(location.pathname)
-    || location.pathname.startsWith('/boutique/')
   const showNav = user && profile?.email_1_confirmed && !surPagePublique
 
   return (
@@ -127,7 +123,6 @@ export default function App() {
       <ToastContainer />
       <ConfirmDialogHost />
       <CookieBanner />
-      <WeCanTrack />
 
       {showNav && <Navbar />}
 
@@ -149,9 +144,6 @@ export default function App() {
             <Route path="/confidentialite"   element={<Confidentialite />} />
             <Route path="/contact"           element={<Contact />} />
 
-            {/* La Papeterie — publique : on peut acheter sans compte */}
-            <Route path="/boutique"          element={<Boutique />} />
-            <Route path="/boutique/:slug"    element={<Produit />} />
 
             <Route path="/onboarding" element={
               <RequireAuth><Onboarding /></RequireAuth>

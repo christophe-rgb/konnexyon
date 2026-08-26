@@ -1,4 +1,19 @@
 {
+  "redirects": [
+    { "source": "/blog/:chemin*",     "destination": "/", "permanent": true },
+    { "source": "/belgique/:chemin*", "destination": "/", "permanent": true },
+    { "source": "/suisse/:chemin*",   "destination": "/", "permanent": true },
+    { "source": "/quebec/:chemin*",   "destination": "/", "permanent": true },
+    { "source": "/blog",              "destination": "/", "permanent": true },
+    { "source": "/belgique",          "destination": "/", "permanent": true },
+    { "source": "/suisse",            "destination": "/", "permanent": true },
+    { "source": "/quebec",            "destination": "/", "permanent": true },
+    { "source": "/discover",          "destination": "/lire", "permanent": true },
+    { "source": "/abonnement",        "destination": "/", "permanent": true },
+    { "source": "/panier",            "destination": "/", "permanent": true },
+    { "source": "/boutique/:chemin*", "destination": "/", "permanent": true },
+    { "source": "/boutique",          "destination": "/", "permanent": true }
+  ],
   "rewrites": [{ "source": "/((?!assets/).*)", "destination": "/index.html" }],
   "headers": [
     {

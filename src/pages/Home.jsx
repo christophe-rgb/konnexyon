@@ -6,7 +6,6 @@ import { Quill, Wordmark } from '../components/Logo'
 import { ajouterSwipe } from '../lib/swipesEnAttente'
 
 const SwipeStack = lazy(() => import('../components/SwipeStack'))
-import EncartBoutique from '../components/EncartBoutique'
 
 /**
  * Page d'accueil publique — d'après la charte « connexion par l'écriture ».
@@ -80,7 +79,6 @@ export default function Home() {
           <a href="#lire"    style={navLink} className="hidden sm:inline">Découvrir</a>
           <a href="#ecrire"  style={navLink} className="hidden sm:inline">Écrire</a>
           <a href="#apropos" style={navLink} className="hidden sm:inline">À propos</a>
-          <Link to="/boutique" style={navLink} className="hidden sm:inline">Papeterie</Link>
           <Link to="/login" style={{ ...navLink, color: 'var(--or)' }}>Entrer</Link>
         </nav>
       </header>
@@ -206,7 +204,6 @@ export default function Home() {
       </section>
 
       {/* ── la papeterie ── */}
-      <EncartBoutique ton="encre" slug="necessaire-a-lettres" />
 
       {/* ── signature ── */}
       <section id="apropos" style={{ background: 'var(--encre)', color: 'var(--ivoire)' }}>
@@ -244,7 +241,6 @@ export default function Home() {
       }}>
         <Wordmark size={16} tone="encre" />
         <nav style={{ display: 'flex', gap: 22, flexWrap: 'wrap' }}>
-          <Link to="/boutique"        style={footLink}>Papeterie</Link>
           <Link to="/cgu"             style={footLink}>Conditions</Link>
           <Link to="/confidentialite" style={footLink}>Confidentialité</Link>
           <Link to="/contact"         style={footLink}>Contact</Link>

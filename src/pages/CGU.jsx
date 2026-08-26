@@ -22,8 +22,8 @@ export default function CGU() {
         <Article title="3. Contenu des profils">
           Le site ne comporte aucune photographie : profils, lignes du jour et messages sont uniquement textuels. Vous devez écrire vous-même ce que vous publiez. Les propos haineux, harcelants, diffamatoires, les contenus à caractère pornographique et tout texte impliquant des mineurs ou publié sans le consentement des personnes concernées sont strictement interdits, et entraînent la suppression immédiate du compte ainsi qu'un éventuel signalement aux autorités compétentes.
         </Article>
-        <Article title="4. La Papeterie">
-          L'accès au site est gratuit. La Papeterie propose des articles à la vente : le paiement est sécurisé et traité par notre prestataire, et les conditions de livraison et de retour sont précisées au moment de la commande.
+        <Article title="4. Accès au service">
+          L'accès à Konnexyon est gratuit. Aucun paiement n'est demandé, et aucune donnée bancaire n'est collectée.
         </Article>
         <Article title="5. Responsabilité">
           Konnexyon met des adultes consentants en relation par l'écrit, mais ne peut être tenu responsable des échanges entre membres ni de ce qui en découle en dehors du site. Chaque membre est responsable de ses propos et de ses actes.

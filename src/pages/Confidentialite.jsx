@@ -29,7 +29,7 @@ export default function Confidentialite() {
           Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, d'effacement, de portabilité et d'opposition. Pour exercer ces droits : contact@konnexyon.com
         </Article>
         <Article title="6. Cookies">
-          Konnexyon utilise des cookies techniques nécessaires au fonctionnement du service — ceux-là ne se refusent pas, sans eux le site ne marche pas. Si vous l'acceptez, un traceur d'affiliation (wecantrack) mesure en plus les achats effectués chez nos marchands partenaires : c'est ce qui rémunère le site, et c'est la seule raison de sa présence. Il ne se charge qu'après votre accord, et vous pouvez le refuser sans perdre l'accès à quoi que ce soit. Aucun cookie publicitaire n'est utilisé, et aucune donnée n'est revendue.
+          Konnexyon utilise uniquement des cookies techniques nécessaires au fonctionnement du service — sans eux, le site ne marche pas. Aucun traceur tiers, aucun cookie publicitaire, et aucune donnée revendue.
         </Article>
         <Article title="7. Conservation">
           Vos données sont conservées tant que votre compte est actif. En cas de suppression de compte, toutes vos données sont effacées sous 30 jours.

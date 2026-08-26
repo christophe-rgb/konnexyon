@@ -1,12 +1,16 @@
 User-agent: *
 Allow: /
-Disallow: /discover
+
+# Espaces reserves aux membres : rien a indexer, et rien a montrer.
+Disallow: /lire
+Disallow: /mot-du-jour
+Disallow: /carnet
+Disallow: /personne
 Disallow: /matches
 Disallow: /messages
 Disallow: /profile
 Disallow: /settings
 Disallow: /onboarding
 Disallow: /admin
-Disallow: /abonnement
 
-Sitemap: https://konnexyon.com/sitemap.xml
+Sitemap: https://www.konnexyon.com/sitemap.xml

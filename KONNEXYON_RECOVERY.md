@@ -6,7 +6,7 @@
 
 ## Projet
 
-**Konnexyon** — Plateforme de rencontres libertines adultes 18+  
+**Konnexyon** — Site de connexion par l'écriture  
 Marché : France, Belgique, Suisse, Québec  
 Modèle : freemium → abonnement Premium récurrent  
 URL production : https://www.konnexyon.com  

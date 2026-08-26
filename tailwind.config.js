@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Charte Konnexyon — site de rencontre par l'écriture
+        // Charte Konnexyon — site de connexion par l'écriture
         encre:    '#0B0B0B',
         ivoire:   '#F2EEE6',
         or:       '#C9A84C',

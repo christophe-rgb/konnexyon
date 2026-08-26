@@ -6,7 +6,6 @@ import { useAuthStore } from '../store/auth'
 import { toast } from '../components/Toast'
 import { computeStreak, formatCarnetDate } from '../lib/dailyWord'
 import { DEMO_CARNET } from '../lib/demo'
-import EncartBoutique from '../components/EncartBoutique'
 
 /**
  * Mon carnet — les lignes écrites par le membre, de la plus récente à la
@@ -134,7 +133,6 @@ export default function Carnet() {
         {/* ── la papeterie — proposée seulement à qui écrit déjà ── */}
         {!loading && entries.length > 0 && (
           <div style={{ marginTop: 48 }}>
-            <EncartBoutique ton="ivoire" slug="carnet-du-mot-du-jour" />
           </div>
         )}
       </div>
