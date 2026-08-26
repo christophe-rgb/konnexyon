@@ -14,6 +14,7 @@ const Home           = lazy(() => import('./pages/Home'))
 const Login          = lazy(() => import('./pages/Login'))
 const Register       = lazy(() => import('./pages/Register'))
 const Participer     = lazy(() => import('./pages/Participer'))
+const Desabonnement  = lazy(() => import('./pages/Desabonnement'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
 const Onboarding     = lazy(() => import('./pages/Onboarding'))
@@ -112,7 +113,7 @@ export default function App() {
   // publiques — presentation, conditions, contact — elle flottait au
   // milieu du contenu et coupait la page en deux.
   const PAGES_PUBLIQUES = ['/', '/login', '/register', '/forgot-password',
-                           '/reset-password', '/participer', '/cgu', '/confidentialite',
+                           '/reset-password', '/participer', '/desabonnement', '/cgu', '/confidentialite',
                            '/contact']
   const surPagePublique = PAGES_PUBLIQUES.includes(location.pathname)
   const showNav = user && profile?.email_1_confirmed && !surPagePublique
@@ -138,6 +139,7 @@ export default function App() {
             <Route path="/login"             element={<Login />} />
             <Route path="/register"          element={<Register />} />
             <Route path="/participer"        element={<Participer />} />
+            <Route path="/desabonnement"     element={<Desabonnement />} />
             <Route path="/forgot-password"   element={<ForgotPassword />} />
             <Route path="/reset-password"    element={<ResetPassword />} />
             <Route path="/cgu"               element={<CGU />} />

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
-import { LogOut, Eye, EyeOff, MapPin, MapPinOff, Trash2, ChevronRight, Settings as SettingsIcon, ShieldOff } from 'lucide-react'
+import { LogOut, Eye, EyeOff, MapPin, MapPinOff, Trash2, ChevronRight, Settings as SettingsIcon, ShieldOff, Mail, MailX } from 'lucide-react'
 
 export default function Settings() {
   const { profile, fetchProfile, signOut } = useAuthStore()
@@ -139,6 +139,19 @@ export default function Settings() {
             desc={profile.hide_location ? "Vous n'apparaissez pas sur la carte" : 'Votre position approximative est visible'}
             onClick={() => update({ hide_location: !profile.hide_location }, 'location')}
             loading={saving === 'location'}
+          />
+        </Section>
+
+        {/* le mot du jour par courriel */}
+        <Section title="Le mot du jour">
+          <Row
+            icon={profile.mot_du_jour_email ? Mail : MailX}
+            label={profile.mot_du_jour_email ? 'Reçu chaque matin' : 'Envoi coupé'}
+            desc={profile.mot_du_jour_email
+              ? 'Le mot du jour vous arrive par courriel'
+              : 'Le mot vous attend sur le site, sans rappel'}
+            onClick={() => update({ mot_du_jour_email: !profile.mot_du_jour_email }, 'courriel')}
+            loading={saving === 'courriel'}
           />
         </Section>
 
