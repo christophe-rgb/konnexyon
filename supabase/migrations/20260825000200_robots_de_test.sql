@@ -151,11 +151,18 @@ begin
     -- connexion mutuelle avec le compte principal
     v_a := least(v_moi, v_id);
     v_b := greatest(v_moi, v_id);
-    insert into public.matches (member_a, member_b) values (v_a, v_b)
+    insert into public.matches (member_a, member_b, created_at)
+    values (v_a, v_b, now() - interval '7 days')
     on conflict do nothing;
 
-    -- les likes des deux cotes, pour que l etat soit coherent
-    insert into public.likes (from_id, to_id) values (v_moi, v_id), (v_id, v_moi)
+    -- Les likes des deux cotes, pour que l etat soit coherent.
+    --
+    -- Antidates d une semaine : le quota de trois connexions par jour
+    -- compte les likes du jour, et dix connexions creees d un coup
+    -- videraient la journee du compte principal avant qu il ait joue.
+    insert into public.likes (from_id, to_id, created_at) values
+      (v_moi, v_id, now() - interval '7 days'),
+      (v_id, v_moi, now() - interval '7 days')
     on conflict do nothing;
   end loop;
 end $$;
