@@ -59,19 +59,19 @@ export function useConversation(matchId) {
         .from('profiles').select('id, display_name').eq('id', otherId).single()
       if (isMounted()) setOther(p)
 
-      // Charger les messages uniquement si participant confirmé
-      const { data, count } = await supabase
-        .from('messages')
-        .select('*', { count: 'exact' })
-        .eq('match_id', matchId)
-        .or(`deleted_for.is.null,deleted_for.not.cs.{${profile.id}}`)
-        .order('created_at', { ascending: false })
-        .limit(PAGE_SIZE)
+      // Le contenu des messages est chiffré au repos : la colonne `content`
+      // est toujours nulle, seule cette RPC en rend le texte clair. Elle
+      // vérifie aussi l'appartenance au fil et écarte les messages supprimés.
+      const { data } = await supabase.rpc('get_messages', {
+        p_match_id: matchId,
+        p_before: null,
+        p_limit: PAGE_SIZE,
+      })
 
       if (!isMounted()) return
-      const page = (data || []).reverse()
+      const page = (data || []).slice().reverse()
       if (page.length > 0) oldestRef.current = page[0].created_at
-      setHasMore((count || 0) > page.length)
+      setHasMore(page.length === PAGE_SIZE)
       setMessages(page)
       setLoading(false)
 
@@ -89,12 +89,15 @@ export function useConversation(matchId) {
         .on('postgres_changes', {
           event: 'INSERT', schema: 'public', table: 'messages',
           filter: `match_id=eq.${matchId}`,
-        }, payload => {
+        }, async payload => {
           if (!isMountedRef.current) return
-          setMessages(ms =>
-            ms.some(x => x.id === payload.new.id) ? ms : [...ms, payload.new]
-          )
-          if (payload.new.sender_id !== profile.id) markRead(payload.new.id)
+          // La charge utile du temps réel vient de la table : son `content`
+          // est nul. On redemande le message déchiffré avant de l'afficher.
+          const { data } = await supabase.rpc('get_message', { p_id: payload.new.id })
+          const message = data?.[0]
+          if (!message || !isMountedRef.current) return
+          setMessages(ms => ms.some(x => x.id === message.id) ? ms : [...ms, message])
+          if (message.sender_id !== profile.id) markRead(message.id)
         })
         .subscribe()
       channelRef.current = channel
@@ -118,16 +121,13 @@ export function useConversation(matchId) {
     if (loadingMore || !hasMore) return
     setLoadingMore(true)
 
-    const { data, count } = await supabase
-      .from('messages')
-      .select('*', { count: 'exact' })
-      .eq('match_id', matchId)
-      .or(`deleted_for.is.null,deleted_for.not.cs.{${profile.id}}`)
-      .lt('created_at', oldestRef.current)
-      .order('created_at', { ascending: false })
-      .limit(PAGE_SIZE)
+    const { data } = await supabase.rpc('get_messages', {
+      p_match_id: matchId,
+      p_before: oldestRef.current,
+      p_limit: PAGE_SIZE,
+    })
 
-    const older = (data || []).reverse()
+    const older = (data || []).slice().reverse()
     if (older.length > 0) oldestRef.current = older[0].created_at
     setHasMore(older.length === PAGE_SIZE)
     setMessages(ms => {

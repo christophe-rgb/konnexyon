@@ -75,7 +75,14 @@ export default function Messages() {
         { event: 'INSERT', schema: 'public', table: 'messages' },
         async (payload) => {
           if (!isMounted) return
-          const { match_id, content, photo_url, created_at, sender_id } = payload.new
+          const { match_id, photo_url, created_at, sender_id } = payload.new
+
+          // Le contenu arrive chiffré : la colonne `content` de la charge
+          // utile est nulle. On redemande le texte clair avant d'afficher
+          // l'aperçu, sinon le fil affiche une ligne vide.
+          const { data: clair } = await supabase.rpc('get_message', { p_id: payload.new.id })
+          const content = clair?.[0]?.content ?? null
+          if (!isMounted) return
 
           setThreads(prev => {
             const idx = prev.findIndex(t => t.matchId === match_id)
@@ -201,7 +208,7 @@ export default function Messages() {
                 <div style={{
                   width: 48, height: 48, borderRadius: '14px', overflow: 'hidden',
                   border: '1px solid rgba(201,168,76,0.2)',
-                  background: '#EDE7DB',
+                  background: '#E1DBD0',
                 }}>
                   <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Cormorant, serif', fontSize: '20px', color: 'rgba(201,168,76,1)' }}>
                     {t.profile?.display_name?.[0]}
@@ -212,7 +219,7 @@ export default function Messages() {
                     position: 'absolute', top: -3, right: -3,
                     width: 11, height: 11, borderRadius: '50%',
                     background: 'linear-gradient(135deg, #A07830, #E8CC7A)',
-                    border: '2px solid #FDFAF6',
+                    border: '2px solid #F2EEE6',
                     boxShadow: '0 0 6px rgba(201,168,76,0.45)',
                   }} />
                 )}
@@ -224,7 +231,7 @@ export default function Messages() {
                   fontFamily: 'Cormorant, serif',
                   fontSize: '1.05rem',
                   fontWeight: t.unread ? 600 : 500,
-                  color: t.unread ? '#1C1814' : 'rgba(28,24,20,0.9)',
+                  color: t.unread ? '#0B0B0B' : 'rgba(11,11,11,0.62)',
                   overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                   marginBottom: '2px',
                 }}>

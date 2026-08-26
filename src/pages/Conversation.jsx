@@ -88,19 +88,19 @@ export default function Conversation() {
             color: 'rgba(28,24,20,1)', cursor: 'pointer', transition: 'all 0.2s',
           }}
           onMouseEnter={e => { e.currentTarget.style.color = '#C9A84C'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.4)'; }}
-          onMouseLeave={e => { e.currentTarget.style.color = 'rgba(28,24,20,0.9)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.1)'; }}
+          onMouseLeave={e => { e.currentTarget.style.color = 'rgba(11,11,11,0.62)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.1)'; }}
         >
           <ArrowLeft size={18} strokeWidth={1.5} />
         </button>
 
-        <div style={{ width: 38, height: 38, borderRadius: '12px', overflow: 'hidden', flexShrink: 0, border: '1px solid rgba(201,168,76,0.1)', background: '#EDE7DB' }}>
+        <div style={{ width: 38, height: 38, borderRadius: '12px', overflow: 'hidden', flexShrink: 0, border: '1px solid rgba(201,168,76,0.1)', background: '#E1DBD0' }}>
           <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Cormorant, serif', fontSize: '18px', color: 'rgba(201,168,76,1)' }}>
             {otherProfile?.display_name?.[0]}
           </div>
         </div>
 
         <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.1rem', fontWeight: 600, color: '#1C1814', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.1rem', fontWeight: 600, color: '#0B0B0B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {otherProfile?.display_name}
           </p>
           <p style={{ fontSize: '10px', color: 'rgba(201,168,76,1)', letterSpacing: '0.1em' }}>
@@ -221,7 +221,7 @@ export default function Conversation() {
               border: '1px solid rgba(201,168,76,0.25)',
               borderRadius: '14px',
               padding: '10px 16px',
-              color: '#1C1814',
+              color: '#0B0B0B',
               fontSize: '14px',
               outline: 'none',
               resize: 'none',
