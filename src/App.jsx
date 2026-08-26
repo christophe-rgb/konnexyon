@@ -1,5 +1,5 @@
 import { useEffect, useState, lazy, Suspense } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from './store/auth'
 import { supabase } from './lib/supabase'
 
@@ -40,6 +40,22 @@ const PageLoader = () => (
   </div>
 )
 
+/**
+ * L'accueil, ou l'app.
+ *
+ * Un membre connecte n'a rien a faire sur la page de presentation : il
+ * vient pour lire et pour ecrire, on l'y emmene directement. La page
+ * publique reste rendue pendant le chargement de la session — c'est le
+ * cas de loin le plus frequent, et elle doit s'afficher sans attendre.
+ */
+function AccueilOuApp() {
+  const { user, profile, loading } = useAuthStore()
+  if (!loading && user && profile?.email_1_confirmed) {
+    return <Navigate to="/lire" replace />
+  }
+  return <Home />
+}
+
 function RequireAuth({ children }) {
   const { user, loading } = useAuthStore()
   if (loading) return (
@@ -59,6 +75,7 @@ function RequireProfile({ children }) {
 }
 
 export default function App() {
+  const location = useLocation()
   const init    = useAuthStore(s => s.init)
   const cleanup = useAuthStore(s => s.cleanup)
   const profile = useAuthStore(s => s.profile)
@@ -93,7 +110,15 @@ export default function App() {
     return () => supabase.removeChannel(channel)
   }, [profile])
 
-  const showNav = user && profile?.email_1_confirmed
+  // La barre du membre n'apparait que dans l'app. Sur les pages
+  // publiques — presentation, conditions, boutique — elle flottait au
+  // milieu du contenu et coupait la page en deux.
+  const PAGES_PUBLIQUES = ['/', '/login', '/register', '/forgot-password',
+                           '/reset-password', '/cgu', '/confidentialite',
+                           '/contact', '/boutique']
+  const surPagePublique = PAGES_PUBLIQUES.includes(location.pathname)
+    || location.pathname.startsWith('/boutique/')
+  const showNav = user && profile?.email_1_confirmed && !surPagePublique
 
   return (
     <div className="min-h-dvh bg-bg text-text" style={{ position: 'relative' }}>
@@ -113,7 +138,7 @@ export default function App() {
         <ErrorBoundary>
         <Suspense fallback={<PageLoader />}>
           <Routes>
-            <Route path="/"                  element={<Home />} />
+            <Route path="/"                  element={<AccueilOuApp />} />
             <Route path="/login"             element={<Login />} />
             <Route path="/register"          element={<Register />} />
             <Route path="/forgot-password"   element={<ForgotPassword />} />
