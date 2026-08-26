@@ -76,12 +76,19 @@ export default function Lire() {
     return () => { alive = false }
   }, [profile?.id, demoMode])
 
-  const restantes = entries.filter(e => !passed.includes(e.user_id))
+  // Deux usages du meme jeu de donnees. La liste et la carte montrent
+  // tout : relire quelqu'un qu'on connait deja garde du sens. La pile,
+  // elle, ne montre que ce qui reste a trancher — reproposer une carte
+  // deja tranchee, c'est faire refaire le meme geste pour rien.
+  const aLire = entries
+  const aTrancher = entries.filter(e =>
+    !e.deja_connecte && !e.passe && !passed.includes(e.user_id)
+  )
 
   // SwipeStack attend des items porteurs d'un `id` : c'est celui de
   // l'auteur, puisque c'est lui qu'on connecte. Le mot est recopié dans
   // chaque carte, toutes les lignes du jour répondant au même.
-  const cartes = restantes.map(e => ({
+  const cartes = aTrancher.map(e => ({
     id: e.user_id, pseudo: e.display_name, line: e.line, word: word?.word,
     compatibility: e.compatibility,
   }))
@@ -134,7 +141,7 @@ export default function Lire() {
           <div className="w-7 h-7 rounded-full animate-spin"
                style={{ border: '2px solid rgba(201,168,76,0.22)', borderTopColor: 'var(--or)' }} />
         </div>
-      ) : restantes.length === 0 ? (
+      ) : (mode === 'pile' ? aTrancher : aLire).length === 0 ? (
         <RienALire vide={entries.length === 0} onWrite={() => navigate('/mot-du-jour')} onListe={() => { setPassed([]); setMode('liste') }} />
       ) : mode === 'pile' ? (
         <Suspense fallback={<div style={{ flex: 1 }} />}>
@@ -147,7 +154,12 @@ export default function Lire() {
               if (ok) toast('Demande de connexion envoyée ✓')
               setPassed(p => p.includes(userId) ? p : [...p, userId])
             }}
-            onPass={userId => setPassed(p => p.includes(userId) ? p : [...p, userId])}
+            onPass={userId => {
+              setPassed(p => p.includes(userId) ? p : [...p, userId])
+              // enregistre pour que la ligne ne revienne pas au prochain
+              // chargement ; la mise de cote s'efface avec le mot du jour
+              if (!demoMode) supabase.rpc('passer_ligne', { p_other: userId })
+            }}
           />
         </Suspense>
       ) : mode === 'carte' ? (
@@ -158,7 +170,7 @@ export default function Lire() {
               Chargement de la carte…
             </div>
           }>
-            <MapView profiles={restantes} onSelect={setChoisi} myProfile={maPosition} />
+            <MapView profiles={aLire} onSelect={setChoisi} myProfile={maPosition} />
           </Suspense>
 
           {choisi && (
@@ -197,7 +209,7 @@ export default function Lire() {
         </div>
       ) : (
         <div style={{ width: '100%', maxWidth: 640, margin: '0 auto', padding: '26px clamp(18px, 5vw, 32px) 40px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {restantes.map((e, i) => (
+          {aLire.map((e, i) => (
             <article
               key={e.user_id}
               className="paper animate-fade-in-up"
@@ -228,13 +240,24 @@ export default function Lire() {
                 « {e.line} »
               </p>
 
-              <span className="flex items-center justify-end" style={{
-                gap: 7, fontSize: 11, letterSpacing: '0.12em',
-                textTransform: 'uppercase', color: 'rgba(11,11,11,0.5)',
-              }}>
-                Lire son profil
-                <ArrowRight size={13} strokeWidth={1.5} />
-              </span>
+              <div className="flex items-center justify-between" style={{ gap: 12 }}>
+                {/* la liste dit ce qu'on a deja tranche, pour qu'on sache
+                    ou on en est sans avoir a s'en souvenir */}
+                <span style={{
+                  fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase',
+                  color: e.deja_connecte ? 'rgba(201,168,76,0.95)' : 'rgba(11,11,11,0.3)',
+                }}>
+                  {e.deja_connecte ? 'Connecté' : e.passe ? 'Mis de côté' : ''}
+                </span>
+
+                <span className="flex items-center" style={{
+                  gap: 7, fontSize: 11, letterSpacing: '0.12em',
+                  textTransform: 'uppercase', color: 'rgba(11,11,11,0.5)',
+                }}>
+                  Lire son profil
+                  <ArrowRight size={13} strokeWidth={1.5} />
+                </span>
+              </div>
             </article>
           ))}
         </div>

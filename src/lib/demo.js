@@ -35,10 +35,10 @@ export const DEMO_RESPONSES = [
 
 // la liste de lecture ajoute l'âge, la ville et la position
 export const DEMO_READING = [
-  { compatibility: 88, user_id: 'demo-2', display_name: 'Marion', age: 37, city: 'Lyon',        line: DEMO_RESPONSES[0].line, distance_km: 4,  lng: 4.8357, lat: 45.7640 },
-  { compatibility: 62, user_id: 'demo-3', display_name: 'Théo',   age: 41, city: 'Villeurbanne', line: DEMO_RESPONSES[1].line, distance_km: 7,  lng: 4.8800, lat: 45.7700 },
-  { compatibility: 74, user_id: 'demo-4', display_name: 'Inès',   age: 29, city: 'Lyon',        line: DEMO_RESPONSES[2].line, distance_km: 2,  lng: 4.8300, lat: 45.7580 },
-  { compatibility: 41, user_id: 'demo-5', display_name: 'Louise', age: 35, city: 'Écully',      line: DEMO_RESPONSES[3].line, distance_km: 11, lng: 4.7780, lat: 45.7740 },
+  { compatibility: 88, user_id: 'demo-2', display_name: 'Marion', age: 37, city: 'Lyon',        line: DEMO_RESPONSES[0].line, distance_km: 4,  deja_connecte: false, passe: false,  lng: 4.8357, lat: 45.7640 },
+  { compatibility: 62, user_id: 'demo-3', display_name: 'Théo',   age: 41, city: 'Villeurbanne', line: DEMO_RESPONSES[1].line, distance_km: 7,  deja_connecte: true,  passe: false,  lng: 4.8800, lat: 45.7700 },
+  { compatibility: 74, user_id: 'demo-4', display_name: 'Inès',   age: 29, city: 'Lyon',        line: DEMO_RESPONSES[2].line, distance_km: 2,  deja_connecte: false, passe: true,  lng: 4.8300, lat: 45.7580 },
+  { compatibility: 41, user_id: 'demo-5', display_name: 'Louise', age: 35, city: 'Écully',      line: DEMO_RESPONSES[3].line, distance_km: 11, deja_connecte: false, passe: false, lng: 4.7780, lat: 45.7740 },
 ]
 
 export const DEMO_CARNET = [
