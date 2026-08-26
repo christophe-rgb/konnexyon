@@ -113,3 +113,54 @@ describe('bySlug', () => {
     expect(bySlug('nexiste-pas')).toBeNull()
   })
 })
+
+// ─── Awin ─────────────────────────────────────────────────────────────────────
+
+import { lienAwin } from '../lib/boutique.js'
+
+describe('lienAwin', () => {
+  const base = { awinmid: '1234', url: 'https://papersmiths.com/produits/carnet', affid: '99999' }
+
+  it('assemble une redirection Awin complete', () => {
+    const lien = lienAwin(base)
+    const u = new URL(lien)
+    expect(u.origin + u.pathname).toBe('https://www.awin1.com/cread.php')
+    expect(u.searchParams.get('awinmid')).toBe('1234')
+    expect(u.searchParams.get('awinaffid')).toBe('99999')
+    expect(u.searchParams.get('ued')).toBe(base.url)
+  })
+
+  it('encode la destination, y compris ses parametres', () => {
+    const lien = lienAwin({ ...base, url: 'https://m.fr/p?x=1&y=2' })
+    expect(lien).not.toContain('&y=2&awin')            // la destination ne fuit pas dans les parametres Awin
+    expect(new URL(lien).searchParams.get('ued')).toBe('https://m.fr/p?x=1&y=2')
+  })
+
+  it('refuse une destination qui n’est pas en https', () => {
+    expect(lienAwin({ ...base, url: 'http://m.fr/p' })).toBeNull()
+    expect(lienAwin({ ...base, url: 'javascript:alert(1)' })).toBeNull()
+    expect(lienAwin({ ...base, url: 'pas une url' })).toBeNull()
+  })
+
+  it('ne construit rien sans identifiant d’editeur ou de marchand', () => {
+    expect(lienAwin({ ...base, affid: null })).toBeNull()
+    expect(lienAwin({ ...base, awinmid: null })).toBeNull()
+  })
+})
+
+describe('lienSortant avec Awin', () => {
+  it('passe par Awin quand l’article porte l’identifiant du marchand', () => {
+    const lien = lienSortant({
+      awin_mid: '1234',
+      affiliate_url: 'https://papersmiths.com/x',
+      // l'identifiant d'editeur vient de l'environnement : absent en test,
+      // le lien Awin ne peut pas se construire et on retombe sur l'URL directe
+    })
+    expect(lien).toBe('https://papersmiths.com/x')
+  })
+
+  it('retombe sur le lien direct quand il n’y a pas de marchand Awin', () => {
+    expect(lienSortant({ affiliate_url: 'https://markandfold.com/x' }))
+      .toBe('https://markandfold.com/x')
+  })
+})

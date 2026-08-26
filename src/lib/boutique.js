@@ -132,6 +132,45 @@ export function bySlug(slug) {
 }
 
 /**
+ * Awin — construction des liens d'affiliation.
+ *
+ * Un lien Awin est une redirection maison : on ne recopie pas une URL
+ * fournie par la plateforme, on l'assemble a partir de trois elements.
+ *
+ *   awinaffid — notre identifiant d'editeur, le meme partout
+ *   awinmid   — l'identifiant du marchand, un par enseigne
+ *   ued       — l'adresse de destination, encodee
+ *
+ * L'identifiant d'editeur vient de l'environnement plutot que du code :
+ * il change entre un compte de test et le vrai, et une boutique qui
+ * pointe vers le mauvais compte travaille gratuitement.
+ */
+const AWIN_REDIRECTION = 'https://www.awin1.com/cread.php'
+
+export const AWIN_AFFID =
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_AWIN_AFFID) || null
+
+/**
+ * Assemble un lien Awin, ou rend null s'il manque de quoi le faire.
+ * On n'accepte qu'une destination en https : le lien finit dans un
+ * href, et un javascript: encode s'executerait au clic.
+ */
+export function lienAwin({ awinmid, url, affid = AWIN_AFFID }) {
+  if (!affid || !awinmid || typeof url !== 'string') return null
+  try {
+    if (new URL(url).protocol !== 'https:') return null
+  } catch {
+    return null
+  }
+  const p = new URLSearchParams({
+    awinmid: String(awinmid),
+    awinaffid: String(affid),
+    ued: url,
+  })
+  return `${AWIN_REDIRECTION}?${p.toString()}`
+}
+
+/**
  * Le lien sortant d'un article, s'il est utilisable.
  *
  * On n'ouvre que du https : un lien d'affiliation vient d'un fichier de
@@ -139,6 +178,12 @@ export function bySlug(slug) {
  * dans la page au clic.
  */
 export function lienSortant(produit) {
+  // Un article passe par Awin des qu'il porte l'identifiant de son
+  // marchand ; sinon on retombe sur un lien pose a la main, utile pour
+  // les enseignes qui gerent leur affiliation en direct.
+  const parAwin = lienAwin({ awinmid: produit?.awin_mid, url: produit?.affiliate_url })
+  if (parAwin) return parAwin
+
   const url = produit?.affiliate_url
   if (typeof url !== 'string') return null
   try {
