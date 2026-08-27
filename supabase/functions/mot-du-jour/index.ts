@@ -1,5 +1,4 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 /**
  * Le mot du jour, par courriel.
@@ -84,80 +83,71 @@ serve(async (req) => {
     const CLE_RESEND = Deno.env.get('RESEND_API_KEY')
     const SECRET     = Deno.env.get('MOT_DU_JOUR_SECRET')
     const URL_SUPA   = Deno.env.get('SUPABASE_URL')
-    const SERVICE    = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
-    if (!CLE_RESEND || !URL_SUPA || !SERVICE) throw new Error('Configuration incomplete')
+    if (!CLE_RESEND) throw new Error('RESEND_API_KEY absente')
+    if (!URL_SUPA)   throw new Error('SUPABASE_URL absente')
+    if (!SECRET)     throw new Error('MOT_DU_JOUR_SECRET absent')
 
     // Sans ce garde, n'importe qui pourrait declencher l'envoi a toute la liste.
-    if (SECRET && req.headers.get('x-mot-du-jour-secret') !== SECRET) {
+    if (req.headers.get('x-mot-du-jour-secret') !== SECRET) {
       return new Response(JSON.stringify({ error: 'non autorise' }), {
         status: 401, headers: { ...ENTETES, 'Content-Type': 'application/json' },
       })
     }
 
-    const db = createClient(URL_SUPA, SERVICE)
+    // Aucune cle privilegiee ici : Supabase a change le format de ses
+    // cles de service, et courir apres la bonne rendait la fonction
+    // fragile. Toute la logique vit dans la base, dans une procedure
+    // security definer protegee par le meme secret. On se contente de
+    // reutiliser l'autorisation de l'appel entrant.
+    const autorisation = req.headers.get('Authorization') || ''
+    const cleApi = autorisation.replace(/^Bearer\s+/i, '')
 
-    const { data: mots } = await db
-      .from('daily_words')
-      .select('id, word')
-      .lte('publish_date', new Date().toISOString().slice(0, 10))
-      .order('publish_date', { ascending: false })
-      .limit(1)
+    const rep = await fetch(`${URL_SUPA}/rest/v1/rpc/mot_du_jour_a_envoyer`, {
+      method: 'POST',
+      headers: {
+        'Authorization': autorisation,
+        'apikey': cleApi,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ p_secret: SECRET }),
+    })
 
-    const mot = mots?.[0]
-    if (!mot) {
-      return new Response(JSON.stringify({ ok: true, envoyes: 0, raison: 'aucun mot publie' }), {
+    if (!rep.ok) throw new Error(`Base : ${await rep.text()}`)
+
+    // La procedure a deja pose la trace des envois : ce qu'elle rend est
+    // exactement ce qui reste a poster, une fois et une seule.
+    const aEnvoyer: Array<{ mot: string; email: string; prenom: string; jeton: string }> = await rep.json()
+
+    if (!aEnvoyer.length) {
+      return new Response(JSON.stringify({ ok: true, envoyes: 0, raison: 'personne a qui envoyer' }), {
         headers: { ...ENTETES, 'Content-Type': 'application/json' },
       })
     }
 
-    const { data: membres } = await db
-      .from('profiles')
-      .select('id, display_name, email_1, desabo_token')
-      .eq('status', 'active')
-      .eq('mot_du_jour_email', true)
-      .eq('is_bot', false)
-      .not('email_1', 'is', null)
-
-    const { data: dejaEnvoyes } = await db
-      .from('envois_mot_du_jour')
-      .select('user_id')
-      .eq('daily_word_id', mot.id)
-
-    const vus = new Set((dejaEnvoyes || []).map((e) => e.user_id))
-    const aEnvoyer = (membres || []).filter((m) => !vus.has(m.id) && m.email_1?.includes('@'))
+    const mot = { word: aEnvoyer[0].mot }
 
     let envoyes = 0
     const echecs: string[] = []
 
-    for (let i = 0; i < aEnvoyer.length; i += LOT) {
-      const lot = aEnvoyer.slice(i, i + LOT)
-
-      // La trace est ecrite d'abord : on prefere un courriel manquant a
-      // un doublon, qui est ce qui fait classer un expediteur en spam.
-      await db.from('envois_mot_du_jour').insert(
-        lot.map((m) => ({ daily_word_id: mot.id, user_id: m.id })),
-      )
-
-      for (const m of lot) {
-        try {
-          const res = await fetch('https://api.resend.com/emails', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${CLE_RESEND}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              from: 'Konnexyon <onboarding@resend.dev>',
-              to: [m.email_1],
-              subject: `Aujourd’hui : ${mot.word}`,
-              html: courriel({ prenom: m.display_name, mot: mot.word, jeton: m.desabo_token }),
-            }),
-          })
-          if (res.ok) envoyes++
-          else echecs.push(`${m.email_1} : ${await res.text()}`)
-        } catch (e) {
-          echecs.push(`${m.email_1} : ${String(e)}`)
-        }
+    for (const m of aEnvoyer) {
+      try {
+        const res = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${CLE_RESEND}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: 'Konnexyon <onboarding@resend.dev>',
+            to: [m.email],
+            subject: `Aujourd'hui : ${m.mot}`,
+            html: courriel({ prenom: m.prenom, mot: m.mot, jeton: m.jeton }),
+          }),
+        })
+        if (res.ok) envoyes++
+        else echecs.push(`${m.email} : ${await res.text()}`)
+      } catch (e) {
+        echecs.push(`${m.email} : ${String(e)}`)
       }
     }
 
