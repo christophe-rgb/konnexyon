@@ -20,6 +20,13 @@ const ENTETES = {
 }
 
 const SITE = 'https://www.konnexyon.com'
+
+// L'expediteur vit dans l'environnement, pas dans le code : le jour ou
+// konnexyon.com est verifie chez Resend, il suffit de poser le secret
+// MOT_DU_JOUR_FROM. Sans domaine verifie, l'adresse de test ne delivre
+// qu'au proprietaire du compte — d'ou le repli explicite.
+const EXPEDITEUR = Deno.env.get('MOT_DU_JOUR_FROM')
+  || 'Konnexyon <onboarding@resend.dev>'
 const LOT  = 40   // Resend accepte plus, mais on garde la main en cas d'erreur
 
 function courriel({ prenom, mot, jeton }: { prenom: string; mot: string; jeton: string }) {
@@ -138,7 +145,7 @@ serve(async (req) => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            from: 'Konnexyon <onboarding@resend.dev>',
+            from: EXPEDITEUR,
             to: [m.email],
             subject: `Aujourd'hui : ${m.mot}`,
             html: courriel({ prenom: m.prenom, mot: m.mot, jeton: m.jeton }),
