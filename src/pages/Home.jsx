@@ -70,22 +70,13 @@ export default function Home() {
         <div className="animate-fade-in-up" style={{ animationFillMode: 'both', textAlign: 'center', maxWidth: 640, margin: '0 auto' }}>
           <h1 style={{
             fontFamily: 'Cormorant, serif',
-            fontSize: 'clamp(1.7rem, 4.6vw, 2.6rem)',
-            fontWeight: 500, lineHeight: 1.2,
-          }}>
-            Vous ne choisissez pas un visage.<br />Vous découvrez une personne.
-          </h1>
-
-          <p style={{
-            fontFamily: 'Cormorant, serif',
             fontSize: 'clamp(1.05rem, 2.6vw, 1.35rem)',
             fontStyle: 'italic', fontWeight: 400, lineHeight: 1.55,
             color: 'rgba(11,11,11,0.62)',
-            marginTop: 16,
           }}>
             Partagez une phrase, une inspiration.<br />
             Découvrez une personne, une âme.
-          </p>
+          </h1>
 
           {mot && (
             <p style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(11,11,11,0.4)', marginTop: 18 }}>
