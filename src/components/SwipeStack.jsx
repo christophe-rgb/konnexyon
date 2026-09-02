@@ -22,7 +22,12 @@ export default function SwipeStack({ profiles, onLike, onPass, counterLabel, vid
   const ombre       = papier
     ? '0 18px 44px rgba(11,11,11,0.10), 0 2px 6px rgba(11,11,11,0.05)'
     : '0 16px 48px rgba(0,0,0,0.18), 0 0 0 1px rgba(201,168,76,0.15)'
-  const stackHeight = 'min(430px, calc(100dvh - 380px))'
+  // Sur l'accueil la carte ne porte qu'une ligne et son auteur : a 430 px
+  // elle etait aux deux tiers vide. Dans l'application elle porte aussi le
+  // mot en grand, et garde sa hauteur.
+  const stackHeight = ton === 'papier'
+    ? 'min(330px, calc(100dvh - 360px))'
+    : 'min(430px, calc(100dvh - 380px))'
   const [index,  setIndex]  = useState(0)
   const [drag,   setDrag]   = useState({ x: 0, y: 0 })
   const [flying, setFlying] = useState(null) // 'left' | 'right' | null
@@ -199,7 +204,9 @@ function CardWord({ item, papier }) {
       width: '100%', height: '100%',
       display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center',
-      gap: 26, padding: '36px 28px', textAlign: 'center',
+      gap: papier ? 18 : 26,
+      padding: papier ? '26px 26px' : '36px 28px',
+      textAlign: 'center',
       background: papier
         ? 'radial-gradient(ellipse at 50% 26%, rgba(201,168,76,0.09), transparent 64%), #FBF8F3'
         : 'radial-gradient(ellipse at 50% 28%, rgba(201,168,76,0.10), transparent 62%), #0D0D0D',
