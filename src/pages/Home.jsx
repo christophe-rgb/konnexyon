@@ -70,8 +70,12 @@ export default function Home() {
         <div className="animate-fade-in-up" style={{ animationFillMode: 'both', textAlign: 'center', maxWidth: 640, margin: '0 auto' }}>
           <h1 style={{
             fontFamily: 'Cormorant, serif',
-            fontSize: 'clamp(1.05rem, 2.6vw, 1.35rem)',
-            fontStyle: 'italic', fontWeight: 400, lineHeight: 1.55,
+            fontSize: 'clamp(1.28rem, 4.4vw, 2.5rem)',
+            fontStyle: 'italic', fontWeight: 400, lineHeight: 1.35,
+            // sur telephone les deux lignes se cassaient en quatre et
+            // laissaient "inspiration." et "ame." orphelines : le plancher
+            // les fait tenir, et balance repartit ce qui deborde quand meme
+            textWrap: 'balance',
             color: 'rgba(11,11,11,0.62)',
           }}>
             Partagez une phrase, une inspiration.<br />
