@@ -1,4 +1,5 @@
 import { useEffect, useState, lazy, Suspense } from 'react'
+import { ponctuation } from '../lib/typographie'
 import { useNavigate } from 'react-router-dom'
 import { ArrowRight, LayoutList, Layers2, Map as MapIcon } from 'lucide-react'
 import { supabase } from '../lib/supabase'
@@ -194,7 +195,7 @@ export default function Lire() {
                   fontFamily: 'Cormorant, serif', fontStyle: 'italic',
                   fontSize: '1.05rem', lineHeight: 1.6, margin: '10px 0 12px',
                 }}>
-                  « {choisi.line} »
+                  « {ponctuation(choisi.line)} »
                 </p>
                 <span className="flex items-center justify-end" style={{
                   gap: 7, fontSize: 11, letterSpacing: '0.12em',
@@ -237,7 +238,7 @@ export default function Lire() {
                 fontFamily: 'Cormorant, serif', fontStyle: 'italic',
                 fontSize: '1.15rem', lineHeight: 1.62, margin: '12px 0 16px',
               }}>
-                « {e.line} »
+                « {ponctuation(e.line)} »
               </p>
 
               <div className="flex items-center justify-between" style={{ gap: 12 }}>

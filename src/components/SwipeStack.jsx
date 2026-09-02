@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Quill } from './Logo'
+import { ponctuation } from '../lib/typographie'
 import { Unlink, Feather } from 'lucide-react'
 
 const THRESHOLD = 70
@@ -227,7 +228,7 @@ function CardWord({ item, papier }) {
         color: papier ? 'rgba(11,11,11,0.86)' : 'rgba(245,240,232,0.94)',
         maxWidth: 300,
       }}>
-        {item.line}
+        {ponctuation(item.line)}
       </p>
 
       {/* son pseudo, et le taux quand il a du sens */}

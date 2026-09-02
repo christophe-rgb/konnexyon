@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react'
+import { ponctuation } from '../lib/typographie'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { supabase } from '../lib/supabase'
@@ -123,7 +124,7 @@ export default function Carnet() {
                   fontStyle: 'italic', lineHeight: 1.72,
                   color: '#1C1814',
                 }}>
-                  {entry.line}
+                  {ponctuation(entry.line)}
                 </p>
               </li>
             ))}
