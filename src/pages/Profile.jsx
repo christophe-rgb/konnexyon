@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useParams, useNavigate, Navigate } from 'react-router-dom'
-import { BookOpen, Settings as SettingsIcon } from 'lucide-react'
+import { BookOpen, LogOut, Settings as SettingsIcon } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
 import { toast } from '../components/Toast'
@@ -21,6 +21,7 @@ export default function Profile() {
   const navigate = useNavigate()
   const me       = useAuthStore(s => s.profile)
   const demoMode = useAuthStore(s => s.demoMode)
+  const signOut  = useAuthStore(s => s.signOut)
   const fetchProfile = useAuthStore(s => s.fetchProfile)
 
   const [identite, setIdentite] = useState({ display_name: '', age: '', city: '' })
@@ -195,6 +196,24 @@ export default function Profile() {
                 />
               </div>
             </Bloc>
+
+            {/* La deconnexion existait, mais derriere une roue crantee sans
+                libelle, dans Reglages : trois gestes et une icone muette.
+                Elle est ici, nommee, au bout de sa propre page. */}
+            <div style={{ textAlign: 'center', padding: '30px 0 8px' }}>
+              <button
+                onClick={async () => { await signOut(); navigate('/login') }}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 9,
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  fontSize: 12, letterSpacing: '0.16em', textTransform: 'uppercase',
+                  color: 'rgba(248,113,113,0.8)', padding: '10px 14px',
+                }}
+              >
+                <LogOut size={15} strokeWidth={1.6} />
+                Se déconnecter
+              </button>
+            </div>
           </>
         )}
       </div>
