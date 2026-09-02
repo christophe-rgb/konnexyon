@@ -19,6 +19,7 @@ export default function Participer() {
   const fetchProfile = useAuthStore(s => s.fetchProfile)
 
   const enAttente = lireSwipes()
+  const [prenom,   setPrenom]   = useState('')
   const [email,    setEmail]    = useState('')
   const [motDePasse, setMotDePasse] = useState('')
   const [erreur,   setErreur]   = useState('')
@@ -27,6 +28,7 @@ export default function Participer() {
   const participer = async e => {
     e.preventDefault()
     setErreur('')
+    if (!prenom.trim())        { setErreur('Votre prénom : c’est lui qui signera votre ligne.'); return }
     if (motDePasse.length < 8) { setErreur('Huit caractères au minimum pour le mot de passe.'); return }
 
     setEncours(true)
@@ -35,13 +37,14 @@ export default function Participer() {
       if (error) { setErreur(error.message); return }
       if (!data.user) { setErreur('Ce compte existe déjà. Connectez-vous.'); return }
 
-      // Le prénom viendra plus tard : on n'a pas encore de quoi le
-      // demander sans rompre l'élan. display_name est obligatoire en
-      // base, on pose une valeur d'attente.
+      // Le prenom est demande des l'inscription : c'est la seule identite
+      // du site, celle qui signe la ligne en vitrine. Sans lui, tout le
+      // monde s'appelait "Anonyme" sous une page qui promet de decouvrir
+      // une personne.
       const { error: erreurProfil } = await supabase.from('profiles').insert({
         id: data.user.id,
         email_1: email,
-        display_name: 'Anonyme',
+        display_name: prenom.trim().slice(0, 40),
         email_1_confirmed: true,
       })
       if (erreurProfil) { setErreur('Compte créé, mais le profil n’a pas suivi. Réessayez.'); return }
@@ -79,7 +82,7 @@ export default function Participer() {
 
           <p style={{ fontSize: 13, lineHeight: 1.8, color: 'rgba(242,238,230,0.55)', marginTop: 14 }}>
             {enAttente.length === 0
-              ? 'Une adresse, un mot de passe, et vous écrivez votre ligne du jour.'
+              ? 'Un prénom, une adresse, un mot de passe. Et vous écrivez votre ligne du jour.'
               : enAttente.length === 1
                 ? 'Une ligne vous a retenu. Votre compte créé, la connexion part.'
                 : `${enAttente.length} lignes vous ont retenu. Votre compte créé, les connexions partent.`}
@@ -87,6 +90,15 @@ export default function Participer() {
         </div>
 
         <form onSubmit={participer} style={{ marginTop: 30, display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div>
+            <label htmlFor="prenom" style={etiquette}>Prénom</label>
+            <input
+              id="prenom" type="text" required autoComplete="given-name"
+              value={prenom} onChange={e => setPrenom(e.target.value.slice(0, 40))}
+              placeholder="Celui qui signera votre ligne" style={champ}
+            />
+          </div>
+
           <div>
             <label htmlFor="email" style={etiquette}>Adresse e-mail</label>
             <input
