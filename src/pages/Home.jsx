@@ -12,33 +12,6 @@ const SwipeStack = lazy(() => import('../components/SwipeStack'))
  * Fond ivoire, encre pour le texte, l'or réservé aux accroches et à l'action.
  */
 
-const ETAPES = [
-  {
-    n: '01',
-    titre: 'Vous écrivez',
-    texte: 'Quelques questions, pas de formulaire. Ce que vous répondez tient lieu de profil — il n’y a rien d’autre à remplir.',
-  },
-  {
-    n: '02',
-    titre: 'Vous lisez',
-    texte: 'Des réponses, pas des visages. Vous découvrez les gens par ce qu’ils écrivent, dans l’ordre où ils ont écrit.',
-  },
-  {
-    n: '03',
-    titre: 'Vous écrivez à quelqu’un',
-    texte: 'Une phrase vous intrigue, vous répondez. La conversation commence là où elle a du sens.',
-  },
-]
-
-const QUESTIONS = [
-  'Une chose que tu ne dis presque jamais.',
-  'Quelle phrase pourrait te faire changer d’avis ?',
-  'Quel souvenir n’as-tu jamais raconté correctement ?',
-  'Qu’est-ce qui te fait immédiatement apprécier quelqu’un ?',
-  'Quelle conversation aimerais-tu avoir ce soir ?',
-  'Quelle est la dernière chose qui t’a vraiment surpris ?',
-]
-
 export default function Home() {
   const navigate = useNavigate()
   const [mot,        setMot]        = useState(null)
@@ -84,8 +57,6 @@ export default function Home() {
         </Link>
 
         <nav style={{ display: 'flex', alignItems: 'center', gap: 'clamp(16px, 3vw, 34px)' }}>
-          <a href="#lire"    style={navLink} className="hidden sm:inline">Découvrir</a>
-          <a href="#ecrire"  style={navLink} className="hidden sm:inline">Écrire</a>
           <a href="#apropos" style={navLink} className="hidden sm:inline">À propos</a>
           <Link to="/login" style={{ ...navLink, color: 'var(--or)' }}>Entrer</Link>
         </nav>
@@ -104,6 +75,17 @@ export default function Home() {
           }}>
             Vous ne choisissez pas un visage.<br />Vous découvrez une personne.
           </h1>
+
+          <p style={{
+            fontFamily: 'Cormorant, serif',
+            fontSize: 'clamp(1.05rem, 2.6vw, 1.35rem)',
+            fontStyle: 'italic', fontWeight: 400, lineHeight: 1.55,
+            color: 'rgba(11,11,11,0.62)',
+            marginTop: 16,
+          }}>
+            Partagez une phrase, une inspiration.<br />
+            Découvrez une personne, une âme.
+          </p>
 
           {mot && (
             <p style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(11,11,11,0.4)', marginTop: 18 }}>
@@ -151,64 +133,9 @@ export default function Home() {
             <ArrowRight size={14} strokeWidth={1.7} />
           </Link>
           <p style={{ fontSize: 12, lineHeight: 1.8, color: 'rgba(11,11,11,0.5)', marginTop: 16 }}>
-            Pas de photos. Pas de profil à remplir.<br />
             Votre ligne du jour, et le profil suit.
           </p>
         </div>
-      </section>
-
-      {/* ── comment ça marche ── */}
-      <section id="ecrire" style={{ background: 'var(--encre)', color: 'var(--ivoire)' }}>
-        <div style={{ maxWidth: 1180, margin: '0 auto', padding: 'clamp(52px, 9vw, 96px) clamp(20px, 5vw, 56px)' }}>
-          <p style={sectionLabel}>Comment ça marche</p>
-
-          <div style={{
-            display: 'grid', gap: 'clamp(28px, 4vw, 52px)',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-            marginTop: 44,
-          }}>
-            {ETAPES.map((e, i) => (
-              <div key={e.n} className="animate-fade-in-up"
-                   style={{ animationFillMode: 'both', animationDelay: `${i * 110}ms` }}>
-                <p style={{ fontSize: 11, letterSpacing: '0.22em', color: 'var(--or)' }}>{e.n}</p>
-                <h2 style={{
-                  fontFamily: 'Cormorant, serif', fontSize: '1.65rem', fontWeight: 500,
-                  margin: '12px 0 10px',
-                }}>
-                  {e.titre}
-                </h2>
-                <p style={{ fontSize: 14, lineHeight: 1.8, color: 'rgba(242,238,230,0.62)' }}>
-                  {e.texte}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── les questions ── */}
-      <section id="lire" style={{ maxWidth: 1180, margin: '0 auto', padding: 'clamp(52px, 9vw, 96px) clamp(20px, 5vw, 56px)' }}>
-        <p style={{ ...sectionLabel, color: 'rgba(11,11,11,0.45)' }}>Ce qu’on vous demandera</p>
-
-        <ul style={{ listStyle: 'none', padding: 0, margin: '40px 0 0', maxWidth: 720 }}>
-          {QUESTIONS.map((q, i) => (
-            <li key={q} className="animate-fade-in-up"
-                style={{
-                  animationFillMode: 'both', animationDelay: `${i * 70}ms`,
-                  display: 'flex', gap: 18, alignItems: 'baseline',
-                  padding: '17px 0',
-                  borderTop: i === 0 ? 'none' : '1px solid rgba(11,11,11,0.08)',
-                }}>
-              <span style={{ color: 'var(--or)', fontSize: 13, flexShrink: 0 }}>—</span>
-              <span style={{
-                fontFamily: 'Cormorant, serif', fontStyle: 'italic',
-                fontSize: 'clamp(1.1rem, 3.6vw, 1.4rem)', lineHeight: 1.5,
-              }}>
-                {q}
-              </span>
-            </li>
-          ))}
-        </ul>
       </section>
 
       {/* ── la papeterie ── */}
@@ -268,7 +195,4 @@ const footLink = {
   color: 'rgba(11,11,11,0.45)', textDecoration: 'none',
 }
 
-const sectionLabel = {
-  fontSize: 11, letterSpacing: '0.24em', textTransform: 'uppercase',
-  color: 'rgba(242,238,230,0.45)',
-}
+
