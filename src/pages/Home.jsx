@@ -49,13 +49,21 @@ export default function Home() {
   // sans age, sans ville, et sans moyen de joindre leur auteur.
   useEffect(() => {
     let vivant = true
-    supabase.rpc('get_apercu_du_jour', { p_limite: 6 })
-      .then(({ data }) => {
-        if (!vivant || !data?.length) return
-        setMot(data[0].mot)
-        setCartes(data.map((l, i) => ({
-          id: l.auteur, word: l.mot, line: l.ligne, pseudo: l.prenom,
-        })))
+    Promise.all([
+      supabase.rpc('get_apercu_du_jour', { p_limite: 6 }),
+      supabase.rpc('get_mot_public'),
+    ])
+      .then(([apercu, motDuJour]) => {
+        if (!vivant) return
+        // Le mot affiche en titre est celui d'aujourd'hui, meme quand la
+        // pile se complete avec les lignes des jours precedents.
+        if (motDuJour?.data) setMot(motDuJour.data)
+        const lignes = apercu?.data
+        if (lignes?.length) {
+          setCartes(lignes.map((l) => ({
+            id: l.auteur, word: l.mot, line: l.ligne, pseudo: l.prenom,
+          })))
+        }
       })
       .catch(() => {})
       .finally(() => { if (vivant) setChargement(false) })
