@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Quill } from './Logo'
 import { ponctuation } from '../lib/typographie'
-import { Unlink, Feather } from 'lucide-react'
+import { Feather } from 'lucide-react'
 
 const THRESHOLD = 70
 
@@ -171,15 +171,19 @@ export default function SwipeStack({ profiles, onLike, onPass, counterLabel, vid
         {counterLabel ?? `${profiles.length - index} connexion${profiles.length - index > 1 ? 's' : ''} restante${profiles.length - index > 1 ? 's' : ''}`}
       </p>
 
-      {/* boutons action */}
-      <div style={{ display: 'flex', gap: 28, alignItems: 'center' }}>
-        <ActionBtn onClick={handlePass} aria="Plus tard">
-          <Unlink size={26} strokeWidth={1.5} color="rgba(248,113,113,0.85)" />
-        </ActionBtn>
+      {/* Deux boutons nommes. Un maillon brise et une plume, sans un mot,
+          ne disaient pas ce qu'ils faisaient : on ne devine pas qu'un
+          rond dore etablit une connexion. */}
+      <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
+        <BoutonAction onClick={handlePass} papier={papier}>
+          <PlumeBarree size={19} papier={papier} />
+          Passer
+        </BoutonAction>
 
-        <ActionBtn onClick={handleLike} aria="Se connecter" gold>
-          <Quill size={30} tone="or" />
-        </ActionBtn>
+        <BoutonAction onClick={handleLike} papier={papier} principal>
+          <Quill size={19} tone="or" />
+          Se connecter
+        </BoutonAction>
       </div>
     </div>
   )
@@ -209,7 +213,10 @@ function CardWord({ item, papier }) {
             color: papier ? 'var(--or)' : undefined,
             fontFamily: 'Cormorant, serif',
             fontSize: 'clamp(2.4rem, 11vw, 3.6rem)',
-            fontWeight: 600, lineHeight: 1.05,
+            // meme raison que sur l'accueil : background-clip: text ne
+            // deborde pas de la boite, les jambages y passaient
+            fontWeight: 600, lineHeight: 1.2,
+            paddingBottom: '0.1em',
             letterSpacing: '0.02em',
           }}>
             {item.word}
@@ -249,26 +256,49 @@ function CardWord({ item, papier }) {
   )
 }
 
-function ActionBtn({ onClick, children, aria, gold }) {
+/**
+ * La meme plume, barree. Le refus n'est pas un autre symbole : c'est le
+ * meme geste, retire. La barre est tracee par-dessus l'image plutot que
+ * dessinee dans un second fichier, pour rester alignee si la plume change.
+ */
+function PlumeBarree({ size = 19, papier }) {
   return (
-    <button className="erb-btn"
+    <span style={{ position: 'relative', display: 'inline-flex', lineHeight: 0 }}>
+      <Quill size={size} tone="encre" style={{ opacity: papier ? 0.55 : 0.75 }} />
+      <span aria-hidden="true" style={{
+        position: 'absolute', top: '50%', left: '-14%',
+        width: '128%', height: 1.5, borderRadius: 1,
+        background: papier ? 'rgba(11,11,11,0.6)' : 'rgba(242,238,230,0.75)',
+        transform: 'translateY(-50%) rotate(-38deg)',
+      }} />
+    </span>
+  )
+}
+
+function BoutonAction({ onClick, children, papier, principal }) {
+  const encre = 'rgba(11,11,11,0.75)'
+  return (
+    <button
+      className={principal ? 'erb-btn' : undefined}
       onClick={onClick}
-      aria-label={aria}
       style={{
-        width: gold ? 72 : 60,
-        height: gold ? 72 : 60,
-        borderRadius: '50%',
-        border: gold ? '1px solid rgba(201,168,76,0.4)' : '1px solid rgba(248,113,113,0.3)',
-        background: gold
-          ? 'radial-gradient(circle at 40% 35%, rgba(232,204,122,0.18), rgba(160,120,48,0.06))'
-          : 'rgba(248,113,113,0.06)',
-        boxShadow: gold ? '0 0 20px rgba(201,168,76,0.3)' : '0 0 20px rgba(248,113,113,0.1)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        display: 'inline-flex', alignItems: 'center', gap: 9,
+        padding: '13px 22px', borderRadius: 999,
+        fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase',
         cursor: 'pointer',
-        transition: 'transform 0.15s, box-shadow 0.15s',
+        border: principal
+          ? '1px solid rgba(201,168,76,0.5)'
+          : `1px solid ${papier ? 'rgba(11,11,11,0.16)' : 'rgba(242,238,230,0.2)'}`,
+        background: principal
+          ? 'linear-gradient(135deg, rgba(232,204,122,0.22), rgba(160,120,48,0.1))'
+          : 'transparent',
+        color: principal
+          ? (papier ? 'rgba(120,88,26,1)' : 'var(--or)')
+          : (papier ? encre : 'rgba(242,238,230,0.62)'),
+        transition: 'transform 0.15s, border-color 0.15s',
       }}
-      onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.1)'; e.currentTarget.style.boxShadow = gold ? '0 0 28px rgba(201,168,76,0.4)' : '0 0 30px rgba(248,113,113,0.25)' }}
-      onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)';   e.currentTarget.style.boxShadow = gold ? '0 0 20px rgba(201,168,76,0.3)' : '0 0 20px rgba(248,113,113,0.1)' }}
+      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)' }}
+      onMouseLeave={e => { e.currentTarget.style.transform = 'none' }}
     >
       {children}
     </button>

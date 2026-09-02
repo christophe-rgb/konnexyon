@@ -101,7 +101,11 @@ export default function Home() {
               <p className="shine-text" style={{
                 fontFamily: 'Cormorant, serif',
                 fontSize: 'clamp(2.4rem, 9vw, 4rem)',
-                fontWeight: 500, lineHeight: 1.05,
+                // l'effet bijou peint par background-clip: text, donc a
+                // l'interieur de la boite : trop serree, elle coupait la
+                // jambe du g de "Vertige"
+                fontWeight: 500, lineHeight: 1.2,
+                paddingBottom: '0.1em',
                 color: 'var(--or)',
                 marginTop: 6,
               }}>
