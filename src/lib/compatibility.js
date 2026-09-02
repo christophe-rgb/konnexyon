@@ -31,7 +31,7 @@ export const TRAIT_SECTIONS = [
   {
     slug: 'mes_gouts',
     title: 'Mes goûts',
-    intro: 'Ce vers quoi vous allez quand personne ne regarde.',
+    intro: 'Ce vers quoi tu vas quand personne ne regarde.',
     questions: [
       { slug: 'lecture', label: 'Ce que je lis',      left: 'Romans et poésie',          right: 'Essais et enquêtes' },
       { slug: 'musique', label: 'Ce que j’écoute',    left: 'Une voix, une guitare',     right: 'Un mur de son' },

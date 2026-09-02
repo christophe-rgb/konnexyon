@@ -292,11 +292,11 @@ function RienALire({ vide, onWrite, onListe }) {
     <div style={{ textAlign: 'center', padding: '54px 28px' }}>
       <Quill size={44} tone="or" style={{ marginBottom: 22 }} />
       <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.5rem', lineHeight: 1.45 }}>
-        {vide ? 'Rien à lire pour l’instant.' : 'Vous avez tout lu aujourd’hui.'}
+        {vide ? 'Rien à lire pour l’instant.' : 'Tu as tout lu aujourd’hui.'}
       </p>
       <p style={{ fontSize: 13, lineHeight: 1.75, color: 'rgba(242,238,230,0.5)', marginTop: 10 }}>
         {vide
-          ? 'Écrivez votre ligne du jour — les autres s’ouvriront ensuite.'
+          ? 'Écris ta ligne du jour — les autres s’ouvriront ensuite.'
           : 'Un nouveau mot demain, de nouvelles lignes.'}
       </p>
       <button onClick={vide ? onWrite : onListe} className="btn btn-continuer" style={{ marginTop: 26 }}>

@@ -38,7 +38,7 @@ export default function ForgotPassword() {
             </div>
             <h1 className="font-serif text-3xl font-semibold mb-2">Email envoyé</h1>
             <p className="text-muted text-sm leading-relaxed">
-              Si cet email est associé à un compte, vous recevrez un lien de réinitialisation dans quelques minutes.
+              Si cet email est associé à un compte, tu recevras un lien de réinitialisation dans quelques minutes.
             </p>
             <Link to="/login" className="inline-block mt-6 text-gold text-sm hover:underline">
               Retour à la connexion
@@ -47,7 +47,7 @@ export default function ForgotPassword() {
         ) : (
           <>
             <h1 className="font-serif text-4xl font-semibold mb-1">Mot de passe oublié</h1>
-            <p className="text-muted text-sm mb-8">Entrez votre email pour recevoir un lien de réinitialisation.</p>
+            <p className="text-muted text-sm mb-8">Entre ton email pour recevoir un lien de réinitialisation.</p>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div>

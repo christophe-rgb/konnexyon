@@ -15,7 +15,7 @@ export function normalizeLine(raw) {
 export function validateLine(raw) {
   const line = normalizeLine(raw)
   if (!line) {
-    return { ok: false, error: 'Écrivez votre ligne avant de l’envoyer.' }
+    return { ok: false, error: 'Écris ta ligne avant de l’envoyer.' }
   }
   if (line.length > MAX_LINE_LENGTH) {
     return { ok: false, error: `${MAX_LINE_LENGTH} caractères maximum.` }

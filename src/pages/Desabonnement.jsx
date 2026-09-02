@@ -53,9 +53,9 @@ export default function Desabonnement() {
               C’est fait{prenom && prenom !== 'Anonyme' ? `, ${prenom}` : ''}.
             </h1>
             <p style={{ fontSize: 14, lineHeight: 1.85, color: 'rgba(242,238,230,0.55)', marginTop: 16 }}>
-              Vous ne recevrez plus le mot du jour par courriel.
-              Votre compte reste ouvert, et le mot vous attend sur le site
-              chaque matin si vous voulez y passer.
+              Tu ne recevras plus le mot du jour par courriel.
+              Ton compte reste ouvert, et le mot t’attend sur le site
+              chaque matin si tu veux y passer.
             </p>
             <Link to="/lire" className="btn btn-continuer" style={{ marginTop: 28 }}>
               Aller au site
@@ -69,8 +69,8 @@ export default function Desabonnement() {
               Ce lien n’est plus valable
             </h1>
             <p style={{ fontSize: 14, lineHeight: 1.85, color: 'rgba(242,238,230,0.55)', marginTop: 16 }}>
-              Il a peut-être déjà servi. Vous pouvez couper l’envoi
-              depuis vos réglages, ou nous écrire.
+              Il a peut-être déjà servi. Tu peux couper l’envoi
+              depuis tes réglages, ou nous écrire.
             </p>
             <div className="flex" style={{ gap: 12, justifyContent: 'center', marginTop: 28, flexWrap: 'wrap' }}>
               <Link to="/settings" className="btn btn-continuer">Mes réglages</Link>

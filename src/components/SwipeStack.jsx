@@ -319,10 +319,10 @@ function EmptySwipe({ vide, papier }) {
         <Feather size={28} strokeWidth={1} style={{ color: 'rgba(201,168,76,1)' }} />
       </div>
       <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.5rem', color: papier ? 'rgba(11,11,11,0.86)' : 'rgba(245,240,232,0.92)' }}>
-        {vide?.titre ?? 'Vous avez lu toutes les lignes du jour'}
+        {vide?.titre ?? 'Tu as lu toutes les lignes du jour'}
       </p>
       <p style={{ fontSize: 13, color: papier ? 'rgba(11,11,11,0.5)' : 'rgba(245,240,232,0.55)', lineHeight: 1.6 }}>
-        {vide?.texte ?? 'Revenez demain : un nouveau mot, de nouvelles lignes.'}
+        {vide?.texte ?? 'Reviens demain : un nouveau mot, de nouvelles lignes.'}
       </p>
     </div>
   )

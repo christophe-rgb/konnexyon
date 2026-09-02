@@ -8,17 +8,17 @@ export const PROFILE_PROMPTS = [
   {
     slug: 'phrase_pour_commencer',
     label: 'Une phrase pour commencer',
-    placeholder: 'Ce que vous diriez en premier, si on vous laissait choisir.',
+    placeholder: 'Ce que tu dirais en premier, si on te laissait choisir.',
   },
   {
     slug: 'ce_qui_me_fait_rester',
     label: 'Ce qui me fait rester',
-    placeholder: 'Une soirée, une conversation, une habitude — ce qui vous retient.',
+    placeholder: 'Une soirée, une conversation, une habitude — ce qui te retient.',
   },
   {
     slug: 'une_question',
     label: 'Une question',
-    placeholder: 'Celle que vous poseriez pour savoir à qui vous parlez vraiment.',
+    placeholder: 'Celle que tu poserais pour savoir à qui tu parles vraiment.',
   },
   {
     slug: 'ce_que_je_cherche',

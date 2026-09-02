@@ -95,8 +95,8 @@ export default function Settings() {
         {/* visibilité */}
         <Section title="Visibilité du profil">
           {[
-            { value: 'public',       label: 'Visible par tous',    desc: 'Votre profil apparaît dans les recherches' },
-            { value: 'matches_only', label: 'Connexions uniquement', desc: 'Seules vos connexions peuvent vous voir' },
+            { value: 'public',       label: 'Visible par tous',    desc: 'Ton profil apparaît dans les recherches' },
+            { value: 'matches_only', label: 'Connexions uniquement', desc: 'Seules tes connexions peuvent te voir' },
             { value: 'discreet',     label: 'Mode discret',         desc: 'Invisible sur la carte et les listes' },
           ].map(o => {
             const isActive = profile.visibility === o.value
@@ -138,7 +138,7 @@ export default function Settings() {
           <Row
             icon={profile.hide_location ? MapPinOff : MapPin}
             label={profile.hide_location ? 'Position masquée' : 'Position visible'}
-            desc={profile.hide_location ? "Vous n'apparaissez pas sur la carte" : 'Votre position approximative est visible'}
+            desc={profile.hide_location ? "Tu n'apparais pas sur la carte" : 'Ta position approximative est visible'}
             onClick={() => update({ hide_location: !profile.hide_location }, 'location')}
             loading={saving === 'location'}
           />
@@ -150,8 +150,8 @@ export default function Settings() {
             icon={profile.mot_du_jour_email ? Mail : MailX}
             label={profile.mot_du_jour_email ? 'Reçu chaque matin' : 'Envoi coupé'}
             desc={profile.mot_du_jour_email
-              ? 'Le mot du jour vous arrive par courriel'
-              : 'Le mot vous attend sur le site, sans rappel'}
+              ? 'Le mot du jour t’arrive par courriel'
+              : 'Le mot t’attend sur le site, sans rappel'}
             onClick={() => update({ mot_du_jour_email: !profile.mot_du_jour_email }, 'courriel')}
             loading={saving === 'courriel'}
           />
@@ -162,7 +162,7 @@ export default function Settings() {
           <Row
             icon={profile.status === 'active' ? Eye : EyeOff}
             label={profile.status === 'active' ? 'Profil actif' : 'Profil en pause'}
-            desc={profile.status === 'active' ? 'Vous apparaissez dans les résultats' : 'Votre profil est momentanément masqué'}
+            desc={profile.status === 'active' ? 'Tu apparais dans les résultats' : 'Ton profil est momentanément masqué'}
             onClick={() => update({ status: profile.status === 'active' ? 'inactive' : 'active' }, 'status')}
             loading={saving === 'status'}
           />
@@ -214,7 +214,7 @@ export default function Settings() {
                   Consentement retiré
                 </h2>
                 <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.9)', lineHeight: 1.7, marginBottom: '24px' }}>
-                  Votre consentement a été révoqué. Vos données de préférences (orientation, recherche) ont été effacées de notre base conformément à l'Art. 9 du RGPD.
+                  Ton consentement a été révoqué. Tes données de préférences (orientation, recherche) ont été effacées de notre base conformément à l'Art. 9 du RGPD.
                 </p>
                 <button
                   className="btn-gold"
@@ -230,7 +230,7 @@ export default function Settings() {
                   Révoquer le consentement
                 </h2>
                 <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.9)', lineHeight: 1.7, marginBottom: '20px' }}>
-                  En retirant votre consentement Art. 9 RGPD, vos données sensibles (orientation, type de relation recherché) seront effacées immédiatement. Votre profil restera visible mais ces informations ne seront plus disponibles.
+                  En retirant ton consentement Art. 9 RGPD, tes données sensibles (orientation, type de relation recherché) seront effacées immédiatement. Ton profil restera visible mais ces informations ne seront plus disponibles.
                 </p>
                 {consentRevokeError && (
                   <p style={{
@@ -306,7 +306,7 @@ export default function Settings() {
               Supprimer le compte
             </h2>
             <p style={{ fontSize: '13px', color: 'rgba(28,24,20,0.9)', lineHeight: 1.7, marginBottom: '20px' }}>
-              Votre profil, vos connexions et vos messages seront définitivement supprimés. Cette action est irréversible.
+              Ton profil, tes connexions et tes messages seront définitivement supprimés. Cette action est irréversible.
             </p>
             <div style={{ marginBottom: '20px' }}>
               <label style={{ fontSize: '11px', letterSpacing: '0.08em', color: 'rgba(28,24,20,0.6)', display: 'block', marginBottom: '8px' }}>

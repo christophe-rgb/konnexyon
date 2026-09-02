@@ -163,7 +163,7 @@ export default function Profile() {
             </Bloc>
 
             <Bloc titre="Ce que j’écris"
-                  intro="Ces quatre réponses sont votre profil. Il n’y a rien d’autre à remplir."
+                  intro="Ces quatre réponses sont ton profil. Il n’y a rien d’autre à remplir."
                   onSave={enregistrerAnswers} saving={saving === 'answers'}>
               {PROFILE_PROMPTS.map(p => (
                 <div key={p.slug}>
@@ -185,7 +185,7 @@ export default function Profile() {
             </Bloc>
 
             <Bloc titre="Compatibilité"
-                  intro={`${remplies} question${remplies > 1 ? 's' : ''} sur ${TOTAL_TRAITS} — plus vous répondez, plus le taux affiché en face des autres a du sens.`}
+                  intro={`${remplies} question${remplies > 1 ? 's' : ''} sur ${TOTAL_TRAITS} — plus tu réponds, plus le taux affiché en face des autres a du sens.`}
                   onSave={enregistrerTraits} saving={saving === 'traits'}>
               <Jauge rempli={remplies} total={TOTAL_TRAITS} />
               <div style={{ marginTop: 24 }}>

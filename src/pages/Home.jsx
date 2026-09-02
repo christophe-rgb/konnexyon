@@ -142,7 +142,7 @@ export default function Home() {
                 onPass={() => {}}
                 vide={{
                   titre: 'C’est à vous, maintenant.',
-                  texte: 'Écrivez votre ligne du jour, et les autres s’ouvriront.',
+                  texte: 'Écris ta ligne du jour, et les autres s’ouvriront.',
                 }}
               />
             </Suspense>
@@ -155,7 +155,7 @@ export default function Home() {
             <ArrowRight size={14} strokeWidth={1.7} />
           </Link>
           <p style={{ fontSize: 12, lineHeight: 1.8, color: 'rgba(11,11,11,0.5)', marginTop: 16 }}>
-            Votre ligne du jour, et le profil suit.
+            Ta ligne du jour, et le profil suit.
           </p>
         </div>
       </section>

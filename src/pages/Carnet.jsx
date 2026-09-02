@@ -30,7 +30,7 @@ export default function Carnet() {
         const { data, error } = await supabase.rpc('get_my_carnet')
         if (!alive) return
         if (error) {
-          toast('Impossible de charger votre carnet — ' + (error.message || 'réessayez'), 'error')
+          toast('Impossible de charger ton carnet — ' + (error.message || 'réessayez'), 'error')
           return
         }
         setEntries(data || [])
@@ -145,10 +145,10 @@ function EmptyCarnet({ onWrite }) {
   return (
     <div style={{ padding: '54px 0', textAlign: 'center' }}>
       <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.5rem', color: 'rgba(28,24,20,0.75)', lineHeight: 1.5 }}>
-        Votre carnet est encore vierge.
+        Ton carnet est encore vierge.
       </p>
       <p style={{ fontSize: 13, color: 'rgba(28,24,20,0.5)', lineHeight: 1.7, marginTop: 10 }}>
-        Écrivez votre première ligne, elle s’inscrira ici.
+        Écris ta première ligne, elle s’inscrira ici.
       </p>
       <button
         onClick={onWrite}

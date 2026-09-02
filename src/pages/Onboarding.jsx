@@ -16,7 +16,7 @@ const CONSENT_VERSION = 'v2.0-ecriture'
 const MIN_ANSWERS = 2
 const MIN_TRAITS  = 8
 
-const ETAPES = ['Le principe', 'Qui vous êtes', 'Ce que vous écrivez', 'Ce qui vous ressemble']
+const ETAPES = ['Le principe', 'Qui tu es', 'Ce que tu écris', 'Ce qui te ressemble']
 
 export default function Onboarding() {
   const navigate     = useNavigate()
@@ -92,7 +92,7 @@ export default function Onboarding() {
         if (!error) break
       }
       if (erreurUpsert) {
-        setErreur('Erreur à l’enregistrement. Vérifiez votre connexion et réessayez.')
+        setErreur('Erreur à l’enregistrement. Vérifie ta connexion et réessaie.')
         return
       }
 
@@ -198,12 +198,12 @@ function EtapePrincipe({ accepte, setAccepte }) {
     <div style={{ marginTop: 24 }}>
       <Quill size={46} tone="or" style={{ marginBottom: 22 }} />
       <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.3rem', lineHeight: 1.65, color: 'rgba(242,238,230,0.9)' }}>
-        Ici, personne ne verra votre visage. On vous lira.
+        Ici, personne ne verra ton visage. On te lira.
       </p>
       <p style={{ fontSize: 13, lineHeight: 1.85, color: 'rgba(242,238,230,0.5)', marginTop: 16 }}>
-        Chaque jour, un mot. Vous écrivez la ligne qu’il fait remonter, et vous découvrez
-        celles des autres. Votre profil, ce sont vos réponses — il n’y a pas de photo à
-        téléverser, pas de case à cocher sur ce que vous cherchez.
+        Chaque jour, un mot. Tu écris la ligne qu’il fait remonter, et tu découvres
+        celles des autres. Ton profil, ce sont tes réponses — il n’y a pas de photo à
+        téléverser, pas de case à cocher sur ce que tu cherches.
       </p>
 
       <label className="flex items-start" style={{ gap: 12, marginTop: 28, cursor: 'pointer' }}>
@@ -246,7 +246,7 @@ function EtapeEcriture({ answers, setAnswers, ecrites }) {
     <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
       <p style={{ fontSize: 13, color: 'rgba(242,238,230,0.5)', lineHeight: 1.7 }}>
         Ces quatre réponses tiennent lieu de profil. Répondez-en au moins {MIN_ANSWERS} —
-        vous compléterez le reste quand ça viendra. ({ecrites} sur {PROFILE_PROMPTS.length})
+        tu compléteras le reste quand ça viendra. ({ecrites} sur {PROFILE_PROMPTS.length})
       </p>
       {PROFILE_PROMPTS.map(p => (
         <div key={p.slug}>
@@ -276,7 +276,7 @@ function ageValide(age) {
 
 function messageBlocage(step, ecrites, remplies) {
   if (step === 0) return 'Il faut accepter les conditions pour continuer.'
-  if (step === 1) return 'Un prénom, et un âge entre 18 et 120 si vous le donnez.'
+  if (step === 1) return 'Un prénom, et un âge entre 18 et 120 si tu le donnes.'
   if (step === 2) return `Répondez à au moins ${MIN_ANSWERS} questions — il y en a ${ecrites}.`
   return `Encore ${MIN_TRAITS - remplies} question${MIN_TRAITS - remplies > 1 ? 's' : ''} avant d’entrer.`
 }

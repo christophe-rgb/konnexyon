@@ -66,7 +66,7 @@ export default function MotDuJour() {
             « {myLine} »
           </p>
           <p style={{ fontSize: 13, color: 'rgba(242,238,230,0.45)', lineHeight: 1.75, marginTop: 18, maxWidth: 380 }}>
-            Votre ligne est déposée. Les autres vous sont ouvertes.
+            Ta ligne est déposée. Les autres te sont ouvertes.
           </p>
           <button onClick={() => navigate('/lire')} className="btn btn-continuer" style={{ marginTop: 30 }}>
             Lire ce qu’ils ont écrit
@@ -99,7 +99,7 @@ export default function MotDuJour() {
               lineHeight: 1.5,
               color: 'rgba(242,238,230,0.9)',
             }}>
-              Écris quelque chose que tu n’aurais jamais mis sur une photo.
+              Qu’est-ce que ce mot fait remonter ?
             </label>
 
             <textarea
@@ -160,7 +160,7 @@ export default function MotDuJour() {
             </button>
 
             <p style={{ fontSize: 11, color: 'rgba(242,238,230,0.32)', lineHeight: 1.7, textAlign: 'center' }}>
-              Une ligne par jour. Vous lirez les autres une fois la vôtre écrite.
+              Une ligne par jour. Tu liras les autres une fois la tienne écrite.
             </p>
           </div>
         </section>

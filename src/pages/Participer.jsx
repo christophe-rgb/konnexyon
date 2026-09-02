@@ -28,7 +28,7 @@ export default function Participer() {
   const participer = async e => {
     e.preventDefault()
     setErreur('')
-    if (!prenom.trim())        { setErreur('Votre prénom : c’est lui qui signera votre ligne.'); return }
+    if (!prenom.trim())        { setErreur('Ton prénom : c’est lui qui signera ta ligne.'); return }
     if (motDePasse.length < 8) { setErreur('Huit caractères au minimum pour le mot de passe.'); return }
 
     setEncours(true)
@@ -77,15 +77,15 @@ export default function Participer() {
             fontFamily: 'Cormorant, serif', fontWeight: 500,
             fontSize: 'clamp(1.8rem, 7vw, 2.4rem)', lineHeight: 1.15,
           }}>
-            À vous d’écrire
+            À toi d’écrire
           </h1>
 
           <p style={{ fontSize: 13, lineHeight: 1.8, color: 'rgba(242,238,230,0.55)', marginTop: 14 }}>
             {enAttente.length === 0
-              ? 'Un prénom, une adresse, un mot de passe. Et vous écrivez votre ligne du jour.'
+              ? 'Un prénom, une adresse, un mot de passe. Et tu écris ta ligne du jour.'
               : enAttente.length === 1
-                ? 'Une ligne vous a retenu. Votre compte créé, la connexion part.'
-                : `${enAttente.length} lignes vous ont retenu. Votre compte créé, les connexions partent.`}
+                ? 'Une ligne t’a retenu. Ton compte créé, la connexion part.'
+                : `${enAttente.length} lignes t’ont retenu. Ton compte créé, les connexions partent.`}
           </p>
         </div>
 
@@ -95,7 +95,7 @@ export default function Participer() {
             <input
               id="prenom" type="text" required autoComplete="given-name"
               value={prenom} onChange={e => setPrenom(e.target.value.slice(0, 40))}
-              placeholder="Celui qui signera votre ligne" style={champ}
+              placeholder="Celui qui signera ta ligne" style={champ}
             />
           </div>
 
@@ -133,7 +133,7 @@ export default function Participer() {
           </button>
 
           <p style={{ fontSize: 11, lineHeight: 1.75, color: 'rgba(242,238,230,0.35)', textAlign: 'center' }}>
-            En continuant, vous acceptez les{' '}
+            En continuant, tu acceptes les{' '}
             <Link to="/cgu" style={{ color: 'rgba(201,168,76,0.8)' }}>conditions</Link> et la{' '}
             <Link to="/confidentialite" style={{ color: 'rgba(201,168,76,0.8)' }}>politique de confidentialité</Link>.
           </p>

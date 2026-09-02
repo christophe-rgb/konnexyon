@@ -68,7 +68,7 @@ export default function Personne() {
     setWriting(true)
     try {
       const ok = await connect(id)
-      if (ok) toast(`Votre intérêt est parti. Vous pourrez écrire dès que ${page?.display_name} répondra.`)
+      if (ok) toast(`Ton intérêt est parti. Tu pourras écrire dès que ${page?.display_name} répondra.`)
     } finally {
       setWriting(false)
     }
@@ -88,7 +88,7 @@ export default function Personne() {
     setMenu(false)
     const ok = await confirm({
       title: 'Bloquer cette personne',
-      message: 'Vous ne verrez plus ses écrits, et elle ne verra plus les vôtres. Continuer ?',
+      message: 'Tu ne verras plus ses écrits, et elle ne verra plus les tiens. Continuer ?',
       confirmLabel: 'Bloquer',
       danger: true,
     })

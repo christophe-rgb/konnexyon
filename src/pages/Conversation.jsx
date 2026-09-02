@@ -212,7 +212,7 @@ export default function Conversation() {
             value={text}
             onChange={e => setText(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() } }}
-            placeholder="Votre message…"
+            placeholder="Ton message…"
             rows={1}
             disabled={sending}
             style={{

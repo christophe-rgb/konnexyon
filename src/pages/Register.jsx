@@ -18,7 +18,7 @@ export default function Register() {
     setLoading(true)
     const { data, error: err } = await supabase.auth.signUp({ email: form.email, password: form.password })
     if (err) { setError(err.message); setLoading(false); return }
-    if (!data.user) { setError('Compte déjà existant. Connectez-vous ou réinitialisez votre mot de passe.'); setLoading(false); return }
+    if (!data.user) { setError('Compte déjà existant. Connecte-toi ou réinitialise ton mot de passe.'); setLoading(false); return }
     // display_name est not null en base : l'onboarding le remplacera par
     // le prénom choisi, on pose une valeur d'attente d'ici là
     await supabase.from('profiles').insert({
@@ -60,7 +60,7 @@ export default function Register() {
             Créer ma connexion
           </span>
           <p style={{ fontSize: '12px', color: 'rgba(28,24,20,0.9)', marginTop: '6px', letterSpacing: '0.05em' }}>
-            Connectez-vous à ceux qui vous correspondent
+            Connecte-toi à ceux qui te correspondent
           </p>
         </div>
 

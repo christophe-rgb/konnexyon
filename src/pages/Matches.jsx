@@ -111,7 +111,7 @@ export default function Matches() {
             backgroundClip: 'text',
             letterSpacing: '0.03em',
           }}>
-            Vos connexions
+            Tes connexions
           </h1>
           {!loading && matches.length > 0 && (
             <p style={{ fontSize: '11px', color: 'rgba(201,168,76,1)', letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: '2px' }}>
@@ -201,7 +201,7 @@ function EmptyState() {
       </div>
 
       <div style={{ fontSize: '10px', letterSpacing: '0.18em', color: 'rgba(201,168,76,1)', textTransform: 'uppercase' }}>
-        Ceux dont les mots vous ont retenu
+        Ceux dont les mots t’ont retenu
       </div>
     </div>
   )
