@@ -34,7 +34,8 @@ export default function Home() {
         const lignes = apercu?.data
         if (lignes?.length) {
           setCartes(lignes.map((l) => ({
-            id: l.auteur, word: l.mot, line: l.ligne, pseudo: l.prenom,
+            // le mot est deja annonce au-dessus de la pile
+            id: l.auteur, line: l.ligne, pseudo: l.prenom,
           })))
         }
       })
@@ -110,10 +111,10 @@ export default function Home() {
           )}
         </div>
 
-        {/* la pile est sur fond encre, comme dans l'app : le visiteur voit
-            exactement ce qu'il aura */}
-        <div className="ink animate-fade-in" style={{
-          marginTop: 28, padding: '10px 0 22px',
+        {/* la pile est sur papier : la ligne d'un inconnu se lit comme sur
+            une feuille posee, pas dans un cadre noir plante au milieu */}
+        <div className="animate-fade-in" style={{
+          marginTop: 'clamp(16px, 3vw, 26px)', padding: '4px 0 10px',
           animationFillMode: 'both', animationDelay: '120ms',
           maxWidth: 520, marginInline: 'auto',
         }}>
@@ -125,6 +126,7 @@ export default function Home() {
           ) : (
             <Suspense fallback={<div style={{ height: 380 }} />}>
               <SwipeStack
+                ton="papier"
                 profiles={cartes}
                 counterLabel="Un aperçu de ce qui s’écrit aujourd’hui"
                 onLike={auteur => {

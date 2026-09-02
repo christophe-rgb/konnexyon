@@ -11,8 +11,16 @@ const THRESHOLD = 70
  * c'est lui qu'on connecte. Le mot est recopié dans chaque item, toutes
  * les lignes du jour répondant au même.
  */
-export default function SwipeStack({ profiles, onLike, onPass, counterLabel, vide }) {
-  const cardBg      = '#0D0D0D'
+export default function SwipeStack({ profiles, onLike, onPass, counterLabel, vide, ton = 'encre' }) {
+  // 'encre' dans l'application, ou la pile est chez elle sur fond sombre ;
+  // 'papier' sur l'accueil, ou la ligne se lit comme sur une feuille posee.
+  const papier      = ton === 'papier'
+  const cardBg      = papier ? '#FBF8F3' : '#0D0D0D'
+  const filet       = papier ? 'rgba(11,11,11,0.10)'   : 'rgba(201,168,76,0.1)'
+  const filetActif  = papier ? 'rgba(160,120,48,0.30)' : 'rgba(201,168,76,0.25)'
+  const ombre       = papier
+    ? '0 18px 44px rgba(11,11,11,0.10), 0 2px 6px rgba(11,11,11,0.05)'
+    : '0 16px 48px rgba(0,0,0,0.18), 0 0 0 1px rgba(201,168,76,0.15)'
   const stackHeight = 'min(430px, calc(100dvh - 380px))'
   const [index,  setIndex]  = useState(0)
   const [drag,   setDrag]   = useState({ x: 0, y: 0 })
@@ -65,7 +73,7 @@ export default function SwipeStack({ profiles, onLike, onPass, counterLabel, vid
   const handleLike = () => { if (!flying) triggerFly('right') }
   const handlePass = () => { if (!flying) triggerFly('left')  }
 
-  if (!current) return <EmptySwipe vide={vide} />
+  if (!current) return <EmptySwipe vide={vide} papier={papier} />
 
   const dx  = flying === 'right' ? 700 : flying === 'left' ? -700 : drag.x
   const dy  = flying ? 0 : drag.y * 0.25
@@ -82,15 +90,15 @@ export default function SwipeStack({ profiles, onLike, onPass, counterLabel, vid
 
         {/* carte 3 */}
         {nextnext && (
-          <div style={{ position: 'absolute', inset: 0, borderRadius: 24, overflow: 'hidden', transform: 'scale(0.88) translateY(16px)', transformOrigin: 'bottom center', border: '1px solid rgba(201,168,76,0.1)', background: cardBg }}>
-            <CardWord item={nextnext} />
+          <div style={{ position: 'absolute', inset: 0, borderRadius: 24, overflow: 'hidden', transform: 'scale(0.88) translateY(16px)', transformOrigin: 'bottom center', border: `1px solid ${filet}`, background: cardBg }}>
+            <CardWord item={nextnext} papier={papier} />
           </div>
         )}
 
         {/* carte 2 */}
         {next && (
-          <div style={{ position: 'absolute', inset: 0, borderRadius: 24, overflow: 'hidden', transform: 'scale(0.94) translateY(8px)', transformOrigin: 'bottom center', border: '1px solid rgba(201,168,76,0.1)', background: cardBg }}>
-            <CardWord item={next} />
+          <div style={{ position: 'absolute', inset: 0, borderRadius: 24, overflow: 'hidden', transform: 'scale(0.94) translateY(8px)', transformOrigin: 'bottom center', border: `1px solid ${filet}`, background: cardBg }}>
+            <CardWord item={next} papier={papier} />
           </div>
         )}
 
@@ -111,12 +119,12 @@ export default function SwipeStack({ profiles, onLike, onPass, counterLabel, vid
             transition: isFlying ? 'transform 0.38s cubic-bezier(0.4,0,1,1)' : activeRef.current ? 'none' : 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94)',
             userSelect: 'none',
             touchAction: 'none',
-            border: '1px solid rgba(201,168,76,0.25)',
-            boxShadow: '0 16px 48px rgba(0,0,0,0.18), 0 0 0 1px rgba(201,168,76,0.15)',
-            background: true ? cardBg : '#F0EBE2',
+            border: `1px solid ${filetActif}`,
+            boxShadow: ombre,
+            background: cardBg,
           }}
         >
-          <CardWord item={current} />
+          <CardWord item={current} papier={papier} />
 
           {/* label CONNEXION */}
           <div style={{
@@ -158,7 +166,7 @@ export default function SwipeStack({ profiles, onLike, onPass, counterLabel, vid
       </div>
 
       {/* compteur */}
-      <p style={{ fontSize: 11, letterSpacing: '0.14em', color: 'rgba(201,168,76,1)', textTransform: 'uppercase' }}>
+      <p style={{ fontSize: 11, letterSpacing: '0.14em', color: papier ? 'rgba(146,108,38,0.95)' : 'rgba(201,168,76,1)', textTransform: 'uppercase' }}>
         {counterLabel ?? `${profiles.length - index} connexion${profiles.length - index > 1 ? 's' : ''} restante${profiles.length - index > 1 ? 's' : ''}`}
       </p>
 
@@ -180,34 +188,43 @@ export default function SwipeStack({ profiles, onLike, onPass, counterLabel, vid
 // L'item porte son propre `word` — toutes les lignes du jour répondent au même
 // mot, la page le recopie dans chaque item plutôt que de le faire traverser
 // SwipeStack en prop.
-function CardWord({ item }) {
+function CardWord({ item, papier }) {
   return (
     <div style={{
       width: '100%', height: '100%',
       display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center',
       gap: 26, padding: '36px 28px', textAlign: 'center',
-      background: 'radial-gradient(ellipse at 50% 28%, rgba(201,168,76,0.10), transparent 62%), #0D0D0D',
+      background: papier
+        ? 'radial-gradient(ellipse at 50% 26%, rgba(201,168,76,0.09), transparent 64%), #FBF8F3'
+        : 'radial-gradient(ellipse at 50% 28%, rgba(201,168,76,0.10), transparent 62%), #0D0D0D',
     }}>
-      {/* le mot */}
-      <h2 className="shine-text" style={{
-        fontFamily: 'Cormorant, serif',
-        fontSize: 'clamp(2.4rem, 11vw, 3.6rem)',
-        fontWeight: 600, lineHeight: 1.05,
-        letterSpacing: '0.02em',
-      }}>
-        {item.word}
-      </h2>
+      {/* Le mot, quand la carte doit le porter. Sur l'accueil il est deja
+          annonce au-dessus de la pile : le repeter sur chaque carte en
+          faisait le sujet, alors que le sujet est la phrase. */}
+      {item.word && (
+        <>
+          <h2 className={papier ? undefined : 'shine-text'} style={{
+            color: papier ? 'var(--or)' : undefined,
+            fontFamily: 'Cormorant, serif',
+            fontSize: 'clamp(2.4rem, 11vw, 3.6rem)',
+            fontWeight: 600, lineHeight: 1.05,
+            letterSpacing: '0.02em',
+          }}>
+            {item.word}
+          </h2>
 
-      <div style={{ width: 46, height: 1, background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.55), transparent)' }} />
+          <div style={{ width: 46, height: 1, background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.55), transparent)' }} />
+        </>
+      )}
 
       {/* la ligne écrite par un autre membre */}
       <p style={{
         fontFamily: 'Cormorant, serif',
-        fontSize: 'clamp(1.15rem, 4.6vw, 1.5rem)',
+        fontSize: papier ? 'clamp(1.3rem, 5vw, 1.75rem)' : 'clamp(1.15rem, 4.6vw, 1.5rem)',
         fontStyle: 'italic',
         lineHeight: 1.55,
-        color: 'rgba(245,240,232,0.94)',
+        color: papier ? 'rgba(11,11,11,0.86)' : 'rgba(245,240,232,0.94)',
         maxWidth: 300,
       }}>
         {item.line}
@@ -217,12 +234,12 @@ function CardWord({ item }) {
       <div>
         <p style={{
           fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase',
-          color: 'rgba(201,168,76,0.85)',
+          color: papier ? 'rgba(146,108,38,0.95)' : 'rgba(201,168,76,0.85)',
         }}>
           {item.pseudo}
         </p>
         {item.compatibility != null && (
-          <p style={{ fontSize: 10, letterSpacing: '0.1em', color: 'rgba(242,238,230,0.4)', marginTop: 6 }}>
+          <p style={{ fontSize: 10, letterSpacing: '0.1em', color: papier ? 'rgba(11,11,11,0.42)' : 'rgba(242,238,230,0.4)', marginTop: 6 }}>
             {item.compatibility} % de compatibilité
           </p>
         )}
@@ -257,16 +274,16 @@ function ActionBtn({ onClick, children, aria, gold }) {
   )
 }
 
-function EmptySwipe({ vide }) {
+function EmptySwipe({ vide, papier }) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20, padding: '0 32px', textAlign: 'center' }}>
       <div style={{ width: 72, height: 72, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle, rgba(201,168,76,0.1), transparent)', border: '1px solid rgba(201,168,76,0.1)' }}>
         <Feather size={28} strokeWidth={1} style={{ color: 'rgba(201,168,76,1)' }} />
       </div>
-      <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.5rem', color: 'rgba(245,240,232,0.92)' }}>
+      <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.5rem', color: papier ? 'rgba(11,11,11,0.86)' : 'rgba(245,240,232,0.92)' }}>
         {vide?.titre ?? 'Vous avez lu toutes les lignes du jour'}
       </p>
-      <p style={{ fontSize: 13, color: 'rgba(245,240,232,0.55)', lineHeight: 1.6 }}>
+      <p style={{ fontSize: 13, color: papier ? 'rgba(11,11,11,0.5)' : 'rgba(245,240,232,0.55)', lineHeight: 1.6 }}>
         {vide?.texte ?? 'Revenez demain : un nouveau mot, de nouvelles lignes.'}
       </p>
     </div>
