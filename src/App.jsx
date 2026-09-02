@@ -49,7 +49,13 @@ const PageLoader = () => (
  */
 function AccueilOuApp() {
   const { user, profile, loading } = useAuthStore()
-  if (!loading && user && profile?.email_1_confirmed) {
+  const { search } = useLocation()
+
+  // konnexyon.com/?apercu montre la page publique meme connecte. Sans
+  // cela, il fallait se deconnecter pour relire son propre accueil.
+  const forcerApercu = new URLSearchParams(search).has('apercu')
+
+  if (!forcerApercu && !loading && user && profile?.email_1_confirmed) {
     return <Navigate to="/lire" replace />
   }
   return <Home />
