@@ -42,32 +42,9 @@ $$;
 
 grant execute on function public.get_apercu_du_jour(int) to anon, authenticated;
 
--- Le titre de l accueil annonce le mot du jour. Il ne peut plus le
--- deduire de la premiere ligne renvoyee, puisque celle-ci peut venir
--- d hier : on le demande directement, sans ouvrir la table daily_words
--- aux visiteurs.
-drop function if exists public.get_mot_public();
-
-create function public.get_mot_public()
-returns text
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select w.word
-  from public.daily_words w
-  where w.publish_date <= current_date
-  order by w.publish_date desc
-  limit 1;
-$$;
-
-grant execute on function public.get_mot_public() to anon, authenticated;
-
 commit;
 
 -- Controle : ce que verra reellement un visiteur.
 select
   (select count(*) from public.word_responses)                as lignes_en_base,
-  (select count(*) from public.get_apercu_du_jour(6))         as lignes_en_vitrine,
-  public.get_mot_public()                                     as mot_affiche;
+  (select count(*) from public.get_apercu_du_jour(6))         as lignes_en_vitrine;

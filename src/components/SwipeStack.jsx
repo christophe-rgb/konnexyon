@@ -263,13 +263,11 @@ function EmptySwipe({ vide }) {
       <div style={{ width: 72, height: 72, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle, rgba(201,168,76,0.1), transparent)', border: '1px solid rgba(201,168,76,0.1)' }}>
         <Feather size={28} strokeWidth={1} style={{ color: 'rgba(201,168,76,1)' }} />
       </div>
-      <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.5rem', color: true ? 'rgba(245,240,232,0.92)' : 'rgba(28,24,20,0.9)' }}>
-        {'Vous avez lu toutes les lignes du jour'}
+      <p style={{ fontFamily: 'Cormorant, serif', fontSize: '1.5rem', color: 'rgba(245,240,232,0.92)' }}>
+        {vide?.titre ?? 'Vous avez lu toutes les lignes du jour'}
       </p>
-      <p style={{ fontSize: 13, color: true ? 'rgba(245,240,232,0.55)' : 'rgba(28,24,20,0.9)', lineHeight: 1.6 }}>
-        {true
-          ? 'Revenez demain : un nouveau mot, de nouvelles lignes.'
-          : 'Élargissez la distance ou modifiez vos filtres.'}
+      <p style={{ fontSize: 13, color: 'rgba(245,240,232,0.55)', lineHeight: 1.6 }}>
+        {vide?.texte ?? 'Revenez demain : un nouveau mot, de nouvelles lignes.'}
       </p>
     </div>
   )

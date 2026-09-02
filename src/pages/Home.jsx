@@ -24,13 +24,13 @@ export default function Home() {
     let vivant = true
     Promise.all([
       supabase.rpc('get_apercu_du_jour', { p_limite: 6 }),
-      supabase.rpc('get_mot_public'),
+      supabase.rpc('get_word_of_the_day'),
     ])
       .then(([apercu, motDuJour]) => {
         if (!vivant) return
-        // Le mot affiche en titre est celui d'aujourd'hui, meme quand la
-        // pile se complete avec les lignes des jours precedents.
-        if (motDuJour?.data) setMot(motDuJour.data)
+        // Le mot annonce est celui d'aujourd'hui, meme quand la pile se
+        // complete avec les lignes des jours precedents.
+        if (motDuJour?.data?.[0]?.word) setMot(motDuJour.data[0].word)
         const lignes = apercu?.data
         if (lignes?.length) {
           setCartes(lignes.map((l) => ({
@@ -46,11 +46,16 @@ export default function Home() {
   return (
     <div style={{ minHeight: '100dvh', background: 'var(--ivoire)', color: 'var(--encre)', overflowX: 'hidden' }}>
 
+      {/* ── le premier ecran, entier : on arrive sur le swipe ── */}
+      <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>
+
       {/* ── barre ── */}
       <header style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '20px clamp(20px, 5vw, 56px)',
-        maxWidth: 1180, margin: '0 auto',
+        // width explicite : dans une colonne flex, "margin: 0 auto" retrecit
+        // l element a son contenu au lieu de l etirer, et la barre se pliait
+        width: '100%', maxWidth: 1180, margin: '0 auto',
       }}>
         <Link to="/" aria-label="Konnexyon, accueil">
           <Wordmark size={22} tone="encre" />
@@ -62,10 +67,12 @@ export default function Home() {
         </nav>
       </header>
 
-      {/* ── la pile : on montre avant d'expliquer ── */}
+      {/* ── la pile : elle occupe tout ce qui reste de l'ecran ── */}
       <section style={{
-        maxWidth: 1180, margin: '0 auto',
-        padding: 'clamp(18px, 4vw, 44px) clamp(20px, 5vw, 56px) clamp(40px, 7vw, 72px)',
+        flex: 1,
+        display: 'flex', flexDirection: 'column', justifyContent: 'center',
+        width: '100%', maxWidth: 1180, margin: '0 auto',
+        padding: 'clamp(12px, 3vw, 30px) clamp(20px, 5vw, 56px) clamp(24px, 4vw, 44px)',
       }}>
         <div className="animate-fade-in-up" style={{ animationFillMode: 'both', textAlign: 'center', maxWidth: 640, margin: '0 auto' }}>
           <h1 style={{
@@ -83,9 +90,23 @@ export default function Home() {
           </h1>
 
           {mot && (
-            <p style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(11,11,11,0.4)', marginTop: 18 }}>
-              Aujourd’hui, on écrit sur&nbsp;: <span style={{ color: 'var(--or)' }}>{mot}</span>
-            </p>
+            <div style={{ marginTop: 'clamp(20px, 4vw, 34px)' }}>
+              <p style={{
+                fontSize: 11, letterSpacing: '0.24em', textTransform: 'uppercase',
+                color: 'rgba(11,11,11,0.38)',
+              }}>
+                Le mot du jour
+              </p>
+              <p className="shine-text" style={{
+                fontFamily: 'Cormorant, serif',
+                fontSize: 'clamp(2.4rem, 9vw, 4rem)',
+                fontWeight: 500, lineHeight: 1.05,
+                color: 'var(--or)',
+                marginTop: 6,
+              }}>
+                {mot}
+              </p>
+            </div>
           )}
         </div>
 
@@ -132,6 +153,7 @@ export default function Home() {
           </p>
         </div>
       </section>
+      </div>
 
       {/* ── la papeterie ── */}
 
