@@ -202,7 +202,7 @@ export default function Profile() {
                 Elle est ici, nommee, au bout de sa propre page. */}
             <div style={{ textAlign: 'center', padding: '30px 0 8px' }}>
               <button
-                onClick={async () => { await signOut(); navigate('/login') }}
+                onClick={async () => { await signOut(); navigate('/') }}
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 9,
                   background: 'none', border: 'none', cursor: 'pointer',

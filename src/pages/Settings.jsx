@@ -50,7 +50,9 @@ export default function Settings() {
 
   const logout = async () => {
     await signOut()
-    navigate('/login')
+    // On sort vers la vitrine, pas vers un formulaire : quelqu'un qui se
+    // deconnecte redevient un visiteur, il n'est pas en train de revenir.
+    navigate('/')
   }
 
   return (
